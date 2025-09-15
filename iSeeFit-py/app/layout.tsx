@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: '商业智能仪表板',
-  description: '使用Next.js和TypeScript构建的响应式商业智能仪表板',
+  title: 'Business Intelligence Dashboard',
+  description: 'A responsive BI dashboard built with Next.js and TypeScript',
 }
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>{children}</body>
     </html>
   )

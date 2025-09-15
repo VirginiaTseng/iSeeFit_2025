@@ -1,122 +1,122 @@
-# iSeeFit - AI 智能食物识别与卡路里分析应用
+# iSeeFit - AI Food Recognition and Calorie Analysis App
 
-## 项目概述
+## Project Overview
 
-iSeeFit 是一个基于 AI 的 web 应用，通过拍照识别食物并自动计算卡路里和营养成分。应用使用 OpenAI 的 GPT-4 Vision 模型进行食物识别和分析。
+iSeeFit is an AI-powered web app that recognizes food from photos and automatically estimates calories and nutritional components. It uses OpenAI's GPT-4 Vision model for food recognition and analysis.
 
-## 功能特性
+## Features
 
-### 1. 图片捕获与上传 ✅
-- **R1.1**: 相机接口，支持拍照和文件选择
-- **R1.2**: 预览确认界面，包含重拍和确认选项  
-- **R1.3**: 图片上传到后端 AI 端点，显示加载状态
+### 1. Image capture and upload ✅
+- **R1.1**: Camera interface, supports taking photos and selecting files
+- **R1.2**: Preview confirmation screen with retake and confirm options  
+- **R1.3**: Uploads image to backend AI endpoint with loading state
 
-### 2. AI 识别与营养分析
-- 使用 OpenAI GPT-4 Vision 模型分析食物图片
-- 识别食物成分和营养成分
-- 计算总卡路里和健康评分
-- 提供详细的成分分析
+### 2. AI recognition and nutrition analysis
+- Uses OpenAI GPT-4 Vision to analyze food images
+- Recognizes food items and nutritional components
+- Calculates total calories and a health score
+- Provides detailed ingredient analysis
 
-## 技术栈
+## Tech Stack
 
-### 前端
+### Frontend
 - React 18 + TypeScript
-- Vite (构建工具)
-- Axios (HTTP 客户端)
-- CSS3 (样式)
+- Vite (build tool)
+- Axios (HTTP client)
+- CSS3 (styling)
 
-### 后端
+### Backend
 - Node.js + Express
 - TypeScript
 - OpenAI API
-- Multer (文件上传)
-- CORS (跨域支持)
+- Multer (file upload)
+- CORS (cross-origin support)
 
-## 项目结构
+## Project Structure
 
 ```
 iSeeFit/
-├── iSeeFit-frontend/          # React 前端应用
+├── iSeeFit-frontend/          # React frontend app
 │   ├── src/
-│   │   ├── components/        # React 组件
-│   │   │   ├── CameraCapture.tsx    # 相机捕获组件
+│   │   ├── components/        # React components
+│   │   │   ├── CameraCapture.tsx    # camera capture component
 │   │   │   ├── CameraCapture.css
-│   │   │   ├── ImagePreview.tsx     # 图片预览组件
+│   │   │   ├── ImagePreview.tsx     # image preview component
 │   │   │   └── ImagePreview.css
-│   │   ├── services/          # API 服务
+│   │   ├── services/          # API services
 │   │   │   └── apiService.ts
-│   │   ├── App.tsx           # 主应用组件
+│   │   ├── App.tsx           # main app component
 │   │   └── App.css
 │   └── package.json
-├── iSeeFit-backend/           # Node.js 后端 API
+├── iSeeFit-backend/           # Node.js backend API
 │   ├── src/
 │   │   ├── services/
-│   │   │   └── openaiService.ts     # OpenAI 服务
-│   │   └── index.ts          # 主服务器文件
-│   ├── uploads/              # 图片上传目录
+│   │   │   └── openaiService.ts     # OpenAI service
+│   │   └── index.ts          # main server file
+│   ├── uploads/              # image upload directory
 │   └── package.json
 └── README.md
 ```
 
-## 快速开始
+## Quick Start
 
-### 1. 环境准备
+### 1. Prerequisites
 
-确保已安装：
-- Node.js (推荐 v18+)
-- npm 或 yarn
+Make sure you have:
+- Node.js (v18+ recommended)
+- npm or yarn
 
-### 2. 后端设置
+### 2. Backend setup
 
 ```bash
 cd iSeeFit-backend
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 创建环境配置文件
+# Create environment file
 cp .env.example .env
 
-# 编辑 .env 文件，添加你的 OpenAI API Key
+# Edit .env and add your OpenAI API Key
 # OPENAI_API_KEY=your_actual_api_key_here
 
-# 启动后端服务
+# Start backend
 npm run dev
 ```
 
-后端服务将在 http://localhost:3001 运行
+Backend will run at http://localhost:3001
 
-### 3. 前端设置
+### 3. Frontend setup
 
 ```bash
 cd iSeeFit-frontend
 
-# 安装依赖
+# Install dependencies
 npm install
 
-# 启动开发服务器
+# Start dev server
 npm run dev
 ```
 
-前端应用将在 http://localhost:5173 运行
+Frontend will run at http://localhost:5173
 
-## API 接口
+## API Endpoints
 
 ### POST /api/recognize
-上传图片进行食物识别
+Upload image for food recognition
 
-**请求:**
+**Request:**
 - Content-Type: multipart/form-data
-- Body: image (文件)
+- Body: image (file)
 
-**响应:**
+**Response:**
 ```json
 {
-  "title": "食物名称",
+  "title": "Food Name",
   "ingredients": [
     {
-      "name": "成分名称",
-      "description": "成分描述",
+      "name": "Ingredient Name",
+      "description": "Ingredient description",
       "caloriesPerGram": 4.2,
       "totalGrams": 150,
       "totalCalories": 630
@@ -128,9 +128,9 @@ npm run dev
 ```
 
 ### GET /api/health
-健康检查端点
+Health check endpoint
 
-**响应:**
+**Response:**
 ```json
 {
   "status": "OK",
@@ -139,39 +139,39 @@ npm run dev
 }
 ```
 
-## 使用说明
+## Usage
 
-1. **启动相机**: 点击"启动相机"按钮，允许浏览器访问摄像头
-2. **拍照**: 对准食物，点击"拍照"按钮
-3. **预览确认**: 查看拍摄的图片，选择"重拍"或"确认分析"
-4. **AI 分析**: 系统将图片发送到 OpenAI 进行分析
-5. **查看结果**: 查看详细的营养成分和卡路里分析
+1. **Start camera**: Click "Start Camera" and allow browser camera access
+2. **Take photo**: Aim at the food and click "Take Photo"
+3. **Preview**: Review the image, choose "Retake" or "Confirm Analysis"
+4. **AI analysis**: The image is sent to OpenAI for analysis
+5. **View results**: See detailed nutrition and calorie analysis
 
-## 开发说明
+## Development Notes
 
-### 调试日志
-所有组件都包含详细的调试日志，便于开发和调试：
-- 相机操作日志
-- API 调用日志
-- 错误处理日志
+### Debug logs
+All components include detailed debug logs to aid development and debugging:
+- Camera operation logs
+- API call logs
+- Error handling logs
 
-### 错误处理
-- 相机权限错误处理
-- 文件上传错误处理
-- API 调用错误处理
-- 网络连接错误处理
+### Error handling
+- Camera permission errors
+- File upload errors
+- API request errors
+- Network connection errors
 
-## 注意事项
+## Notes
 
-1. 需要有效的 OpenAI API Key
-2. 需要 HTTPS 环境才能使用相机功能（生产环境）
-3. 图片文件大小限制为 10MB
-4. 支持常见图片格式 (JPEG, PNG, WebP 等)
+1. A valid OpenAI API Key is required
+2. HTTPS is required for camera access in production
+3. Image file size limit: 10MB
+4. Supported formats: JPEG, PNG, WebP
 
-## 下一步开发
+## Next Steps
 
-- [ ] 历史记录功能
-- [ ] 用户账户系统
-- [ ] 数据持久化
-- [ ] 移动端优化
-- [ ] 离线功能
+- [ ] History feature
+- [ ] User account system
+- [ ] Data persistence
+- [ ] Mobile optimizations
+- [ ] Offline support

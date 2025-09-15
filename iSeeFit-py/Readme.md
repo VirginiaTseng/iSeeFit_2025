@@ -1,97 +1,97 @@
-# 商业智能仪表板
+# Business Intelligence Dashboard
 
-这是一个使用 Next.js 和 TypeScript 构建的响应式商业智能仪表板。
+This is a responsive Business Intelligence dashboard built with Next.js and TypeScript.
 
-## 功能特点
+## Features
 
-- 📊 **实时KPI监控**: 显示总用户数、交易量、收入和增长率
-- 📈 **时间序列图表**: 可视化性能趋势，支持收入、用户数、交易数切换
-- 📊 **渠道分析**: 水平柱状图显示各渠道表现
-- 🌍 **地理分布**: 显示不同国家的收入和用户分布
-- 🎛️ **侧边导航栏**: 可折叠的左侧导航栏
-- 📱 **响应式设计**: 适配移动端和桌面端
-- 🔄 **模拟实时数据**: 每10秒自动更新数据
+- 📊 **Real-time KPI monitoring**: shows total users, transactions, revenue, and growth rate
+- 📈 **Time series chart**: visualizes performance trends with metric switching
+- 📊 **Channel analysis**: horizontal bar chart for channel performance
+- 🌍 **Geographic distribution**: revenue and users by country
+- 🎛️ **Sidebar navigation**: collapsible left sidebar
+- 📱 **Responsive design**: mobile and desktop friendly
+- 🔄 **Simulated real-time data**: updates every 10 seconds
 
-## 技术栈
+## Tech Stack
 
-- **框架**: Next.js 14
-- **语言**: TypeScript
-- **样式**: Tailwind CSS
-- **图表库**: Recharts
-- **图标**: Lucide React
+- **Framework**: Next.js 14
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **Icons**: Lucide React
 
-## 安装和运行
+## Install and Run
 
-1. 安装依赖：
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. 运行开发服务器：
+2. Start the dev server:
 ```bash
 npm run dev
 ```
 
-3. 打开浏览器访问 [http://localhost:3000](http://localhost:3000)
+3. Open [http://localhost:3000](http://localhost:3000)
 
-## 项目结构
+## Project Structure
 
 ```
 ├── app/
-│   ├── layout.tsx      # 应用布局
-│   ├── page.tsx        # 主页面
-│   └── globals.css     # 全局样式
-├── dashboard.tsx       # 仪表板主组件
-├── package.json        # 项目依赖
-├── tailwind.config.js  # Tailwind配置
-├── tsconfig.json       # TypeScript配置
-└── next.config.js      # Next.js配置
+│   ├── layout.tsx      # App layout
+│   ├── page.tsx        # Main page
+│   └── globals.css     # Global styles
+├── dashboard.tsx       # Dashboard component
+├── package.json        # Dependencies
+├── tailwind.config.js  # Tailwind config
+├── tsconfig.json       # TypeScript config
+└── next.config.js      # Next.js config
 ```
 
-## 主要组件
+## Key Components
 
-### KPI卡片
-- 显示关键业务指标
-- 包含变化趋势和百分比
-- 彩色图标和动画效果
+### KPI Cards
+- Display key business metrics
+- Include trend and percentage change
+- Colored icons and motion effects
 
-### 时间序列图表
-- 30天历史数据展示
-- 支持收入/用户数/交易数切换
-- 交互式工具提示
+### Time Series Chart
+- 30-day historical data
+- Switch between revenue/users/transactions
+- Interactive tooltip
 
-### 渠道分析图表
-- 水平柱状图
-- 显示各销售渠道表现
-- 彩色编码区分渠道
+### Channel Analysis Chart
+- Horizontal bar chart
+- Channel performance comparison
+- Color coding by channel
 
-### 地理分布
-- 列表形式显示国家数据
-- 饼图可视化收入分布
-- 实时数据更新
+### Geographic Distribution
+- Country list with metrics
+- Pie chart revenue distribution
+- Real-time data updates
 
-## 自定义和扩展
+## Customization and Extension
 
-### 修改数据源
-在 `dashboard.tsx` 中的以下函数中修改数据：
-- `generateTimeSeriesData()`: 时间序列数据
-- `channelData`: 渠道数据
-- `countryData`: 国家数据
+### Modify data source
+Edit the following in `dashboard.tsx`:
+- `generateTimeSeriesData()`: time-series data
+- `channelData`: channel data
+- `countryData`: country data
 
-### 添加新的KPI
-在 `calculateKPIs()` 函数中添加新的指标。
+### Add new KPIs
+Add metrics in the `calculateKPIs()` function.
 
-### 自定义样式
-修改 `tailwind.config.js` 或在组件中使用自定义CSS类。
+### Customize styles
+Edit `tailwind.config.js` or use custom CSS classes in components.
 
-## 构建生产版本
+## Build for Production
 
 ```bash
 npm run build
 npm start
 ```
 
-## 许可证
+## License
 
 MIT License
 

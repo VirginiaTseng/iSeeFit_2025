@@ -38,18 +38,18 @@ export async function recognizeFood(imagePath: string): Promise<FoodRecognitionR
     if (!openai) {
       console.warn('[openaiService] OPENAI_API_KEY not set, returning mock analysis result'); // Debug log
       const mock: FoodRecognitionResult = {
-        title: '示例菜品 (本地模拟)',
+        title: 'Sample Dish (Local Mock)',
         ingredients: [
           {
-            name: '白米饭',
-            description: '一小碗熟米饭',
+            name: 'White Rice',
+            description: 'A small bowl of cooked rice',
             caloriesPerGram: 1.3,
             totalGrams: 150,
             totalCalories: Math.round(1.3 * 150)
           },
           {
-            name: '煎鸡胸肉',
-            description: '去皮鸡胸肉，少量油煎',
+            name: 'Pan-seared Chicken Breast',
+            description: 'Skinless chicken breast, pan-seared with minimal oil',
             caloriesPerGram: 1.65,
             totalGrams: 120,
             totalCalories: Math.round(1.65 * 120)

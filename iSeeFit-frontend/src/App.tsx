@@ -5,11 +5,11 @@ import ImagePreview from './components/ImagePreview';
 import { recognizeFood, type FoodRecognitionResult } from './services/apiService';
 
 /**
- * 主应用组件 - 整合图片捕获和上传功能
- * 实现 R1.1, R1.2, R1.3 所有要求
+ * Main application component - integrates image capture and upload flow
+ * Implements requirements R1.1, R1.2, R1.3
  */
 function App() {
-  // 状态管理
+  // State management
   const [currentView, setCurrentView] = useState<'camera' | 'preview' | 'results'>('camera');
   const [capturedImage, setCapturedImage] = useState<string>('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -18,8 +18,8 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * 处理图片捕获 (R1.1)
-   * 从相机捕获的 base64 图片数据
+   * Handle image capture (R1.1)
+   * Base64 image data captured from the camera
    */
   const handleImageCapture = useCallback((imageData: string) => {
     console.log('Image captured from camera'); // Debug log
@@ -30,13 +30,13 @@ function App() {
   }, []);
 
   /**
-   * 处理文件选择 (R1.1)
-   * 用户选择的图片文件
+   * Handle file selection (R1.1)
+   * The image file selected by the user
    */
   const handleImageSelect = useCallback((file: File) => {
     console.log('File selected:', file.name); // Debug log
     
-    // 将文件转换为 base64 用于预览
+    // Convert file to base64 for preview
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
@@ -49,8 +49,8 @@ function App() {
   }, []);
 
   /**
-   * 处理重拍操作 (R1.2)
-   * 返回相机界面重新拍摄
+   * Handle retake action (R1.2)
+   * Return to the camera view for retaking a photo
    */
   const handleRetake = useCallback(() => {
     console.log('Retaking photo...'); // Debug log
@@ -62,8 +62,8 @@ function App() {
   }, []);
 
   /**
-   * 处理确认上传 (R1.2, R1.3)
-   * 上传图片到后端进行 AI 分析
+   * Handle confirm upload (R1.2, R1.3)
+   * Upload the image to backend for AI analysis
    */
   const handleConfirmUpload = useCallback(async () => {
     try {
@@ -71,15 +71,15 @@ function App() {
       setIsUploading(true);
       setError(null);
 
-      // 准备上传数据
+      // Prepare upload data
       const imageData = selectedFile || capturedImage;
       if (!imageData) {
-        throw new Error('没有可上传的图片数据');
+        throw new Error('No image data to upload');
       }
 
       console.log('Uploading image to backend...'); // Debug log
       
-      // 调用 API 进行食物识别
+      // Call API for food recognition
       const result = await recognizeFood(imageData);
       
       console.log('Food recognition completed:', result); // Debug log
@@ -88,14 +88,14 @@ function App() {
       setCurrentView('results');
     } catch (err) {
       console.error('Upload failed:', err); // Debug log
-      setError(err instanceof Error ? err.message : '上传失败，请重试');
+      setError(err instanceof Error ? err.message : 'Upload failed, please try again');
     } finally {
       setIsUploading(false);
     }
   }, [capturedImage, selectedFile]);
 
   /**
-   * 返回相机界面
+   * Return to camera view
    */
   const handleBackToCamera = useCallback(() => {
     console.log('Returning to camera...'); // Debug log
@@ -106,16 +106,16 @@ function App() {
     setRecognitionResult(null);
   }, []);
 
-  // 渲染结果页面
+  // Render results page
   const renderResults = () => {
     if (!recognitionResult) return null;
 
     return (
       <div className="results-container">
         <div className="results-header">
-          <h2>🍽️ 食物分析结果</h2>
+          <h2>🍽️ Food Analysis Results</h2>
           <button className="btn btn-back" onClick={handleBackToCamera}>
-            📷 重新拍摄
+            📷 Retake
           </button>
         </div>
         
@@ -130,22 +130,22 @@ function App() {
             <div className="summary-cards">
               <div className="summary-card">
                 <div className="card-value">{recognitionResult.totalCalories}</div>
-                <div className="card-label">总卡路里</div>
+                <div className="card-label">Total Calories</div>
               </div>
               <div className="summary-card">
                 <div className="card-value">{recognitionResult.healthScore}/10</div>
-                <div className="card-label">健康评分</div>
+                <div className="card-label">Health Score</div>
               </div>
             </div>
             
             <div className="ingredients-list">
-              <h4>成分分析</h4>
+              <h4>Ingredient Analysis</h4>
               {recognitionResult.ingredients.map((ingredient, index) => (
                 <div key={index} className="ingredient-item">
                   <div className="ingredient-name">{ingredient.name}</div>
                   <div className="ingredient-details">
                     <span>{ingredient.totalGrams}g</span>
-                    <span>{ingredient.totalCalories}卡路里</span>
+                    <span>{ingredient.totalCalories} calories</span>
                   </div>
                 </div>
               ))}
@@ -160,7 +160,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>🍎 iSeeFit</h1>
-        <p>AI 智能食物识别与卡路里分析</p>
+        <p>AI food recognition and calorie analysis</p>
       </header>
 
       <main className="App-main">

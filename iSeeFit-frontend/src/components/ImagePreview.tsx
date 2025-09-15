@@ -9,8 +9,8 @@ interface ImagePreviewProps {
 }
 
 /**
- * ImagePreview Component - 实现预览确认界面，包含重拍和确认选项 (R1.2)
- * 显示捕获的图片并提供重拍和确认操作
+ * ImagePreview Component - implements preview confirmation with retake and confirm (R1.2)
+ * Displays the captured image and provides retake and confirm actions
  */
 const ImagePreview: React.FC<ImagePreviewProps> = ({ 
   imageData, 
@@ -21,7 +21,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
   return (
     <div className="image-preview">
       <div className="preview-container">
-        {/* 图片预览区域 */}
+        {/* Image preview area */}
         <div className="preview-image-container">
           <img 
             src={imageData} 
@@ -29,24 +29,24 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
             className="preview-image"
           />
           
-          {/* 上传加载遮罩 */}
+          {/* Upload loading overlay */}
           {isUploading && (
             <div className="upload-overlay">
               <div className="upload-spinner">
                 <div className="spinner"></div>
-                <p>正在分析图片...</p>
+                <p>Analyzing image...</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* 预览信息 */}
+        {/* Preview info */}
         <div className="preview-info">
-          <h3>确认图片</h3>
-          <p>请确认这是您想要分析的食物图片</p>
+          <h3>Confirm Image</h3>
+          <p>Please confirm this is the food image you want to analyze</p>
         </div>
 
-        {/* 操作按钮区域 */}
+        {/* Action buttons */}
         <div className="preview-controls">
           <button 
             className="btn btn-retake"
@@ -54,7 +54,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
             disabled={isUploading}
           >
             <span className="btn-icon">🔄</span>
-            重拍
+            Retake
           </button>
           
           <button 
@@ -63,7 +63,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
             disabled={isUploading}
           >
             <span className="btn-icon">✅</span>
-            {isUploading ? '分析中...' : '确认分析'}
+            {isUploading ? 'Analyzing...' : 'Confirm Analysis'}
           </button>
         </div>
       </div>

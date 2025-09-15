@@ -1,18 +1,18 @@
 import axios from 'axios';
 
-// API 基础配置
+// API base configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-// 创建 axios 实例
+// Create axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30秒超时
+  timeout: 30000, // 30s timeout
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// 食物识别结果接口
+// Food recognition result interface
 export interface FoodRecognitionResult {
   ingredients: Array<{
     name: string;
@@ -27,14 +27,14 @@ export interface FoodRecognitionResult {
 }
 
 /**
- * 将 base64 图片数据转换为 Blob 对象
- * @param base64Data - base64 编码的图片数据
- * @returns Blob 对象
+ * Convert base64 image data to Blob
+ * @param base64Data - base64-encoded image data
+ * @returns Blob object
  */
 function base64ToBlob(base64Data: string): Blob {
   console.log('Converting base64 to blob...'); // Debug log
   
-  // 移除 data:image/jpeg;base64, 前缀
+  // Remove data:image/jpeg;base64, prefix
   const base64String = base64Data.split(',')[1];
   const binaryString = atob(base64String);
   const bytes = new Uint8Array(binaryString.length);
@@ -47,9 +47,9 @@ function base64ToBlob(base64Data: string): Blob {
 }
 
 /**
- * 上传图片进行食物识别
- * @param imageData - base64 编码的图片数据或 File 对象
- * @returns Promise<FoodRecognitionResult> - 食物识别结果
+ * Upload image for food recognition
+ * @param imageData - base64 image data or File object
+ * @returns Promise<FoodRecognitionResult> - recognition result
  */
 export async function recognizeFood(imageData: string | File): Promise<FoodRecognitionResult> {
   try {
@@ -58,13 +58,13 @@ export async function recognizeFood(imageData: string | File): Promise<FoodRecog
     let formData: FormData;
     
     if (typeof imageData === 'string') {
-      // 处理 base64 数据
+      // Handle base64 data
       console.log('Processing base64 image data'); // Debug log
       const blob = base64ToBlob(imageData);
       formData = new FormData();
       formData.append('image', blob, 'food-image.jpg');
     } else {
-      // 处理 File 对象
+      // Handle File object
       console.log('Processing file object:', imageData.name); // Debug log
       formData = new FormData();
       formData.append('image', imageData);
@@ -86,16 +86,16 @@ export async function recognizeFood(imageData: string | File): Promise<FoodRecog
     
     if (axios.isAxiosError(error)) {
       const errorMessage = error.response?.data?.error || error.message;
-      throw new Error(`食物识别失败: ${errorMessage}`);
+      throw new Error(`Food recognition failed: ${errorMessage}`);
     } else {
-      throw new Error('食物识别失败: 网络错误');
+      throw new Error('Food recognition failed: Network error');
     }
   }
 }
 
 /**
- * 检查 API 健康状态
- * @returns Promise<boolean> - API 是否可用
+ * Check API health status
+ * @returns Promise<boolean> - whether API is available
  */
 export async function checkApiHealth(): Promise<boolean> {
   try {
@@ -113,8 +113,8 @@ export async function checkApiHealth(): Promise<boolean> {
 }
 
 /**
- * 获取 API 基础 URL
- * @returns string - API 基础 URL
+ * Get API base URL
+ * @returns string - API base URL
  */
 export function getApiBaseUrl(): string {
   return API_BASE_URL;

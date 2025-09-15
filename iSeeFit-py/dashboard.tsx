@@ -32,7 +32,7 @@ import {
   ArrowDownRight
 } from 'lucide-react'
 
-// 类型定义
+// Type definitions
 interface KPIData {
   title: string
   value: string
@@ -62,7 +62,7 @@ interface CountryData {
   lng: number
 }
 
-// 模拟数据生成
+// Mock data generation
 const generateTimeSeriesData = (): TimeSeriesData[] => {
   const data: TimeSeriesData[] = []
   const now = new Date()
@@ -83,22 +83,22 @@ const generateTimeSeriesData = (): TimeSeriesData[] => {
 }
 
 const channelData: ChannelData[] = [
-  { channel: '线上商城', performance: 45000, color: '#3B82F6' },
-  { channel: '移动应用', performance: 38000, color: '#10B981' },
-  { channel: '社交媒体', performance: 32000, color: '#F59E0B' },
-  { channel: '直销渠道', performance: 28000, color: '#EF4444' },
-  { channel: '合作伙伴', performance: 22000, color: '#8B5CF6' }
+  { channel: 'Online Store', performance: 45000, color: '#3B82F6' },
+  { channel: 'Mobile App', performance: 38000, color: '#10B981' },
+  { channel: 'Social Media', performance: 32000, color: '#F59E0B' },
+  { channel: 'Direct Sales', performance: 28000, color: '#EF4444' },
+  { channel: 'Partners', performance: 22000, color: '#8B5CF6' }
 ]
 
 const countryData: CountryData[] = [
-  { country: '中国', revenue: 125000, users: 5420, lat: 35.8617, lng: 104.1954 },
-  { country: '美国', revenue: 98000, users: 4230, lat: 37.0902, lng: -95.7129 },
-  { country: '日本', revenue: 76000, users: 3100, lat: 36.2048, lng: 138.2529 },
-  { country: '德国', revenue: 65000, users: 2800, lat: 51.1657, lng: 10.4515 },
-  { country: '英国', revenue: 54000, users: 2300, lat: 55.3781, lng: -3.4360 }
+  { country: 'China', revenue: 125000, users: 5420, lat: 35.8617, lng: 104.1954 },
+  { country: 'United States', revenue: 98000, users: 4230, lat: 37.0902, lng: -95.7129 },
+  { country: 'Japan', revenue: 76000, users: 3100, lat: 36.2048, lng: 138.2529 },
+  { country: 'Germany', revenue: 65000, users: 2800, lat: 51.1657, lng: 10.4515 },
+  { country: 'United Kingdom', revenue: 54000, users: 2300, lat: 55.3781, lng: -3.4360 }
 ]
 
-// 主要组件
+// Main component
 const Dashboard: React.FC = () => {
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([])
   const [selectedMetric, setSelectedMetric] = useState<'revenue' | 'users' | 'transactions'>('revenue')
@@ -107,7 +107,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     setTimeSeriesData(generateTimeSeriesData())
     
-    // 模拟实时数据更新
+    // Simulate real-time data updates
     const interval = setInterval(() => {
       setTimeSeriesData(generateTimeSeriesData())
     }, 10000)
@@ -115,17 +115,17 @@ const Dashboard: React.FC = () => {
     return () => clearInterval(interval)
   }, [])
 
-  // 计算KPI数据
+  // Calculate KPI data
   const calculateKPIs = (): KPIData[] => {
     const latestData = timeSeriesData[timeSeriesData.length - 1]
     const previousData = timeSeriesData[timeSeriesData.length - 2]
     
     if (!latestData || !previousData) {
       return [
-        { title: '总用户数', value: '12,543', change: 8.2, icon: <Users className="w-6 h-6" />, color: 'text-blue-600' },
-        { title: '总交易数', value: '8,231', change: 12.5, icon: <CreditCard className="w-6 h-6" />, color: 'text-green-600' },
-        { title: '总收入', value: '¥1,234,567', change: -2.3, icon: <DollarSign className="w-6 h-6" />, color: 'text-purple-600' },
-        { title: '增长率', value: '15.3%', change: 5.8, icon: <TrendingUp className="w-6 h-6" />, color: 'text-orange-600' }
+        { title: 'Total Users', value: '12,543', change: 8.2, icon: <Users className="w-6 h-6" />, color: 'text-blue-600' },
+        { title: 'Total Transactions', value: '8,231', change: 12.5, icon: <CreditCard className="w-6 h-6" />, color: 'text-green-600' },
+        { title: 'Total Revenue', value: '$1,234,567', change: -2.3, icon: <DollarSign className="w-6 h-6" />, color: 'text-purple-600' },
+        { title: 'Growth Rate', value: '15.3%', change: 5.8, icon: <TrendingUp className="w-6 h-6" />, color: 'text-orange-600' }
       ]
     }
 
@@ -135,28 +135,28 @@ const Dashboard: React.FC = () => {
 
     return [
       { 
-        title: '总用户数', 
+        title: 'Total Users', 
         value: latestData.users.toLocaleString(), 
         change: userChange, 
         icon: <Users className="w-6 h-6" />, 
         color: 'text-blue-600' 
       },
       { 
-        title: '总交易数', 
+        title: 'Total Transactions', 
         value: latestData.transactions.toLocaleString(), 
         change: transactionChange, 
         icon: <CreditCard className="w-6 h-6" />, 
         color: 'text-green-600' 
       },
       { 
-        title: '总收入', 
-        value: `¥${latestData.revenue.toLocaleString()}`, 
+        title: 'Total Revenue', 
+        value: `$${latestData.revenue.toLocaleString()}`, 
         change: revenueChange, 
         icon: <DollarSign className="w-6 h-6" />, 
         color: 'text-purple-600' 
       },
       { 
-        title: '增长率', 
+        title: 'Growth Rate', 
         value: `${Math.abs(revenueChange).toFixed(1)}%`, 
         change: revenueChange, 
         icon: <TrendingUp className="w-6 h-6" />, 
@@ -167,7 +167,7 @@ const Dashboard: React.FC = () => {
 
   const kpiData = calculateKPIs()
 
-  // 侧边栏组件
+  // Sidebar component
   const Sidebar = () => (
     <div className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-slate-900 h-screen fixed left-0 top-0 z-10 transition-all duration-300 flex flex-col`}>
       <div className="p-4 border-b border-slate-700">
@@ -175,18 +175,18 @@ const Dashboard: React.FC = () => {
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
-          {sidebarOpen && <span className="text-white font-bold text-lg">BI 仪表板</span>}
+          {sidebarOpen && <span className="text-white font-bold text-lg">BI Dashboard</span>}
         </div>
       </div>
       
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {[
-            { icon: <Home className="w-5 h-5" />, label: '首页', active: true },
-            { icon: <BarChart3 className="w-5 h-5" />, label: '分析', active: false },
-            { icon: <UsersIcon className="w-5 h-5" />, label: '用户', active: false },
-            { icon: <Globe className="w-5 h-5" />, label: '地域', active: false },
-            { icon: <Settings className="w-5 h-5" />, label: '设置', active: false }
+            { icon: <Home className="w-5 h-5" />, label: 'Home', active: true },
+            { icon: <BarChart3 className="w-5 h-5" />, label: 'Analytics', active: false },
+            { icon: <UsersIcon className="w-5 h-5" />, label: 'Users', active: false },
+            { icon: <Globe className="w-5 h-5" />, label: 'Regions', active: false },
+            { icon: <Settings className="w-5 h-5" />, label: 'Settings', active: false }
           ].map((item, index) => (
             <li key={index}>
               <a 
@@ -207,7 +207,7 @@ const Dashboard: React.FC = () => {
     </div>
   )
 
-  // KPI卡片组件
+  // KPI card component
   const KPICard = ({ data }: { data: KPIData }) => (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div className="flex items-center justify-between">
@@ -232,19 +232,19 @@ const Dashboard: React.FC = () => {
     </div>
   )
 
-  // 时间序列图表组件
+  // Time series chart component
   const TimeSeriesChart = () => (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-slate-900">性能趋势</h3>
+        <h3 className="text-lg font-semibold text-slate-900">Performance Trend</h3>
         <select 
           value={selectedMetric}
           onChange={(e) => setSelectedMetric(e.target.value as 'revenue' | 'users' | 'transactions')}
           className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="revenue">收入</option>
-          <option value="users">用户数</option>
-          <option value="transactions">交易数</option>
+          <option value="revenue">Revenue</option>
+          <option value="users">Users</option>
+          <option value="transactions">Transactions</option>
         </select>
       </div>
       <div style={{ width: '100%', height: 300 }}>
@@ -255,7 +255,7 @@ const Dashboard: React.FC = () => {
               dataKey="date" 
               stroke="#64748b"
               tick={{ fontSize: 12 }}
-              tickFormatter={(value) => new Date(value).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
+              tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             />
             <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
             <Tooltip 
@@ -265,7 +265,7 @@ const Dashboard: React.FC = () => {
                 borderRadius: '8px',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}
-              labelFormatter={(value) => new Date(value).toLocaleDateString('zh-CN')}
+              labelFormatter={(value) => new Date(value).toLocaleDateString('en-US')}
             />
             <Line 
               type="monotone" 
@@ -281,10 +281,10 @@ const Dashboard: React.FC = () => {
     </div>
   )
 
-  // 渠道表现图表组件
+  // Channel performance chart component
   const ChannelChart = () => (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h3 className="text-lg font-semibold text-slate-900 mb-6">渠道表现</h3>
+      <h3 className="text-lg font-semibold text-slate-900 mb-6">Channel Performance</h3>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
           <BarChart data={channelData} layout="horizontal">
@@ -312,10 +312,10 @@ const Dashboard: React.FC = () => {
     </div>
   )
 
-  // 国家分布组件
+  // Country distribution component
   const CountryDistribution = () => (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-      <h3 className="text-lg font-semibold text-slate-900 mb-6">国家分布</h3>
+      <h3 className="text-lg font-semibold text-slate-900 mb-6">Country Distribution</h3>
       <div className="space-y-4">
         {countryData.map((item, index) => (
           <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
@@ -324,14 +324,14 @@ const Dashboard: React.FC = () => {
               <span className="font-medium text-slate-900">{item.country}</span>
             </div>
             <div className="text-right">
-              <p className="font-semibold text-slate-900">¥{item.revenue.toLocaleString()}</p>
-              <p className="text-sm text-slate-600">{item.users} 用户</p>
+              <p className="font-semibold text-slate-900">${item.revenue.toLocaleString()}</p>
+              <p className="text-sm text-slate-600">{item.users} users</p>
             </div>
           </div>
         ))}
       </div>
       
-      {/* 简化的世界地图可视化 */}
+      {/* Simplified world map visualization */}
       <div className="mt-6">
         <div style={{ width: '100%', height: 200 }}>
           <ResponsiveContainer>
@@ -357,7 +357,7 @@ const Dashboard: React.FC = () => {
     </div>
   )
 
-  // 顶部导航栏
+  // Top navigation bar
   const TopNavbar = () => (
     <div className="bg-white border-b border-slate-200 p-4 flex items-center justify-between">
       <div className="flex items-center space-x-4">
@@ -367,7 +367,7 @@ const Dashboard: React.FC = () => {
         >
           <BarChart3 className="w-5 h-5 text-slate-600" />
         </button>
-        <h1 className="text-xl font-semibold text-slate-900">商业智能仪表板</h1>
+        <h1 className="text-xl font-semibold text-slate-900">Business Intelligence Dashboard</h1>
       </div>
       
       <div className="flex items-center space-x-4">
@@ -375,7 +375,7 @@ const Dashboard: React.FC = () => {
           <Search className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input 
             type="text" 
-            placeholder="搜索..." 
+            placeholder="Search..." 
             className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

@@ -1,4 +1,4 @@
-/* ImagePreview 组件样式 - 实现预览确认界面，包含重拍和确认选项 (R1.2) */
+/* ImagePreview styles - preview confirmation with retake and confirm (R1.2) */
 
 .image-preview {
   width: 100%;
@@ -14,7 +14,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 图片预览区域 */
+/* Image preview area */
 .preview-image-container {
   position: relative;
   width: 100%;
@@ -32,7 +32,7 @@
   display: block;
 }
 
-/* 上传加载遮罩 */
+/* Upload loading overlay */
 .upload-overlay {
   position: absolute;
   top: 0;
@@ -72,7 +72,7 @@
   font-weight: 500;
 }
 
-/* 预览信息 */
+/* Preview info */
 .preview-info {
   text-align: center;
   margin-bottom: 24px;
@@ -91,14 +91,14 @@
   font-size: 16px;
 }
 
-/* 操作按钮区域 */
+/* Action buttons area */
 .preview-controls {
   display: flex;
   gap: 16px;
   justify-content: center;
 }
 
-/* 按钮样式 */
+/* Button styles */
 .btn {
   padding: 14px 28px;
   border: none;
@@ -151,7 +151,7 @@
   font-size: 18px;
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 480px) {
   .image-preview {
     padding: 16px;

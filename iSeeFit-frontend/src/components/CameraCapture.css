@@ -1,4 +1,4 @@
-/* CameraCapture 组件样式 - 实现相机接口和图片捕获功能 (R1.1) */
+/* CameraCapture styles - camera interface and image capture (R1.1) */
 
 .camera-capture {
   width: 100%;
@@ -14,7 +14,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* 视频预览区域 */
+/* Video preview area */
 .video-preview {
   position: relative;
   width: 100%;
@@ -29,14 +29,14 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* 镜像效果，更自然的自拍体验 */
+  transform: scaleX(-1); /* Mirror effect for a more natural selfie view */
 }
 
 .camera-video.active {
   display: block;
 }
 
-/* 相机占位符 */
+/* Camera placeholder */
 .camera-placeholder {
   position: absolute;
   top: 50%;
@@ -57,7 +57,7 @@
   font-weight: 500;
 }
 
-/* 错误信息 */
+/* Error message */
 .error-message {
   display: flex;
   align-items: center;
@@ -75,7 +75,7 @@
   font-size: 16px;
 }
 
-/* 控制按钮区域 */
+/* Control buttons area */
 .camera-controls {
   display: flex;
   justify-content: center;
@@ -89,7 +89,7 @@
   justify-content: center;
 }
 
-/* 按钮样式 */
+/* Button styles */
 .btn {
   padding: 12px 24px;
   border: none;
@@ -152,7 +152,7 @@
   background: linear-gradient(135deg, #ff5252 0%, #e53935 100%);
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 480px) {
   .camera-capture {
     padding: 16px;

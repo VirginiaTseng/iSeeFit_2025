@@ -7,8 +7,8 @@ interface CameraCaptureProps {
 }
 
 /**
- * CameraCapture Component - 实现相机接口和图片捕获功能 (R1.1)
- * 提供相机拍照和文件选择两种方式获取图片
+ * CameraCapture Component - implements camera interface and image capture (R1.1)
+ * Provides two ways to acquire an image: take a photo or select a file
  */
 const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSelect }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -20,8 +20,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * 启动相机功能
-   * 请求用户摄像头权限并开始视频流
+   * Start camera
+   * Request camera permission and start the video stream
    */
   const startCamera = useCallback(async () => {
     try {
@@ -30,7 +30,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
       
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'environment', // 使用后置摄像头
+          facingMode: 'environment', // Use rear camera for better framing
           width: { ideal: 1280 },
           height: { ideal: 720 }
         }
@@ -45,13 +45,13 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
       }
     } catch (err) {
       console.error('Error accessing camera:', err); // Debug log
-      setError('无法访问相机，请检查权限设置');
+      setError('Unable to access camera. Please check permission settings.');
     }
   }, []);
 
   /**
-   * 停止相机功能
-   * 关闭视频流并清理资源
+   * Stop camera
+   * Close the media stream and clean up resources
    */
   const stopCamera = useCallback(() => {
     console.log('Stopping camera...'); // Debug log
@@ -63,8 +63,8 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
   }, [stream]);
 
   /**
-   * 捕获图片
-   * 从视频流中截取当前帧并转换为图片数据
+   * Capture image
+   * Grab current frame from the video stream and convert to image data
    */
   const captureImage = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) {
@@ -80,48 +80,48 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
       const context = canvas.getContext('2d');
       
       if (!context) {
-        throw new Error('无法获取画布上下文');
+        throw new Error('Unable to get canvas 2D context');
       }
 
-      // 设置画布尺寸与视频相同
+      // Match canvas size to video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
-      // 绘制当前视频帧到画布
+      // Draw current video frame to canvas
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // 转换为 base64 图片数据
+      // Convert to base64 image data
       const imageData = canvas.toDataURL('image/jpeg', 0.8);
       
       console.log('Image captured successfully'); // Debug log
       onImageCapture(imageData);
       
-      // 停止相机
+      // Stop camera after capture
       stopCamera();
     } catch (err) {
       console.error('Error capturing image:', err); // Debug log
-      setError('图片捕获失败，请重试');
+      setError('Failed to capture image. Please try again.');
     }
   }, [onImageCapture, stopCamera]);
 
   /**
-   * 处理文件选择
-   * 当用户选择图片文件时调用
+   * Handle file selection
+   * Triggered when user selects an image file
    */
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       console.log('File selected:', file.name); // Debug log
       
-      // 验证文件类型
+      // Validate file type
       if (!file.type.startsWith('image/')) {
-        setError('请选择图片文件');
+        setError('Please select an image file.');
         return;
       }
       
-      // 验证文件大小 (10MB 限制)
+      // Validate file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
-        setError('图片文件过大，请选择小于 10MB 的文件');
+        setError('File is too large. Please select a file under 10MB.');
         return;
       }
       
@@ -130,7 +130,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
   }, [onImageSelect]);
 
   /**
-   * 打开文件选择器
+   * Open file selector
    */
   const openFileSelector = useCallback(() => {
     console.log('Opening file selector...'); // Debug log
@@ -140,7 +140,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
   return (
     <div className="camera-capture">
       <div className="camera-container">
-        {/* 视频预览区域 */}
+        {/* Video preview area */}
         <div className="video-preview">
           <video
             ref={videoRef}
@@ -150,19 +150,19 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
             className={`camera-video ${isCameraActive ? 'active' : ''}`}
           />
           
-          {/* 相机未启动时的占位符 */}
+          {/* Placeholder when camera is not active */}
           {!isCameraActive && (
             <div className="camera-placeholder">
               <div className="camera-icon">📷</div>
-              <p>点击下方按钮启动相机</p>
+              <p>Click the button below to start the camera</p>
             </div>
           )}
         </div>
 
-        {/* 隐藏的画布用于图片捕获 */}
+        {/* Hidden canvas for image capture */}
         <canvas ref={canvasRef} style={{ display: 'none' }} />
 
-        {/* 错误信息显示 */}
+        {/* Error message */}
         {error && (
           <div className="error-message">
             <span className="error-icon">⚠️</span>
@@ -170,7 +170,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
           </div>
         )}
 
-        {/* 控制按钮区域 */}
+        {/* Control buttons */}
         <div className="camera-controls">
           {!isCameraActive ? (
             <div className="control-buttons">
@@ -178,13 +178,13 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
                 className="btn btn-primary"
                 onClick={startCamera}
               >
-                📷 启动相机
+                📷 Start Camera
               </button>
               <button 
                 className="btn btn-secondary"
                 onClick={openFileSelector}
               >
-                📁 选择图片
+                📁 Choose Image
               </button>
             </div>
           ) : (
@@ -193,19 +193,19 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onImageCapture, onImageSe
                 className="btn btn-capture"
                 onClick={captureImage}
               >
-                📸 拍照
+                📸 Take Photo
               </button>
               <button 
                 className="btn btn-cancel"
                 onClick={stopCamera}
               >
-                ❌ 取消
+                ❌ Cancel
               </button>
             </div>
           )}
         </div>
 
-        {/* 隐藏的文件输入 */}
+        {/* Hidden file input */}
         <input
           ref={fileInputRef}
           type="file"
