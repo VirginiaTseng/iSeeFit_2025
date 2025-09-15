@@ -1,0 +1,28 @@
+Always start with 'Hi Virginia'
+
+You are building an AI app that take pic of food and analyse/log calories
+
+# Important rules you HAVE TO FOLLOW
+- Always add debug logs & comments in the code for easier debug & readability
+- Every time you choose to apply a rules(s), explicitly state the rule(s) in the output. You can abbreviate the rule description to a single word or phrase.
+
+# Existing Project Structure and Files
+├── iSeeFit-backend
+├── iSeeFit-frontend
+
+# Tech Stack
+- React, Node.js for frontend
+- Node.js or python for backend
+- OpenAI for AI processing
+
+
+# Project Structure
+
+
+
+
+
+
+# Swift specific rules
+
+## 1. State Management

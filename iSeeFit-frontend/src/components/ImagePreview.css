@@ -1,0 +1,186 @@
+/* ImagePreview 组件样式 - 实现预览确认界面，包含重拍和确认选项 (R1.2) */
+
+.image-preview {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.preview-container {
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 图片预览区域 */
+.preview-image-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: #000;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 上传加载遮罩 */
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.upload-spinner {
+  text-align: center;
+  color: white;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.upload-spinner p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* 预览信息 */
+.preview-info {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.preview-info h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.preview-info p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+/* 操作按钮区域 */
+.preview-controls {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-retake {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  color: #333;
+}
+
+.btn-retake:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff8a8e 0%, #febfdf 100%);
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #333;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: linear-gradient(135deg, #98ddd8 0%, #fec6d3 100%);
+}
+
+.btn-icon {
+  font-size: 18px;
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .image-preview {
+    padding: 16px;
+  }
+  
+  .preview-image-container {
+    height: 250px;
+  }
+  
+  .preview-info h3 {
+    font-size: 20px;
+  }
+  
+  .preview-info p {
+    font-size: 14px;
+  }
+  
+  .btn {
+    min-width: 120px;
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+  
+  .preview-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+}
