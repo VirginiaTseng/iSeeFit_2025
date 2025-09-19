@@ -38,6 +38,8 @@
 		CB4C9CB12D64BB390074A095 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4C9CB02D64BB330074A095 /* CommunityView.swift */; };
 		CB4C9CB32D64C0090074A095 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4C9CB22D64C0050074A095 /* MapView.swift */; };
 		CB4C9CD92D6695520074A095 /* ThemeToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4C9CD82D66954D0074A095 /* ThemeToggleButton.swift */; };
+		CBFFFFA12D99999900000001 /* FoodCalorieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFA02D99999900000001 /* FoodCalorieView.swift */; };
+		CBFFFFA32D99999900000002 /* FoodRecognitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFA22D99999900000002 /* FoodRecognitionManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +114,8 @@
 		CB4C9CB02D64BB330074A095 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
 		CB4C9CB22D64C0050074A095 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		CB4C9CD82D66954D0074A095 /* ThemeToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeToggleButton.swift; sourceTree = "<group>"; };
+		CBFFFFA02D99999900000001 /* FoodCalorieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodCalorieView.swift; sourceTree = "<group>"; };
+		CBFFFFA22D99999900000002 /* FoodRecognitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodRecognitionManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -305,6 +309,7 @@
 				CB4C9CA32D64AAF30074A095 /* SemanticAnalysisManager.swift */,
 				CB4C9C8C2D64A4B70074A095 /* Assets.xcassets */,
 				CB4C9C8E2D64A4B70074A095 /* ConnectionManager.swift */,
+				CBFFFFA02D99999900000001 /* FoodCalorieView.swift */,
 				CB1EFE192D684B30009C8FE7 /* SignLanguageView.swift */,
 				CB4C9C8F2D64A4B70074A095 /* ContentView.swift */,
 				CB4C9CA72D64AE350074A095 /* ProfileView.swift */,
@@ -532,6 +537,7 @@
 				CB4C9C982D64A4B70074A095 /* ConnectionManager.swift in Sources */,
 				CB4C9CB12D64BB390074A095 /* CommunityView.swift in Sources */,
 				CB4C9C992D64A4B70074A095 /* ContentView.swift in Sources */,
+				CBFFFFA12D99999900000001 /* FoodCalorieView.swift in Sources */,
 				CB1EFE1A2D684B32009C8FE7 /* SignLanguageView.swift in Sources */,
 				CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */,
 				CB4C9CD92D6695520074A095 /* ThemeToggleButton.swift in Sources */,

@@ -10,5 +10,9 @@
 		<string>location</string>
 		<string>fetch</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow iSeeFit to take photos of food to estimate calories.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow iSeeFit to select photos to estimate calories.</string>
 </dict>
 </plist>
