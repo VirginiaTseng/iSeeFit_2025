@@ -28,13 +28,20 @@ struct ContentView: View {
                                 Text("Home")
                             }
                             .tag(0)
+                            
+                        FoodCalorieView()
+                            .tabItem {
+                                Image(systemName: "fork.knife")
+                                Text("Food")
+                            }
+                            .tag(1)                       
                         
                         MapView()
                             .tabItem {
                                 Image(systemName: "map.fill")
                                 Text("Map")
                             }
-                            .tag(1)
+                            .tag(2)
                         
 //                        EmergencyView()
 //                            .tabItem {
@@ -43,12 +50,7 @@ struct ContentView: View {
 //                            }
 //                            .tag(2)
 //
-                        FoodCalorieView()
-                            .tabItem {
-                                Image(systemName: "fork.knife")
-                                Text("Food")
-                            }
-                            .tag(2)
+
                         CommunityView()
                             .tabItem {
                                 Image(systemName: "heart.fill")
@@ -62,10 +64,10 @@ struct ContentView: View {
 //                                Text("Profile")
 //                            }
 //                            .tag(4)
-                        EmergencyView2()
+                        SettingsView()
                             .tabItem {
-                                Image(systemName: "phone.circle.fill")
-                                Text("Emergency")
+                                Image(systemName: "person.crop.circle")
+                                Text("Profile")
                             }.tag(4)
                  
                     }
