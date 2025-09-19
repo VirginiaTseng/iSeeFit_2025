@@ -39,7 +39,6 @@
 		CB4C9CB32D64C0090074A095 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4C9CB22D64C0050074A095 /* MapView.swift */; };
 		CB4C9CD92D6695520074A095 /* ThemeToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4C9CD82D66954D0074A095 /* ThemeToggleButton.swift */; };
 		CBFFFFA12D99999900000001 /* FoodCalorieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFA02D99999900000001 /* FoodCalorieView.swift */; };
-		CBFFFFA32D99999900000002 /* FoodRecognitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFA22D99999900000002 /* FoodRecognitionManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -115,7 +114,6 @@
 		CB4C9CB22D64C0050074A095 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		CB4C9CD82D66954D0074A095 /* ThemeToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeToggleButton.swift; sourceTree = "<group>"; };
 		CBFFFFA02D99999900000001 /* FoodCalorieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodCalorieView.swift; sourceTree = "<group>"; };
-		CBFFFFA22D99999900000002 /* FoodRecognitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodRecognitionManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */

@@ -14,5 +14,15 @@
 	<string>Allow iSeeFit to take photos of food to estimate calories.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow iSeeFit to select photos to estimate calories.</string>
+	<key>EDAMAM_APP_ID</key>
+	<string></string>
+	<key>EDAMAM_APP_KEY</key>
+	<string></string>
+	<key>QWEN_API_URL</key>
+	<string>https://dashscope.aliyuncs.com/compatible-mode/v1</string>
+	<key>QWEN_API_KEY</key>
+	<string>sk-4d572220edf14c70a1a999f1c67d5720</string>
+	<key>QWEN_MODEL</key>
+	<string>qwen-plus</string>
 </dict>
 </plist>
