@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "silly_68023_a_chef_wearing_a_crisp_white_apron_and_chefs_hat_lo_ad723034-9717-4166-82c8-38b34943f520.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "silly_68023_a_chef_wearing_a_crisp_white_apron_and_chefs_hat_lo_ad723034-9717-4166-82c8-38b34943f520 1.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "silly_68023_a_chef_wearing_a_crisp_white_apron_and_chefs_hat_lo_ad723034-9717-4166-82c8-38b34943f520 2.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
