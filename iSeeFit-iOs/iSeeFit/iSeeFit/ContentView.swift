@@ -36,10 +36,10 @@ struct ContentView: View {
                             }
                             .tag(1)                       
                         
-                        MapView()
+                        TodayView()
                             .tabItem {
-                                Image(systemName: "map.fill")
-                                Text("Map")
+                                Image(systemName: "clock").symbolRenderingMode(.palette)
+                                Text("Today")
                             }
                             .tag(2)
                         
