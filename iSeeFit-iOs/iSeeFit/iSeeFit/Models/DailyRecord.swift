@@ -56,21 +56,7 @@ struct MealRecord: Identifiable, Codable {
     }
 }
 
-// MARK: - Food Item
-struct FoodItem: Identifiable, Codable {
-    let id: UUID // Unique identifier
-    let name: String // Name of the food item
-    let calories: Int // Calories per portion
-    let portion: String // Portion size description
-    
-    // Initialize food item
-    init(name: String, calories: Int, portion: String) {
-        self.id = UUID()
-        self.name = name
-        self.calories = calories
-        self.portion = portion
-    }
-}
+
 
 // MARK: - Workout Record
 struct WorkoutRecord: Identifiable, Codable {

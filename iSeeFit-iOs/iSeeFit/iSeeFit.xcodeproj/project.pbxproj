@@ -14,6 +14,8 @@
 		C49EFC0A2E7F2FF700025E88 /* AnimatedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC092E7F2FED00025E88 /* AnimatedHeaderView.swift */; };
 		C49EFC0C2E7F32F400025E88 /* ObservableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC0B2E7F32F200025E88 /* ObservableHeaderView.swift */; };
 		C49EFC102E7F344500025E88 /* TodaysMemory2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC0F2E7F343C00025E88 /* TodaysMemory2View.swift */; };
+		C49EFC1A2E7F54AA00025E88 /* Login2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC192E7F54A100025E88 /* Login2View.swift */; };
+		C49EFC1C2E7F5A0400025E88 /* FoodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC1B2E7F59FF00025E88 /* FoodItem.swift */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -96,6 +98,8 @@
 		C49EFC092E7F2FED00025E88 /* AnimatedHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedHeaderView.swift; sourceTree = "<group>"; };
 		C49EFC0B2E7F32F200025E88 /* ObservableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableHeaderView.swift; sourceTree = "<group>"; };
 		C49EFC0F2E7F343C00025E88 /* TodaysMemory2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaysMemory2View.swift; sourceTree = "<group>"; };
+		C49EFC192E7F54A100025E88 /* Login2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Login2View.swift; sourceTree = "<group>"; };
+		C49EFC1B2E7F59FF00025E88 /* FoodItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodItem.swift; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -236,6 +240,7 @@
 		CB0672762D694E1300C044BD /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC1B2E7F59FF00025E88 /* FoodItem.swift */,
 				C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */,
 				CB06728B2D702E9C00C044BD /* Incident.swift */,
 				CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */,
@@ -309,6 +314,7 @@
 		CB4C9C942D64A4B70074A095 /* iSeeFit */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC192E7F54A100025E88 /* Login2View.swift */,
 				CB06728D2D71E88B00C044BD /* GoogleService-Info.plist */,
 				CB1EFD902D66E3B4009C8FE7 /* ViewModel */,
 				CB06727F2D69566000C044BD /* Model */,
@@ -569,6 +575,8 @@
 				C49EFC062E7F1FF300025E88 /* TodaysMemoryBkCard.swift in Sources */,
 				CB4C9C992D64A4B70074A095 /* ContentView.swift in Sources */,
 				CBFFFFB12D99999900000011 /* SettingsView.swift in Sources */,
+				C49EFC1A2E7F54AA00025E88 /* Login2View.swift in Sources */,
+				C49EFC1C2E7F5A0400025E88 /* FoodItem.swift in Sources */,
 				CBFFFFA12D99999900000001 /* FoodCalorieView.swift in Sources */,
 				CBFFFFC12D99999900000021 /* TodayView.swift in Sources */,
 				CB1EFE1A2D684B32009C8FE7 /* SignLanguageView.swift in Sources */,

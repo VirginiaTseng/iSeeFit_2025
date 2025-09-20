@@ -11,14 +11,14 @@ import CoreML
 import UIKit
 
 class FoodRecognitionManager: ObservableObject {
-    struct FoodItem: Identifiable {
+    struct InnerFoodItem: Identifiable {
         let id = UUID()
         let name: String
         let confidence: Double
         let calories: Int
     }
 
-    @Published var items: [FoodItem] = []
+    @Published var items: [InnerFoodItem] = []
     @Published var totalCalories: Int = 0
     @Published var errorMessage: String?
 
@@ -65,7 +65,7 @@ class FoodRecognitionManager: ObservableObject {
             .filter { $0.confidence > 0.2 }
             .filter { self.isFoodCategory($0.identifier) }
 
-        var recognized: [FoodItem] = []
+        var recognized: [InnerFoodItem] = []
         var total = 0
         let group = DispatchGroup()
 
@@ -84,7 +84,7 @@ class FoodRecognitionManager: ObservableObject {
                     if !seenKeys.contains(key) {
                         seenKeys.insert(key)
                         let calories = Int(info.caloriesPerServing.rounded())
-                        recognized.append(FoodItem(name: name, confidence: 0.5, calories: calories))
+                        recognized.append(InnerFoodItem(name: name, confidence: 0.5, calories: calories))
                         total += calories
                     }
                 }
@@ -106,9 +106,9 @@ class FoodRecognitionManager: ObservableObject {
                     // 若Qwen给了normalizedName，用其作为展示名称与去重基准
                     let displayName = info.normalizedName?.isEmpty == false ? info.normalizedName! : name
                     calories = Int(info.caloriesPerServing.rounded())
-                    recognized.append(FoodItem(name: displayName, confidence: Double(c.confidence), calories: calories))
+                    recognized.append(InnerFoodItem(name: displayName, confidence: Double(c.confidence), calories: calories))
                 } else {
-                    recognized.append(FoodItem(name: name, confidence: Double(c.confidence), calories: calories))
+                    recognized.append(InnerFoodItem(name: name, confidence: Double(c.confidence), calories: calories))
                 }
                 total += calories
                 group.leave()

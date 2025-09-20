@@ -223,9 +223,9 @@ class APIService: ObservableObject {
             ("meal_type", request.meal_type),
             ("food_name", request.food_name),
             ("calories", String(request.calories)),
-            ("protein", request.protein.map(String.init(_:)) ?? "0"),
-            ("carbs", request.carbs.map(String.init(_:)) ?? "0"),
-            ("fat", request.fat.map(String.init(_:)) ?? "0"),
+            ("protein", request.protein.map(String.init) ?? "0"),
+            ("carbs", request.carbs.map(String.init) ?? "0"),
+            ("fat", request.fat.map(String.init) ?? "0"),
             ("portion_size", request.portion_size ?? ""),
             ("notes", request.notes ?? "")
         ]
