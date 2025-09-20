@@ -11,6 +11,9 @@
 		C49EFC022E7EFE2E00025E88 /* TodaysMemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */; };
 		C49EFC042E7F036F00025E88 /* NotificationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC032E7F036E00025E88 /* NotificationCard.swift */; };
 		C49EFC062E7F1FF300025E88 /* TodaysMemoryBkCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC052E7F1FE500025E88 /* TodaysMemoryBkCard.swift */; };
+		C49EFC0A2E7F2FF700025E88 /* AnimatedHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC092E7F2FED00025E88 /* AnimatedHeaderView.swift */; };
+		C49EFC0C2E7F32F400025E88 /* ObservableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC0B2E7F32F200025E88 /* ObservableHeaderView.swift */; };
+		C49EFC102E7F344500025E88 /* TodaysMemory2View.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC0F2E7F343C00025E88 /* TodaysMemory2View.swift */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -90,6 +93,9 @@
 		C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaysMemoryView.swift; sourceTree = "<group>"; };
 		C49EFC032E7F036E00025E88 /* NotificationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCard.swift; sourceTree = "<group>"; };
 		C49EFC052E7F1FE500025E88 /* TodaysMemoryBkCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaysMemoryBkCard.swift; sourceTree = "<group>"; };
+		C49EFC092E7F2FED00025E88 /* AnimatedHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedHeaderView.swift; sourceTree = "<group>"; };
+		C49EFC0B2E7F32F200025E88 /* ObservableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableHeaderView.swift; sourceTree = "<group>"; };
+		C49EFC0F2E7F343C00025E88 /* TodaysMemory2View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaysMemory2View.swift; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -288,6 +294,9 @@
 		CB4C9C8B2D64A4B70074A095 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC0F2E7F343C00025E88 /* TodaysMemory2View.swift */,
+				C49EFC0B2E7F32F200025E88 /* ObservableHeaderView.swift */,
+				C49EFC092E7F2FED00025E88 /* AnimatedHeaderView.swift */,
 				C49EFC052E7F1FE500025E88 /* TodaysMemoryBkCard.swift */,
 				CBFFFFB02D99999900000011 /* SettingsView.swift */,
 				C49EFC032E7F036E00025E88 /* NotificationCard.swift */,
@@ -542,7 +551,10 @@
 				CB4C9C952D64A4B70074A095 /* MainView.swift in Sources */,
 				CB4C9CB32D64C0090074A095 /* MapView.swift in Sources */,
 				C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */,
+				C49EFC102E7F344500025E88 /* TodaysMemory2View.swift in Sources */,
 				C49EFC042E7F036F00025E88 /* NotificationCard.swift in Sources */,
+				C49EFC0C2E7F32F400025E88 /* ObservableHeaderView.swift in Sources */,
+				C49EFC0A2E7F2FF700025E88 /* AnimatedHeaderView.swift in Sources */,
 				CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */,
 				CB0672822D695A6E00C044BD /* EmergencyView2.swift in Sources */,
 				CB4C9CAF2D64B8080074A095 /* HomeView.swift in Sources */,
