@@ -19,6 +19,7 @@ struct SettingsView: View {
                     quickGrid
                     widgetWatchCard
                     settingsList
+                    NotificationCard()
                     Spacer(minLength: 24)
                 }
                 .padding(.horizontal, 16)
@@ -28,6 +29,8 @@ struct SettingsView: View {
             .toolbar { ToolbarItem(placement: .principal) { Text("Profile").font(.headline) } }
             .background(LinearGradient(colors: [Color.black.opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom))
         }
+        
+        
     }
 
     private var headerCard: some View {

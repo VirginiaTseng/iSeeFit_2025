@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */; };
+		C49EFC022E7EFE2E00025E88 /* TodaysMemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */; };
+		C49EFC042E7F036F00025E88 /* NotificationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC032E7F036E00025E88 /* NotificationCard.swift */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -84,6 +86,8 @@
 
 /* Begin PBXFileReference section */
 		C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyRecord.swift; sourceTree = "<group>"; };
+		C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaysMemoryView.swift; sourceTree = "<group>"; };
+		C49EFC032E7F036E00025E88 /* NotificationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCard.swift; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -282,6 +286,9 @@
 		CB4C9C8B2D64A4B70074A095 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				CBFFFFB02D99999900000011 /* SettingsView.swift */,
+				C49EFC032E7F036E00025E88 /* NotificationCard.swift */,
+				C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */,
 				CB0672722D694D7300C044BD /* EmergencyContactView.swift */,
 			);
 			path = Views;
@@ -314,7 +321,6 @@
 				CB4C9CA32D64AAF30074A095 /* SemanticAnalysisManager.swift */,
 				CB4C9C8C2D64A4B70074A095 /* Assets.xcassets */,
 				CB4C9C8E2D64A4B70074A095 /* ConnectionManager.swift */,
-				CBFFFFB02D99999900000011 /* SettingsView.swift */,
 				CBFFFFA02D99999900000001 /* FoodCalorieView.swift */,
 				CBFFFFC02D99999900000021 /* TodayView.swift */,
 				CB1EFE192D684B30009C8FE7 /* SignLanguageView.swift */,
@@ -533,6 +539,7 @@
 				CB4C9C952D64A4B70074A095 /* MainView.swift in Sources */,
 				CB4C9CB32D64C0090074A095 /* MapView.swift in Sources */,
 				C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */,
+				C49EFC042E7F036F00025E88 /* NotificationCard.swift in Sources */,
 				CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */,
 				CB0672822D695A6E00C044BD /* EmergencyView2.swift in Sources */,
 				CB4C9CAF2D64B8080074A095 /* HomeView.swift in Sources */,
@@ -550,6 +557,7 @@
 				CBFFFFC12D99999900000021 /* TodayView.swift in Sources */,
 				CB1EFE1A2D684B32009C8FE7 /* SignLanguageView.swift in Sources */,
 				CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */,
+				C49EFC022E7EFE2E00025E88 /* TodaysMemoryView.swift in Sources */,
 				CB4C9CD92D6695520074A095 /* ThemeToggleButton.swift in Sources */,
 				CB4C9CA42D64AAFA0074A095 /* SemanticAnalysisManager.swift in Sources */,
 				CB06728C2D702EA200C044BD /* Incident.swift in Sources */,

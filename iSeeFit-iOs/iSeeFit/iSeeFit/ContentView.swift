@@ -12,6 +12,11 @@ struct ContentView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var selectedTab = 0
     
+    @ObservedObject private var notificationManager = NotificationManager.shared
+    
+    
+
+    
     var body: some View {
         // debug unmask code below
 //        Button("Reset Onboarding") {
@@ -22,7 +27,9 @@ struct ContentView: View {
         
         if hasSeenOnboarding {
             TabView(selection: $selectedTab) {
-                        HomeView()
+                
+                        //HomeView()
+                        TodaysMemoryView()
                             .tabItem {
                                 Image(systemName: "house.fill")
                                 Text("Home")
@@ -73,6 +80,9 @@ struct ContentView: View {
                     }
                     .accentColor(.purple)
                     .preferredColorScheme(.light)
+                    .onAppear {
+                        notificationManager.requestAuthorization()
+                    }
             
 //            VStack {
 //                //MainView() // 进入主页面
