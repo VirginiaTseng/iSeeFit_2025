@@ -189,7 +189,7 @@ struct SettingsView: View {
                 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
-                        Text(user.username)
+                        Text(user.full_name)
                             .font(.headline)
                         Text("Member")
                             .font(.caption2)
@@ -213,6 +213,7 @@ struct SettingsView: View {
                         .font(.title3)
                 }
             }
+            
             
             // 用户详细信息
             VStack(spacing: 8) {
