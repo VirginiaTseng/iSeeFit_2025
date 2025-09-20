@@ -8,13 +8,22 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @StateObject private var apiService = APIService.shared
     @State private var iCloudSyncOn: Bool = false
+    @State private var showLogin = false
+    @State private var showLogoutAlert = false
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
-                    headerCard
+                    // 根据登录状态显示不同的头部
+                    if apiService.isAuthenticated, let user = apiService.currentUser {
+                        userInfoCard(user: user)
+                    } else {
+                        headerCard
+                    }
+                    
                     vipCard
                     quickGrid
                     widgetWatchCard
@@ -29,8 +38,17 @@ struct SettingsView: View {
             .toolbar { ToolbarItem(placement: .principal) { Text("Profile").font(.headline) } }
             .background(LinearGradient(colors: [Color.black.opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom))
         }
-        
-        
+        .sheet(isPresented: $showLogin) {
+            LoginView()
+        }
+        .alert("Logout", isPresented: $showLogoutAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Logout", role: .destructive) {
+                logout()
+            }
+        } message: {
+            Text("Are you sure you want to logout?")
+        }
     }
 
     private var headerCard: some View {
@@ -42,7 +60,14 @@ struct SettingsView: View {
             }
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    Text("iSeeFit").font(.headline)
+                                        // 根据登录状态显示不同的文本
+                    if apiService.isAuthenticated, let user = apiService.currentUser {
+                        Text(user.username)
+                            .font(.headline)
+                    } else {
+                        Text("iSeeFit")
+                            .font(.headline)
+                    }
                     Text("Lifetime")
                         .font(.caption2)
                         .padding(.vertical, 2)
@@ -82,7 +107,7 @@ struct SettingsView: View {
                 .padding(.vertical, 16)
         }
         .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
         .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
     }
 
@@ -117,7 +142,7 @@ struct SettingsView: View {
             }.padding(16)
         }
         .frame(maxWidth: .infinity)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color(.systemBackground)))
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
         .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
     }
 
@@ -131,11 +156,186 @@ struct SettingsView: View {
                 .foregroundColor(.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 8)
+            
+            // 根据登录状态显示不同的选项
+            if apiService.isAuthenticated {
+                AppSettingsRow(icon: "arrow.right.square", title: "Logout", action: {
+                    showLogoutAlert = true
+                })
+            } else {
+                AppSettingsRow(icon: "person.badge.plus", title: "Sign In", action: {
+                    showLogin = true
+                })
+            }
+            
             AppSettingsRow(icon: "message.fill", title: "Feedback")
             AppSettingsRow(icon: "book.fill", title: "RedNote")
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color(.secondarySystemBackground)))
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.secondary.opacity(0.1)))
+    }
+    
+    // 新增：用户信息卡片
+    private func userInfoCard(user: UserResponse) -> some View {
+        VStack(spacing: 16) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle().fill(Color.blue.opacity(0.2))
+                        .frame(width: 54, height: 54)
+                    Image(systemName: "person.fill")
+                        .foregroundColor(.blue)
+                        .font(.title2)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text(user.username)
+                            .font(.headline)
+                        Text("Member")
+                            .font(.caption2)
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 6)
+                            .background(Color.blue.opacity(0.15))
+                            .cornerRadius(6)
+                    }
+                    Text(user.email)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    showLogoutAlert = true
+                }) {
+                    Image(systemName: "arrow.right.square")
+                        .foregroundColor(.red)
+                        .font(.title3)
+                }
+            }
+            
+            // 用户详细信息
+            VStack(spacing: 8) {
+                if let fullName = user.full_name {
+                    HStack {
+                        Image(systemName: "person")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        Text("Full Name")
+                        Spacer()
+                        Text(fullName)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                if let age = user.age {
+                    HStack {
+                        Image(systemName: "calendar")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        Text("Age")
+                        Spacer()
+                        Text("\(age) years old")
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                if let height = user.height, let weight = user.weight {
+                    HStack {
+                        Image(systemName: "ruler")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        Text("Height")
+                        Spacer()
+                        Text("\(String(format: "%.1f", height)) cm")
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack {
+                        Image(systemName: "scalemass")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        Text("Weight")
+                        Spacer()
+                        Text("\(String(format: "%.1f", weight)) kg")
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                if let gender = user.gender {
+                    HStack {
+                        Image(systemName: "person.2")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        Text("Gender")
+                        Spacer()
+                        Text(gender.capitalized)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                if let activityLevel = user.activity_level {
+                    HStack {
+                        Image(systemName: "figure.run")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        Text("Activity Level")
+                        Spacer()
+                        Text(activityLevel.capitalized)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                if let goal = user.goal {
+                    HStack {
+                        Image(systemName: "target")
+                            .foregroundColor(.gray)
+                            .frame(width: 20)
+                        Text("Goal")
+                        Spacer()
+                        Text(goal.capitalized)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                HStack {
+                    Image(systemName: "calendar.badge.plus")
+                        .foregroundColor(.gray)
+                        .frame(width: 20)
+                    Text("Member Since")
+                    Spacer()
+                    Text(formatDate(user.created_at))
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.secondary.opacity(0.1))
+            )
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
+        )
+    }
+    
+    private func logout() {
+        apiService.logout()
+        print("DEBUG: User logged out successfully")
+    }
+    
+    private func formatDate(_ dateString: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        if let date = formatter.date(from: dateString) {
+            formatter.dateStyle = .medium
+            return formatter.string(from: date)
+        }
+        return dateString
     }
 }
 
@@ -163,16 +363,30 @@ private struct CapsuleButton: View {
 private struct AppSettingsRow: View {
     let icon: String
     let title: String
+    let action: (() -> Void)?
+    
+    init(icon: String, title: String, action: (() -> Void)? = nil) {
+        self.icon = icon
+        self.title = title
+        self.action = action
+    }
 
     var body: some View {
-        HStack {
-            Image(systemName: icon).foregroundColor(.gray)
-            Text(title)
-            Spacer()
-            Image(systemName: "chevron.right").foregroundColor(.gray)
+        Button(action: {
+            action?()
+        }) {
+            HStack {
+                Image(systemName: icon).foregroundColor(.gray)
+                Text(title)
+                Spacer()
+                if action != nil {
+                    Image(systemName: "chevron.right").foregroundColor(.gray)
+                }
+            }
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -189,7 +403,7 @@ private struct AppToggleRow: View {
             Toggle("", isOn: $isOn).labelsHidden()
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
     }
 }
 

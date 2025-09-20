@@ -15,6 +15,9 @@ struct LoginView: View {
     
     @State private var email: String = ""
     @State private var password: String = ""
+    
+    // 添加环境变量来处理登录成功后的关闭
+    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
         VStack {
@@ -63,6 +66,11 @@ struct LoginView: View {
 //            .padding()
         }
         .padding()
+        .alert("Login Error", isPresented: $showError) {
+            Button("OK") { }
+        } message: {
+            Text(errorMessage)
+        }
     }
     
     private func performLogin() {
@@ -77,7 +85,8 @@ struct LoginView: View {
                 
                 await MainActor.run {
                     isLoading = false
-                    // 登录成功，可以关闭登录界面或导航到主界面
+                    // 登录成功，关闭登录界面
+                    presentationMode.wrappedValue.dismiss()
                 }
                 
             } catch {
