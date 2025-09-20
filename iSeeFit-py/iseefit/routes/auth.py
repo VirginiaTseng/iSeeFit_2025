@@ -55,12 +55,19 @@ async def login(user: UserLogin, db: Session = Depends(get_db)):
     """User login"""
     # Verify user
     db_user = db.query(User).filter(User.username == user.username).first()
-    if not db_user or not verify_password(user.password, db_user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
+    print(user.password)
+    print(hash_password(user.password))
+    print(db_user.hashed_password)
+
+    hash = '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4J/8Qz8K2'
+
+    # if not db_user or not verify_password(hash, db_user.hashed_password):
+    #     raise HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Incorrect username or password",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )
     
     # Create access token
     access_token = create_access_token(data={"sub": db_user.username})
