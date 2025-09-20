@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -39,8 +40,8 @@
 		CB4C9CB32D64C0090074A095 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4C9CB22D64C0050074A095 /* MapView.swift */; };
 		CB4C9CD92D6695520074A095 /* ThemeToggleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4C9CD82D66954D0074A095 /* ThemeToggleButton.swift */; };
 		CBFFFFA12D99999900000001 /* FoodCalorieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFA02D99999900000001 /* FoodCalorieView.swift */; };
-		CBFFFFC12D99999900000021 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFC02D99999900000021 /* TodayView.swift */; };
 		CBFFFFB12D99999900000011 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFB02D99999900000011 /* SettingsView.swift */; };
+		CBFFFFC12D99999900000021 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFFFFC02D99999900000021 /* TodayView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,6 +83,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyRecord.swift; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -116,8 +118,8 @@
 		CB4C9CB22D64C0050074A095 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		CB4C9CD82D66954D0074A095 /* ThemeToggleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeToggleButton.swift; sourceTree = "<group>"; };
 		CBFFFFA02D99999900000001 /* FoodCalorieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodCalorieView.swift; sourceTree = "<group>"; };
-		CBFFFFC02D99999900000021 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		CBFFFFB02D99999900000011 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		CBFFFFC02D99999900000021 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -222,6 +224,7 @@
 		CB0672762D694E1300C044BD /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */,
 				CB06728B2D702E9C00C044BD /* Incident.swift */,
 				CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */,
 			);
@@ -529,6 +532,7 @@
 			files = (
 				CB4C9C952D64A4B70074A095 /* MainView.swift in Sources */,
 				CB4C9CB32D64C0090074A095 /* MapView.swift in Sources */,
+				C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */,
 				CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */,
 				CB0672822D695A6E00C044BD /* EmergencyView2.swift in Sources */,
 				CB4C9CAF2D64B8080074A095 /* HomeView.swift in Sources */,
