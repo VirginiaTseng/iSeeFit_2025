@@ -10,7 +10,7 @@ import UIKit
 
 // MARK: - API Configuration
 struct APIConfig {
-    static let baseURL = "http://localhost:8000"
+    static let baseURL = "https://br676689.xyz"
     static let timeout: TimeInterval = 30
 }
 
