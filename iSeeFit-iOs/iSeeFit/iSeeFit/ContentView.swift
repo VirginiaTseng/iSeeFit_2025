@@ -28,7 +28,6 @@ struct ContentView: View {
         if hasSeenOnboarding {
             TabView(selection: $selectedTab) {
                 
-                        //HomeView()
                         TodaysMemoryView()
                             .tabItem {
                                 Image(systemName: "house.fill")
@@ -76,7 +75,12 @@ struct ContentView: View {
                                 Image(systemName: "person.crop.circle")
                                 Text("Profile")
                             }.tag(4)
-                 
+                        HomeView()
+                            .tabItem {
+                                Image(systemName: "house.fill")
+                                Text("Home")
+                            }
+                            .tag(5)
                     }
                     .accentColor(.purple)
                     .preferredColorScheme(.light)

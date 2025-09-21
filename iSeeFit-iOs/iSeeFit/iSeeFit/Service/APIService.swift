@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 // MARK: - API Configuration
 struct APIConfig {
@@ -63,6 +62,86 @@ struct MealRecordResponse: Codable {
     let image_path: String?
     let notes: String?
     let recorded_at: String
+}
+
+// MARK: - Weight Record Models
+struct WeightRecordRequest: Codable {
+    let weight: Double
+    let height: Double?
+    let notes: String?
+}
+
+struct WeightRecordResponse: Codable {
+    let id: Int
+    let user_id: Int
+    let weight: Double
+    let height: Double?
+    let bmi: Double?
+    let notes: String?
+    let image_path: String?
+    let recorded_at: String
+    let created_at: String
+    let updated_at: String
+}
+
+struct WeightHistoryResponse: Codable {
+    let records: [WeightRecordResponse]
+    let total_count: Int
+    let page: Int
+    let page_size: Int
+    let has_next: Bool
+    let has_prev: Bool
+}
+
+struct WeightStatsResponse: Codable {
+    let current_weight: Double
+    let previous_weight: Double?
+    let weight_change: Double
+    let weight_change_percentage: Double
+    let average_weight: Double
+    let min_weight: Double
+    let max_weight: Double
+    let record_count: Int
+    let bmi: Double
+    let bmi_category: String
+    let period_days: Int
+}
+
+struct WeightTrendResponse: Codable {
+    let start_date: String
+    let end_date: String
+    let daily_data: [DailyWeightData]
+    let weekly_averages: [WeeklyAverageData]
+    let monthly_averages: [MonthlyAverageData]
+}
+
+struct DailyWeightData: Codable {
+    let date: String
+    let weight: Double
+    let bmi: Double?
+    let notes: String?
+}
+
+struct WeeklyAverageData: Codable {
+    let week_start: String
+    let average_weight: Double
+}
+
+struct MonthlyAverageData: Codable {
+    let month: String
+    let average_weight: Double
+}
+
+struct BMICalculationRequest: Codable {
+    let weight: Double
+    let height: Double
+}
+
+struct BMICalculationResponse: Codable {
+    let bmi: Double
+    let category: String
+    let description: String
+    let color: String
 }
 
 // MARK: - API Error
@@ -282,6 +361,51 @@ class APIService: ObservableObject {
             method: "GET"
         )
         return records
+    }
+    
+    // MARK: - Weight Records
+    func createWeightRecord(weight: Double, height: Double?, notes: String?) async throws -> WeightRecordResponse {
+        let request = WeightRecordRequest(weight: weight, height: height, notes: notes)
+        let response: WeightRecordResponse = try await performRequest(
+            endpoint: "/weight/",
+            method: "POST",
+            body: request
+        )
+        return response
+    }
+    
+    func getWeightHistory(page: Int = 1, pageSize: Int = 20) async throws -> WeightHistoryResponse {
+        let response: WeightHistoryResponse = try await performRequest(
+            endpoint: "/weight/?page=\(page)&page_size=\(pageSize)",
+            method: "GET"
+        )
+        return response
+    }
+    
+    func getWeightStats(days: Int = 30) async throws -> WeightStatsResponse {
+        let response: WeightStatsResponse = try await performRequest(
+            endpoint: "/weight/stats?days=\(days)",
+            method: "GET"
+        )
+        return response
+    }
+    
+    func getWeightTrend(days: Int = 30) async throws -> WeightTrendResponse {
+        let response: WeightTrendResponse = try await performRequest(
+            endpoint: "/weight/trend?days=\(days)",
+            method: "GET"
+        )
+        return response
+    }
+    
+    func calculateBMI(weight: Double, height: Double) async throws -> BMICalculationResponse {
+        let request = BMICalculationRequest(weight: weight, height: height)
+        let response: BMICalculationResponse = try await performRequest(
+            endpoint: "/weight/bmi",
+            method: "POST",
+            body: request
+        )
+        return response
     }
     
     // MARK: - Generic Request Method

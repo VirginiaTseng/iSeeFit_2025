@@ -3,8 +3,8 @@ Pydantic schemas for request/response models
 """
 
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
-from typing import Optional, List
+from datetime import datetime, date
+from typing import Optional, List, Dict, Any
 
 # User schemas
 class UserCreate(BaseModel):
@@ -133,3 +133,69 @@ class WeeklyStats(BaseModel):
     end_date: str
     daily_stats: dict
     averages: dict
+
+# Weight record schemas
+class WeightRecordCreate(BaseModel):
+    weight: float
+    height: Optional[float] = None
+    notes: Optional[str] = None
+
+class WeightRecordUpdate(BaseModel):
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    notes: Optional[str] = None
+
+class WeightRecordResponse(BaseModel):
+    id: int
+    user_id: int
+    weight: float
+    height: Optional[float]
+    bmi: Optional[float]
+    notes: Optional[str]
+    image_path: Optional[str]
+    recorded_at: datetime
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# BMI calculation schemas
+class BMICalculationRequest(BaseModel):
+    weight: float
+    height: float
+
+class BMICalculationResponse(BaseModel):
+    bmi: float
+    category: str
+    description: str
+    color: str
+
+# Weight statistics schemas
+class WeightStatsResponse(BaseModel):
+    current_weight: float
+    previous_weight: Optional[float]
+    weight_change: float
+    weight_change_percentage: float
+    average_weight: float
+    min_weight: float
+    max_weight: float
+    record_count: int
+    bmi: float
+    bmi_category: str
+    period_days: int
+
+class WeightHistoryResponse(BaseModel):
+    records: List[WeightRecordResponse]
+    total_count: int
+    page: int
+    page_size: int
+    has_next: bool
+    has_prev: bool
+
+class WeightTrendResponse(BaseModel):
+    start_date: date
+    end_date: date
+    daily_data: List[Dict[str, Any]]
+    weekly_averages: List[Dict[str, Any]]
+    monthly_averages: List[Dict[str, Any]]

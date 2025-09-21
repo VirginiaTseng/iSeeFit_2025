@@ -27,4 +27,5 @@ class User(Base):
     # Relationships
     meal_records = relationship("MealRecord", back_populates="user")
     workout_records = relationship("WorkoutRecord", back_populates="user")
+    weight_records = relationship("WeightRecord", back_populates="user")
     recommendations = relationship("Recommendation", back_populates="user")

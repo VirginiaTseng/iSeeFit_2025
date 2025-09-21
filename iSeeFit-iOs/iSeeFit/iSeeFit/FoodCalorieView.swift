@@ -219,7 +219,7 @@ struct FoodCalorieView: View {
 //                    fat: totalFat,
                     portionSize: portionSize.isEmpty ? nil : portionSize,
                     notes: detailedNotes.isEmpty ? nil : detailedNotes,
-                    image: selectedImage
+                  //  image: selectedImage
                 )
                 
                 await MainActor.run {
