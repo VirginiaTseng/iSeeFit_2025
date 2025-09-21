@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var iCloudSyncOn: Bool = false
     @State private var showLogin = false
     @State private var showLogoutAlert = false
+    @State private var showUserDetails = false  // 新增：控制用户详细信息显示
 
     var body: some View {
         NavigationView {
@@ -35,7 +36,7 @@ struct SettingsView: View {
                 .padding(.top, 12)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { Text("Profile").font(.headline) } }
+//            .toolbar { ToolbarItem(placement: .principal) { Text("Profile").font(.headline) } }
             .background(LinearGradient(colors: [Color.black.opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom))
         }
         .sheet(isPresented: $showLogin) {
@@ -187,36 +188,48 @@ struct SettingsView: View {
                         .font(.title2)
                 }
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(user.full_name)
-                            .font(.headline)
-                        Text("Member")
-                            .font(.caption2)
-                            .padding(.vertical, 2)
-                            .padding(.horizontal, 6)
-                            .background(Color.blue.opacity(0.15))
-                            .cornerRadius(6)
-                    }
-                    Text(user.email)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                Button(action: {
-                    showLogoutAlert = true
-                }) {
-                    Image(systemName: "arrow.right.square")
-                        .foregroundColor(.red)
-                        .font(.title3)
-                }
+                 VStack(alignment: .leading, spacing: 4) {
+                     HStack(spacing: 8) {
+                         Text(user.username)
+                             .font(.headline)
+                         Text("Member")
+                             .font(.caption2)
+                             .padding(.vertical, 2)
+                             .padding(.horizontal, 6)
+                             .background(Color.blue.opacity(0.15))
+                             .cornerRadius(6)
+                     }
+                     Text(user.email)
+                         .font(.caption)
+                         .foregroundColor(.secondary)
+                 }
+                 
+                 Spacer()
+                 
+                 // 添加切换按钮
+                 Button(action: {
+                     withAnimation(.easeInOut(duration: 0.3)) {
+                         showUserDetails.toggle()
+                     }
+                 }) {
+                     Image(systemName: showUserDetails ? "chevron.up" : "chevron.down")
+                         .foregroundColor(.blue)
+                         .font(.title3)
+                 }
+                 
+                 Button(action: {
+                     showLogoutAlert = true
+                 }) {
+                     Image(systemName: "arrow.right.square")
+                         .foregroundColor(.red)
+                         .font(.title3)
+                 }
             }
             
             
-            // 用户详细信息
-            VStack(spacing: 8) {
+            // 用户详细信息 - 根据状态显示
+            if showUserDetails {
+                VStack(spacing: 8) {
                 if let fullName = user.full_name {
                     HStack {
                         Image(systemName: "person")
@@ -308,13 +321,15 @@ struct SettingsView: View {
                     Text(formatDate(user.created_at))
                         .foregroundColor(.secondary)
                 }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.secondary.opacity(0.1))
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.secondary.opacity(0.1))
-            )
         }
         .padding(16)
         .background(
