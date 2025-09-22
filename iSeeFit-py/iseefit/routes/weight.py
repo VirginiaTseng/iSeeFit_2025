@@ -22,7 +22,7 @@ from models.schemas import (
     WeightStatsResponse, WeightHistoryResponse, WeightTrendResponse
 )
 from utils.auth import get_current_user
-from utils.image import save_image, get_image_path
+from utils.image import save_image
 
 router = APIRouter(prefix="/weight", tags=["weight"])
 

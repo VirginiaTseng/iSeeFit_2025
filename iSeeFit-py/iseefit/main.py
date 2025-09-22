@@ -26,11 +26,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # 导入路由
-from meal_routes import router as meal_router
-from workout_routes import router as workout_router
-from recommendation_routes import router as recommendation_router
+from routes.meals import router as meal_router
+from routes.workouts import router as workout_router
+from routes.recommendations import router as recommendation_router
 from routes.weight import router as weight_router
-
+from routes.live import router as live_router
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ app.include_router(meal_router)
 app.include_router(workout_router)
 app.include_router(recommendation_router)
 app.include_router(weight_router)
-
+app.include_router(live_router)
 # 安全配置
 security = HTTPBearer()
 

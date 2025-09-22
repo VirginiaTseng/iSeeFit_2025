@@ -8,7 +8,7 @@
 from sqlalchemy import Column, Integer, Float, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from .base import Base
+from config.database import Base
 
 
 class WeightRecord(Base):
