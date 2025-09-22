@@ -340,6 +340,16 @@ struct WeightInputView: View {
         
         Task {
             do {
+                // Save locally first (offline-friendly)
+                let localRecord = WeightRecord(
+                    weight: weightValue,
+                    date: selectedDate,
+                    notes: notes.isEmpty ? nil : notes,
+                    imagePath: nil
+                )
+                WeightLocalStore.shared.addRecord(localRecord)
+                print("DEBUG: WeightInputView - saved local record: \(weightValue)kg @ \(selectedDate)")
+                
                 // Save to backend API
                 let weightRecord = try await apiService.createWeightRecord(
                     weight: weightValue,

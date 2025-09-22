@@ -331,6 +331,14 @@ struct WeightChartView: View {
         
         Task {
             do {
+                // Load local records first as immediate fallback
+                let local = WeightLocalStore.shared.loadRecords()
+                if !local.isEmpty {
+                    await MainActor.run {
+                        weightRecords = local
+                        print("DEBUG: WeightChartView - loaded \(local.count) records from local store")
+                    }
+                }
                 // Load from backend API
                 let historyResponse = try await APIService.shared.getWeightHistory(page: 1, pageSize: 100)
                 
@@ -354,8 +362,10 @@ struct WeightChartView: View {
                 await MainActor.run {
                     isLoading = false
                     print("ERROR: Failed to load weight records: \(error)")
-                    // Fallback to sample data
-                    generateSampleData()
+                    if weightRecords.isEmpty {
+                        // Fallback to sample data only if no local data
+                        generateSampleData()
+                    }
                 }
             }
         }
