@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var showLogin = false
     @State private var showLogoutAlert = false
     @State private var showUserDetails = false  // 新增：控制用户详细信息显示
+    @State private var showPrivacy = false
 
     var body: some View {
         NavigationView {
@@ -29,6 +30,20 @@ struct SettingsView: View {
                     quickGrid
                     widgetWatchCard
                     settingsList
+            // Privacy entry at the bottom
+            Button(action: {
+                print("DEBUG: SettingsView - open PrivacyPolicyView")
+                showPrivacy = true
+            }) {
+                HStack {
+                    Image(systemName: "hand.raised.fill").foregroundColor(.gray)
+                    Text("Privacy Policy")
+                    Spacer()
+                    Image(systemName: "chevron.right").foregroundColor(.gray)
+                }
+                .padding(12)
+                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+            }
                     NotificationCard()
                     Spacer(minLength: 24)
                 }
@@ -41,6 +56,9 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showLogin) {
             LoginView()
+        }
+        .sheet(isPresented: $showPrivacy) {
+            PrivacyPolicyView()
         }
         .alert("Logout", isPresented: $showLogoutAlert) {
             Button("Cancel", role: .cancel) { }

@@ -14,6 +14,8 @@
 	<string>Allow iSeeFit to take photos of food to estimate calories.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow iSeeFit to select photos to estimate calories.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We use speech recognition so you can log meals and workouts hands-free. Audio is processed only to transcribe your voice commands.</string>
 	<key>EDAMAM_APP_ID</key>
 	<string></string>
 	<key>EDAMAM_APP_KEY</key>

@@ -83,7 +83,7 @@ struct ContentView: View {
                             .tag(5)
                         TodayView().tabItem {
                             Image(systemName: "house.fill")
-                            Text("Home")
+                            Text("Timeline")
                         }
                         .tag(7)
                     }
