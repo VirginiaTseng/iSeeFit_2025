@@ -42,7 +42,14 @@ final class WeightLocalStore {
     
     func addRecord(_ record: WeightRecord) {
         var current = loadRecords()
-        current.append(record)
+        // Upsert by same calendar day
+        if let existingIndex = current.firstIndex(where: { Calendar.current.isDate($0.date, inSameDayAs: record.date) }) {
+            print("DEBUG: WeightLocalStore - updating existing record for the same day at index: \(existingIndex)")
+            current[existingIndex] = record
+        } else {
+            print("DEBUG: WeightLocalStore - adding new record for date: \(record.date)")
+            current.append(record)
+        }
         // Keep sorted by date descending for quick display
         current.sort { $0.date > $1.date }
         saveRecords(current)
