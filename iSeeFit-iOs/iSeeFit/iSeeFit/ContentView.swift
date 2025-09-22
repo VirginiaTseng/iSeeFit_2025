@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import AVFoundation
+import Vision
 //import SwiftData
 
 struct ContentView: View {
@@ -86,6 +88,13 @@ struct ContentView: View {
                             Text("Timeline")
                         }
                         .tag(7)
+                        
+                        VideoView()
+                            .tabItem {
+                                Image(systemName: "video.fill")
+                                Text("Fitness")
+                            }
+                            .tag(8)
                     }
                     .accentColor(.purple)
                     .preferredColorScheme(.light)

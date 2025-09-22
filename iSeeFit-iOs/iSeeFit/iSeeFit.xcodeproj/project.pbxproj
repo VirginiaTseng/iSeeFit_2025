@@ -20,6 +20,7 @@
 		C49EFC252E80546D00025E88 /* WeightInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC242E80546D00025E88 /* WeightInputView.swift */; };
 		C49EFC262E80546D00025E88 /* WeightChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC232E80546D00025E88 /* WeightChartView.swift */; };
 		C49EFC2A2E81BDD400025E88 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC292E81BDD400025E88 /* PrivacyPolicyView.swift */; };
+		C49EFC2C2E82066700025E88 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC2B2E82066700025E88 /* VideoView.swift */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -108,6 +109,7 @@
 		C49EFC232E80546D00025E88 /* WeightChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightChartView.swift; sourceTree = "<group>"; };
 		C49EFC242E80546D00025E88 /* WeightInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightInputView.swift; sourceTree = "<group>"; };
 		C49EFC292E81BDD400025E88 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
+		C49EFC2B2E82066700025E88 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -308,6 +310,7 @@
 		CB4C9C8B2D64A4B70074A095 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC2B2E82066700025E88 /* VideoView.swift */,
 				C49EFC292E81BDD400025E88 /* PrivacyPolicyView.swift */,
 				C49EFC232E80546D00025E88 /* WeightChartView.swift */,
 				C49EFC242E80546D00025E88 /* WeightInputView.swift */,
@@ -569,6 +572,7 @@
 				CB4C9C952D64A4B70074A095 /* MainView.swift in Sources */,
 				CB4C9CB32D64C0090074A095 /* MapView.swift in Sources */,
 				C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */,
+				C49EFC2C2E82066700025E88 /* VideoView.swift in Sources */,
 				C49EFC102E7F344500025E88 /* TodaysMemory2View.swift in Sources */,
 				C49EFC042E7F036F00025E88 /* NotificationCard.swift in Sources */,
 				C49EFC0C2E7F32F400025E88 /* ObservableHeaderView.swift in Sources */,
