@@ -8,6 +8,9 @@
 import SwiftUI
 import AVFoundation
 import Vision
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct VideoView: View {
     @StateObject private var cameraManager = CameraManager()
@@ -76,53 +79,69 @@ struct VideoView: View {
                     poseDetectionCard()
                     
                     // Bottom controls
-                    HStack(spacing: 30) {
-                        Button(action: {
-                            print("DEBUG: VideoView - camera switch tapped")
-                            cameraManager.switchCamera()
-                        }) {
-                            Image(systemName: "camera.rotate")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .padding(15)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
+                    VStack(spacing: 20) {
+                        // Camera switch button - moved to top
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                print("DEBUG: VideoView - camera switch tapped")
+                                cameraManager.switchCamera()
+                            }) {
+                                Image(systemName: "camera.rotate")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                                    .padding(15)
+                                    .background(Color.black.opacity(0.7))
+                                    .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                            }
+                            .padding(.trailing, 20)
                         }
                         
-                        Button(action: {
-                            print("DEBUG: VideoView - record toggle tapped")
-                            isRecording.toggle()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(isRecording ? Color.red : Color.white)
-                                    .frame(width: 70, height: 70)
-                                
-                                if isRecording {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.white)
-                                        .frame(width: 30, height: 30)
-                                } else {
+                        // Main control buttons
+                        HStack(spacing: 40) {
+                            Button(action: {
+                                print("DEBUG: VideoView - reset count tapped")
+                                workoutCount = 0
+                            }) {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.title2)
+                                    .foregroundColor(.white)
+                                    .padding(15)
+                                    .background(Color.black.opacity(0.7))
+                                    .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                            }
+                            
+                            Button(action: {
+                                print("DEBUG: VideoView - record toggle tapped")
+                                isRecording.toggle()
+                            }) {
+                                ZStack {
                                     Circle()
-                                        .fill(Color.red)
-                                        .frame(width: 60, height: 60)
+                                        .fill(isRecording ? Color.red : Color.white)
+                                        .frame(width: 80, height: 80)
+                                        .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
+                                    
+                                    if isRecording {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.white)
+                                            .frame(width: 30, height: 30)
+                                    } else {
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: 60, height: 60)
+                                    }
                                 }
                             }
-                        }
-                        
-                        Button(action: {
-                            print("DEBUG: VideoView - reset count tapped")
-                            workoutCount = 0
-                        }) {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .padding(15)
-                                .background(Color.black.opacity(0.6))
-                                .clipShape(Circle())
+                            
+                            // Placeholder for symmetry
+                            Circle()
+                                .fill(Color.clear)
+                                .frame(width: 50, height: 50)
                         }
                     }
-                    .padding(.bottom, 30)
+                    .padding(.bottom, 40)
                 }
                 
                 // Pose overlay
@@ -372,13 +391,13 @@ class PoseDetector: NSObject, ObservableObject {
         }
     }
     
-    private func processPoseResults(_ results: [VNHumanBodyPoseObservation]?) {
-        guard let results = results, !results.isEmpty else {
+    private func processPoseResults(_ results: [VNObservation]?) {
+        guard let observations = results as? [VNHumanBodyPoseObservation], !observations.isEmpty else {
             currentPose = DetectedPose(type: .unknown, accuracy: 0.0)
             return
         }
         
-        let observation = results.first!
+        let observation = observations.first!
         let poseType = classifyPose(from: observation)
         let accuracy = observation.confidence
         
