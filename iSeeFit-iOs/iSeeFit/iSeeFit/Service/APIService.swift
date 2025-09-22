@@ -203,6 +203,19 @@ class APIService: ObservableObject {
         return response
     }
     
+    struct HealthResponse: Codable {
+        let status: String
+    }
+    
+    func getHealth() async throws  -> HealthResponse {
+        let response: HealthResponse  = try await performRequest(
+            endpoint: "/health",
+            method: "GET"
+        )
+        
+        return response
+    }
+    
     func register(username: String, email: String, password: String) async throws -> UserResponse {
         let request = [
             "username": username,
@@ -410,7 +423,7 @@ class APIService: ObservableObject {
     }
     
     // MARK: - Generic Request Method
-    private func performRequest<T: Codable>(
+    public func performRequest<T: Codable>(
         endpoint: String,
         method: String,
         body: Codable? = nil

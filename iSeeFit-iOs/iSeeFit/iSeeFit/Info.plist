@@ -26,22 +26,19 @@
 	<string>qwen-plus</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<key>NSAllowsArbitraryLoads</key><false/>
+		<key>NSAllowsArbitraryLoadsForMedia</key><false/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>br676689.xyz</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<false/>
-				<key>NSExceptionRequiresForwardSecrecy</key>
-				<false/>
+				<true/>
 				<key>NSIncludesSubdomains</key>
 				<true/>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSTemporaryExceptionMinimumTLSVersion</key>
-				<string>TLSv1.0</string>
 			</dict>
 		</dict>
 	</dict>
+
 </dict>
 </plist>

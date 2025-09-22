@@ -14,8 +14,8 @@
             filePath = "iSeeFit/Service/APIService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "423"
-            endingLineNumber = "423"
+            startingLineNumber = "436"
+            endingLineNumber = "436"
             landmarkName = "performRequest(endpoint:method:body:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -24,46 +24,16 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "0B66E90B-85BA-4977-A48B-CC2FB82DB40B"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "iSeeFit/Service/APIService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "443"
-            endingLineNumber = "443"
+            startingLineNumber = "456"
+            endingLineNumber = "456"
             landmarkName = "performRequest(endpoint:method:body:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "0B66E90B-85BA-4977-A48B-CC2FB82DB40B - 15a24ade8b76c020"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for iSeeFit.APIService.performRequest&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Swift.Decodable, &#x3c4;_0_0: Swift.Encodable&gt;(endpoint: Swift.String, method: Swift.String, body: Swift.Optional&lt;Swift.Decodable &amp; Swift.Encodable&gt;) async throws -&gt; &#x3c4;_0_0"
-                  moduleName = "iSeeFit.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/virginiazheng/Documents/Workspaces/Hackathon2025/iSeeFit_2025/iSeeFit-iOs/iSeeFit/iSeeFit/Service/APIService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "443"
-                  endingLineNumber = "443">
-               </Location>
-               <Location
-                  uuid = "0B66E90B-85BA-4977-A48B-CC2FB82DB40B - 424ea9d76f547e13"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(4) suspend resume partial function for iSeeFit.APIService.performRequest&lt;&#x3c4;_0_0 where &#x3c4;_0_0: Swift.Decodable, &#x3c4;_0_0: Swift.Encodable&gt;(endpoint: Swift.String, method: Swift.String, body: Swift.Optional&lt;Swift.Decodable &amp; Swift.Encodable&gt;) async throws -&gt; &#x3c4;_0_0"
-                  moduleName = "iSeeFit.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/virginiazheng/Documents/Workspaces/Hackathon2025/iSeeFit_2025/iSeeFit-iOs/iSeeFit/iSeeFit/Service/APIService.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "443"
-                  endingLineNumber = "443">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
