@@ -12,7 +12,7 @@ parent_dir = Path(__file__).parent.parent
 sys.path.append(str(parent_dir))
 
 from config.database import Base, engine
-from routes import auth, meals, workouts, recommendations
+from routes import auth, meals, workouts, recommendations, weight, live
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -38,6 +38,8 @@ app.include_router(auth.router)
 app.include_router(meals.router)
 app.include_router(workouts.router)
 app.include_router(recommendations.router)
+app.include_router(weight.router)
+app.include_router(live.router)
 
 @app.get("/")
 async def root():
