@@ -42,7 +42,7 @@ struct ContentView: View {
                             }
                             .tag(1)                       
                         
-                        TodayView()
+                        WeightChartView()
                             .tabItem {
                                 Image(systemName: "clock").symbolRenderingMode(.palette)
                                 Text("Today")
@@ -81,6 +81,11 @@ struct ContentView: View {
                                 Text("Home")
                             }
                             .tag(5)
+                        TodayView().tabItem {
+                            Image(systemName: "house.fill")
+                            Text("Home")
+                        }
+                        .tag(7)
                     }
                     .accentColor(.purple)
                     .preferredColorScheme(.light)

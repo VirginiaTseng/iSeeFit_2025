@@ -63,19 +63,19 @@ struct WeightInputView: View {
                 }
                 .padding()
             }
-            .navigationTitle("记录体重")
+            .navigationTitle("Log Weight")
             .navigationBarTitleDisplayMode(.large)
-            .alert("提示", isPresented: $showAlert) {
-                Button("确定") { }
+            .alert("Notice", isPresented: $showAlert) {
+                Button("OK") { }
             } message: {
                 Text(alertMessage)
             }
-            .alert("保存成功", isPresented: $showSuccess) {
-                Button("确定") {
+            .alert("Saved Successfully", isPresented: $showSuccess) {
+                Button("OK") {
                     resetForm()
                 }
             } message: {
-                Text("体重记录已保存")
+                Text("Weight record has been saved")
             }
             .sheet(isPresented: $showImagePicker) {
                 ImagePicker(
@@ -96,11 +96,11 @@ struct WeightInputView: View {
                 .font(.system(size: 40))
                 .foregroundColor(.blue)
             
-            Text("记录今日体重")
+            Text("Record Today's Weight")
                 .font(.title2)
                 .fontWeight(.semibold)
             
-            Text("保持健康，从记录开始")
+            Text("Stay healthy, start by tracking")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
@@ -115,13 +115,13 @@ struct WeightInputView: View {
     private var weightInputCard: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("体重")
+                Text("Weight")
                     .font(.headline)
                 Spacer()
             }
             
             HStack {
-                TextField("请输入体重", text: $weight)
+                TextField("Enter weight", text: $weight)
                     .keyboardType(.decimalPad)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .font(.title2)
@@ -133,7 +133,7 @@ struct WeightInputView: View {
             }
             
             // Date Picker
-            DatePicker("记录日期", selection: $selectedDate, displayedComponents: .date)
+            DatePicker("Record Date", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(CompactDatePickerStyle())
         }
         .padding()
@@ -148,7 +148,7 @@ struct WeightInputView: View {
     private var bmiDisplayCard: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("BMI 指数")
+                Text("BMI Index")
                     .font(.headline)
                 Spacer()
             }
@@ -201,7 +201,7 @@ struct WeightInputView: View {
     private var imageSelectionCard: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("体重照片")
+                Text("Weight Photo")
                     .font(.headline)
                 Spacer()
             }
@@ -233,7 +233,7 @@ struct WeightInputView: View {
                             Image(systemName: "camera")
                                 .font(.system(size: 30))
                                 .foregroundColor(.gray)
-                            Text("添加体重照片")
+                            Text("Add weight photo")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
@@ -241,13 +241,13 @@ struct WeightInputView: View {
             }
             
             HStack(spacing: 12) {
-                Button("选择照片") {
+                Button("Choose Photo") {
                     useCamera = false
                     showImagePicker = true
                 }
                 .buttonStyle(.bordered)
                 
-                Button("拍照") {
+                Button("Take Photo") {
                     useCamera = true
                     showImagePicker = true
                 }
@@ -266,12 +266,12 @@ struct WeightInputView: View {
     private var notesCard: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("备注")
+                Text("Notes")
                     .font(.headline)
                 Spacer()
             }
             
-            TextField("添加备注（可选）", text: $notes, axis: .vertical)
+            TextField("Add notes (optional)", text: $notes, axis: .vertical)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .lineLimit(3...6)
         }
@@ -294,7 +294,7 @@ struct WeightInputView: View {
                 } else {
                     Image(systemName: "checkmark.circle.fill")
                 }
-                Text(isSaving ? "保存中..." : "保存体重记录")
+                Text(isSaving ? "Saving..." : "Save Weight Record")
             }
             .font(.headline)
             .foregroundColor(.white)

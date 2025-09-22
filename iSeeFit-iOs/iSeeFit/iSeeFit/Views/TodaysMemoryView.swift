@@ -9,6 +9,9 @@ import SwiftUI
 
 struct TodaysMemoryView: View {
     @State private var scrollOffset: CGFloat = 0
+    // Weight feature sheets (debug-logs enabled)
+    @State private var showWeightInput: Bool = false
+    //@State private var showWeightChart: Bool = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -29,10 +32,46 @@ struct TodaysMemoryView: View {
                             }
                         })
                 }
+                // Floating action buttons inside scroll area (top-right)
+                .overlay(alignment: .topTrailing) {
+                    HStack(spacing: 12) {
+                        Button(action: {
+                            print("DEBUG: TodaysMemoryView - weight input button tapped")
+                            showWeightInput = true
+                        }) {
+                            Image(systemName: "scalemass.fill")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                                .padding(10)
+                                .background(Color.blue.opacity(0.9))
+                                .clipShape(Circle())
+                        }
+//                        Button(action: {
+//                            print("DEBUG: TodaysMemoryView - weight chart button tapped")
+//                            showWeightChart = true
+//                        }) {
+//                            Image(systemName: "chart.line.uptrend.xyaxis")
+//                                .font(.title2)
+//                                .foregroundColor(.white)
+//                                .padding(10)
+//                                .background(Color.green.opacity(0.9))
+//                                .clipShape(Circle())
+//                        }
+                    }
+                    .padding(.trailing, 16)
+                    .padding(.top, 12)
+                }
             }
         }
         .ignoresSafeArea()
         // 动画现在由 TodaysMemoryBkCard 内部处理
+        // Sheets for weight features
+        .sheet(isPresented: $showWeightInput) {
+            WeightInputView()
+        }
+//        .sheet(isPresented: $showWeightChart) {
+//            WeightChartView()
+//        }
     }
     
     private func contentView() -> some View {

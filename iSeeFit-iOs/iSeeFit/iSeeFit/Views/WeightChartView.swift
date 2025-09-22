@@ -64,7 +64,7 @@ struct WeightChartView: View {
                 }
                 .padding()
             }
-            .navigationTitle("体重追踪")
+            .navigationTitle("Weight Tracking")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -89,12 +89,12 @@ struct WeightChartView: View {
     private var timeRangeSelector: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("时间范围")
+                Text("Time Range")
                     .font(.headline)
                 Spacer()
             }
             
-            Picker("时间范围", selection: $selectedTimeRange) {
+            Picker("Time Range", selection: $selectedTimeRange) {
                 ForEach(TimeRange.allCases, id: \.self) { range in
                     Text(range.displayName).tag(range)
                 }
@@ -117,10 +117,10 @@ struct WeightChartView: View {
         ], spacing: 12) {
             // Current Weight Card
             StatCard(
-                title: "当前体重",
+                title: "Current Weight",
                 value: String(format: "%.1f kg", statistics.currentWeight),
                 subtitle: statistics.weightChange != 0 ? 
-                    String(format: "%+.1f kg", statistics.weightChange) : "无变化",
+                    String(format: "%+.1f kg", statistics.weightChange) : "No change",
                 color: statistics.weightChange > 0 ? .red : 
                        statistics.weightChange < 0 ? .green : .blue,
                 icon: "scalemass.fill"
@@ -128,7 +128,7 @@ struct WeightChartView: View {
             
             // BMI Card
             StatCard(
-                title: "BMI 指数",
+                title: "BMI",
                 value: String(format: "%.1f", statistics.bmi),
                 subtitle: statistics.bmiCategory.description,
                 color: statistics.bmiCategory.color,
@@ -137,18 +137,18 @@ struct WeightChartView: View {
             
             // Average Weight Card
             StatCard(
-                title: "平均体重",
+                title: "Average Weight",
                 value: String(format: "%.1f kg", statistics.averageWeight),
-                subtitle: "\(selectedTimeRange.displayName)平均",
+                subtitle: "\(selectedTimeRange.displayName) avg",
                 color: .orange,
                 icon: "chart.line.uptrend.xyaxis"
             )
             
             // Record Count Card
             StatCard(
-                title: "记录数量",
+                title: "Record Count",
                 value: "\(statistics.recordCount)",
-                subtitle: "条记录",
+                subtitle: "records",
                 color: .purple,
                 icon: "list.number"
             )
@@ -159,25 +159,25 @@ struct WeightChartView: View {
     private var weightChart: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("体重趋势")
+                Text("Weight Trend")
                     .font(.headline)
                 Spacer()
             }
             
             if filteredRecords.isEmpty {
-                emptyChartView("暂无体重数据", "点击右上角添加体重记录")
+                emptyChartView("No weight data", "Tap + to add a weight record")
             } else {
                 Chart(filteredRecords) { record in
                     LineMark(
-                        x: .value("日期", record.date),
-                        y: .value("体重", record.weight)
+                        x: .value("Date", record.date),
+                        y: .value("Weight", record.weight)
                     )
                     .foregroundStyle(.blue)
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     
                     PointMark(
-                        x: .value("日期", record.date),
-                        y: .value("体重", record.weight)
+                        x: .value("Date", record.date),
+                        y: .value("Weight", record.weight)
                     )
                     .foregroundStyle(.blue)
                     .symbolSize(50)
@@ -213,24 +213,24 @@ struct WeightChartView: View {
     private var bmiChart: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("BMI 趋势")
+                Text("BMI Trend")
                     .font(.headline)
                 Spacer()
             }
             
             if filteredRecords.isEmpty {
-                emptyChartView("暂无 BMI 数据", "需要体重数据来计算 BMI")
+                emptyChartView("No BMI data", "Weight data is required to calculate BMI")
             } else {
                 Chart(filteredRecords) { record in
                     LineMark(
-                        x: .value("日期", record.date),
+                        x: .value("Date", record.date),
                         y: .value("BMI", BMICalculator.calculate(weight: record.weight, height: userHeight))
                     )
                     .foregroundStyle(.green)
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     
                     PointMark(
-                        x: .value("日期", record.date),
+                        x: .value("Date", record.date),
                         y: .value("BMI", BMICalculator.calculate(weight: record.weight, height: userHeight))
                     )
                     .foregroundStyle(.green)
@@ -267,7 +267,7 @@ struct WeightChartView: View {
     private var recentRecords: some View {
         VStack(spacing: 16) {
             HStack {
-                Text("最近记录")
+                Text("Recent Records")
                     .font(.headline)
                 Spacer()
             }
@@ -314,11 +314,11 @@ struct WeightChartView: View {
                 .font(.system(size: 30))
                 .foregroundColor(.gray)
             
-            Text("暂无记录")
+            Text("No records")
                 .font(.headline)
                 .foregroundColor(.secondary)
             
-            Text("开始记录你的体重变化")
+            Text("Start tracking your weight changes")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
