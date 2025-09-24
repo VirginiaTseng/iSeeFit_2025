@@ -31,3 +31,4 @@ class WeightRecord(Base):
     
     def __repr__(self):
         return f"<WeightRecord(id={self.id}, user_id={self.user_id}, weight={self.weight}kg, recorded_at={self.recorded_at})>"
+

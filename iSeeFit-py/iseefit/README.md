@@ -7,7 +7,6 @@ iSeeFit 的后端 API 服务，支持用户登录、饮食/健身打卡记录、
 - 🔐 **用户认证**: JWT 令牌认证，支持用户注册和登录
 - 🍎 **饮食记录**: 记录每日饮食，包括卡路里、营养成分分析
 - 💪 **健身记录**: 记录运动数据，包括时长、卡路里消耗等
-- ⚖️ **体重追踪**: 记录体重变化，BMI 计算和趋势分析
 - 📸 **图片处理**: 支持图片上传、压缩和存储
 - 🤖 **智能推荐**: 基于用户数据的个性化饮食和运动推荐
 - 📊 **数据统计**: 提供日、周、月统计数据
@@ -134,25 +133,6 @@ CREATE TABLE recommendations (
     is_read BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-```
-
-4. **创建体重记录表**：
-```sql
-CREATE TABLE weight_records (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    weight FLOAT NOT NULL COMMENT '体重 (kg)',
-    height FLOAT COMMENT '身高 (cm) - 记录时的身高',
-    bmi FLOAT COMMENT 'BMI 指数',
-    notes TEXT COMMENT '备注',
-    image_path VARCHAR(500) COMMENT '体重照片路径',
-    recorded_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user_id (user_id),
-    INDEX idx_recorded_at (recorded_at)
 );
 ```
 

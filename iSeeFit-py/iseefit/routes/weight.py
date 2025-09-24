@@ -439,3 +439,4 @@ async def get_latest_weight(
     except Exception as e:
         print(f"ERROR: Failed to get latest weight: {str(e)}")
         raise HTTPException(status_code=500, detail=f"获取最新体重失败: {str(e)}")
+

@@ -154,3 +154,4 @@ struct WeightStatistics {
         print("DEBUG: Weight Statistics calculated - Current: \(currentWeight)kg, Change: \(weightChange)kg, BMI: \(String(format: "%.1f", bmi))")
     }
 }
+

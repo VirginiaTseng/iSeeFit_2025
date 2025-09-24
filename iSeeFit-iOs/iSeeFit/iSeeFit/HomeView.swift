@@ -1,9 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @ObservedObject private var notificationManager = NotificationManager.shared // 暂时注释掉
-    @State private var showWeightInput = false
-    @State private var showWeightChart = false
+    @ObservedObject private var notificationManager = NotificationManager.shared
     
     
 
@@ -30,7 +28,7 @@ struct HomeView: View {
                     // 最近活动
                     RecentActivityCard()
                     
-                    // NotificationCard() // 暂时注释掉
+                    NotificationCard()
                     
                     
                 }
@@ -38,7 +36,7 @@ struct HomeView: View {
                 .background(Color.secondarySystemBackground)
             }
 //            .navigationTitle("iSeeFit")
-             .commonToolbar(
+            .commonToolbar(
                 notificationAction: {
                     notificationManager.sendTestNotification()
                 },
@@ -49,35 +47,6 @@ struct HomeView: View {
                     // 处理语音功能
                 }
             )
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 12) {
-                        // 体重输入按钮
-                        Button(action: {
-                            showWeightInput = true
-                        }) {
-                            Image(systemName: "scalemass.fill")
-                                .font(.title2)
-                                .foregroundColor(.blue)
-                        }
-                        
-                        // 体重图表按钮
-                        Button(action: {
-                            showWeightChart = true
-                        }) {
-                            Image(systemName: "chart.line.uptrend.xyaxis")
-                                .font(.title2)
-                                .foregroundColor(.green)
-                        }
-                    }
-                }
-            }
-            .sheet(isPresented: $showWeightInput) {
-                WeightInputView()
-            }
-            .sheet(isPresented: $showWeightChart) {
-                WeightChartView()
-            }
 //            .toolbar {
 //                ToolbarItem(placement: .navigationBarTrailing) {
 //                    HStack(spacing: 15) {
