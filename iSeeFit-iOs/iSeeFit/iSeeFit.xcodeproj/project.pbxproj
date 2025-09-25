@@ -23,6 +23,8 @@
 		C49EFC2C2E82066700025E88 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC2B2E82066700025E88 /* VideoView.swift */; };
 		C49EFC322E85025300025E88 /* FoodHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC312E85025300025E88 /* FoodHistoryView.swift */; };
 		C49EFC342E8502AE00025E88 /* FoodRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC332E8502AE00025E88 /* FoodRecord.swift */; };
+		C49EFC3D2E859B4000025E88 /* LaunchVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC3C2E859B3100025E88 /* LaunchVideoView.swift */; };
+		C49EFC3F2E859C7A00025E88 /* output_vertical.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C49EFC3E2E859C7A00025E88 /* output_vertical.mp4 */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -114,6 +116,8 @@
 		C49EFC2B2E82066700025E88 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
 		C49EFC312E85025300025E88 /* FoodHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodHistoryView.swift; sourceTree = "<group>"; };
 		C49EFC332E8502AE00025E88 /* FoodRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodRecord.swift; sourceTree = "<group>"; };
+		C49EFC3C2E859B3100025E88 /* LaunchVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchVideoView.swift; sourceTree = "<group>"; };
+		C49EFC3E2E859C7A00025E88 /* output_vertical.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = output_vertical.mp4; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -251,6 +255,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C49EFC382E8598D100025E88 /* New */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = New;
+			sourceTree = "<group>";
+		};
+		C49EFC392E859A1400025E88 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
 		CB0672762D694E1300C044BD /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -335,6 +353,8 @@
 		CB4C9C942D64A4B70074A095 /* iSeeFit */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC392E859A1400025E88 /* New Group */,
+				C49EFC382E8598D100025E88 /* New */,
 				C49EFC192E7F54A100025E88 /* Login2View.swift */,
 				CB06728D2D71E88B00C044BD /* GoogleService-Info.plist */,
 				CB1EFD902D66E3B4009C8FE7 /* ViewModel */,
@@ -368,8 +388,10 @@
 				CB4C9C922D64A4B70074A095 /* iSeeFitApp.swift */,
 				CB4C9C892D64A4B70074A095 /* MainView.swift */,
 				CB4C9C8A2D64A4B70074A095 /* OnboardingView.swift */,
+				C49EFC3C2E859B3100025E88 /* LaunchVideoView.swift */,
 				CB4C9CAC2D64AE7D0074A095 /* LoginView.swift */,
 				CB0672862D6EC5FD00C044BD /* Theme.swift */,
+				C49EFC3E2E859C7A00025E88 /* output_vertical.mp4 */,
 			);
 			path = iSeeFit;
 			sourceTree = "<group>";
@@ -541,6 +563,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C49EFC3F2E859C7A00025E88 /* output_vertical.mp4 in Resources */,
 				CB4C9C9E2D64A4B70074A095 /* Preview Assets.xcassets in Resources */,
 				CB4C9C9F2D64A4B70074A095 /* Assets.xcassets in Resources */,
 				CB06728E2D71E88B00C044BD /* GoogleService-Info.plist in Resources */,
@@ -615,6 +638,7 @@
 				C49EFC322E85025300025E88 /* FoodHistoryView.swift in Sources */,
 				CB4C9C9C2D64A4B70074A095 /* iSeeFitApp.swift in Sources */,
 				CB0672872D6EC5FD00C044BD /* Theme.swift in Sources */,
+				C49EFC3D2E859B4000025E88 /* LaunchVideoView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

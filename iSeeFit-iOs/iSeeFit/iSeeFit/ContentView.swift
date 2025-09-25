@@ -11,6 +11,7 @@ import Vision
 //import SwiftData
 
 struct ContentView: View {
+    @AppStorage("hasSeenIntro") private var hasSeenIntro = false
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var selectedTab = 0
     
@@ -26,8 +27,11 @@ struct ContentView: View {
 //            hasSeenOnboarding = false
 //        }
         
-        
-        if hasSeenOnboarding {
+       if !hasSeenIntro{
+           LaunchVideoView(onFinish: { hasSeenIntro = true })
+       } else if !hasSeenOnboarding {
+           OnboardingView()
+       } else if hasSeenOnboarding {
             TabView(selection: $selectedTab) {
                 
                         TodaysMemoryView()
@@ -134,8 +138,6 @@ struct ContentView: View {
 //                }
 //                .padding()
 //            }
-        } else {
-            OnboardingView() // 进入引导页
         }
         
     }

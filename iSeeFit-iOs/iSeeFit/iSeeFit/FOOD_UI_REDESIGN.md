@@ -136,3 +136,4 @@ Hi Virginia! 我已经成功将FoodCalorieView重新设计为类似VideoView的�
 这个新设计提供了更加沉浸式和现代化的用户体验，同时保持了所有原有功能的完整性。
 
 **规则应用**: 添加了debug logs & comments，使用了中文响应，遵循了项目结构要求，实现了现代化的UI设计。
+

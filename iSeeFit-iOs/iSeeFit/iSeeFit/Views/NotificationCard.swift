@@ -74,8 +74,8 @@ struct NotificationCard: View {
                                        .cornerRadius(10)
             
                     Button("Reset Onboarding") {
+                        UserDefaults.standard.setValue(false, forKey:"hasSeenIntro")
                         UserDefaults.standard.setValue(false, forKey:"hasSeenOnboarding")//.removeObject(forKey: "hasSeenOnboarding")
-                            print("🛠️ Debug: hasSeenOnboarding reset to false") // ✅ Debug Log
                        // hasSeenOnboarding = false
                     }
                     .padding()

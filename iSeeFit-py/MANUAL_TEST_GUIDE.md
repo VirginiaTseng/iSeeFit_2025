@@ -193,3 +193,4 @@ curl -X DELETE "http://localhost:8000/weight/1" \
 3. **500 Internal Server Error**: 检查数据库连接和表结构
 4. **422 Validation Error**: 检查请求数据格式是否正确
 
+
