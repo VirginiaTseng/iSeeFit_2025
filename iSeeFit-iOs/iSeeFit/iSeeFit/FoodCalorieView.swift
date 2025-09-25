@@ -23,276 +23,15 @@ struct FoodCalorieView: View {
     @State private var showLoginSheet = false
     @State private var showAnalysisSettings = false
     @State private var portionMultiplier: Double = 1.0
+    @State private var cardOffset: CGFloat = 0
+    @State private var isCardExpanded: Bool = true
+    @State private var dragOffset: CGFloat = 0
 
     var body: some View {
         ZStack {
-            // Background Image
-            if let image = selectedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .ignoresSafeArea()
-            } else {
-                // Default background when no image
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-            }
-            
-            // Main Content Overlay
-            VStack(spacing: 0) {
-                // Top Action Buttons
-                HStack {
-                    Spacer()
-                    HStack(spacing: 12) {
-                        Button(action: {
-                            useCamera = false
-                            showPicker = true
-                        }) {
-                            Image(systemName: "photo.on.rectangle")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
-                                .background(Color.black.opacity(0.3))
-                                .clipShape(Circle())
-                        }
-                        
-                        Button(action: {
-                            useCamera = true
-                            showPicker = true
-                        }) {
-                            Image(systemName: "camera")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
-                                .background(Color.black.opacity(0.3))
-                                .clipShape(Circle())
-                        }
-                        
-                        Button(action: {
-                            showAnalysisSettings = true
-                        }) {
-                            Image(systemName: "gearshape")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
-                                .background(Color.black.opacity(0.3))
-                                .clipShape(Circle())
-                        }
-                    }
-                    .padding(.trailing, 20)
-                }
-                .padding(.top, 20)
-                
-                Spacer()
-                
-                // Bottom Information Card
-                VStack(spacing: 0) {
-                    // Food Name and Portion
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text(selectedImage != nil ? getFoodName() : "Select a food photo")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary)
-                                .multilineTextAlignment(.leading)
-                            
-                            Spacer()
-                            
-                            // Portion selector
-                            HStack(spacing: 8) {
-                                Button(action: { adjustPortion(-1) }) {
-                                    Image(systemName: "minus")
-                                        .font(.title3)
-                                        .foregroundColor(.primary)
-                                }
-                                
-                                Text("\(Int(portionMultiplier))")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .frame(minWidth: 30)
-                                
-                                Button(action: { adjustPortion(1) }) {
-                                    Image(systemName: "plus")
-                                        .font(.title3)
-                                        .foregroundColor(.primary)
-                                }
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(Color.white.opacity(0.8))
-                            .cornerRadius(20)
-                        }
-                        
-                        // Calories and Macronutrients
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Image(systemName: "flame.fill")
-                                        .foregroundColor(.orange)
-                                    Text("\(Int(foodAnalysisManager.totalCalories * portionMultiplier))")
-                                        .font(.title)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.primary)
-                                    Text("Calories")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            
-                            Spacer()
-                            
-                            // Macronutrient cards
-                            HStack(spacing: 8) {
-                                MacronutrientCard(
-                                    title: "Protein",
-                                    value: "\(String(format: "%.0f", foodAnalysisManager.totalProtein * portionMultiplier))g",
-                                    icon: "fork.knife",
-                                    color: .red
-                                )
-                                
-                                MacronutrientCard(
-                                    title: "Carbs",
-                                    value: "\(String(format: "%.0f", foodAnalysisManager.totalCarbs * portionMultiplier))g",
-                                    icon: "leaf",
-                                    color: .green
-                                )
-                                
-                                MacronutrientCard(
-                                    title: "Fat",
-                                    value: "\(String(format: "%.0f", foodAnalysisManager.totalFat * portionMultiplier))g",
-                                    icon: "drop",
-                                    color: .blue
-                                )
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
-                    
-                    // Analysis Results (if available)
-                    if foodAnalysisManager.hasResults {
-                        VStack(alignment: .leading, spacing: 12) {
-                            // Detected Foods
-                            if !foodAnalysisManager.detectedFoods.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Detected Foods")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    
-                                    ForEach(Array(foodAnalysisManager.detectedFoods.enumerated()), id: \.offset) { index, item in
-                                        CompactFoodItemView(item: item, index: index)
-                                    }
-                                }
-                            }
-                            
-                            // Analysis Notes
-                            if let notes = foodAnalysisManager.analysisNotes, !notes.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("Analysis Notes")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Text(notes)
-                                        .font(.body)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 16)
-                    }
-                    
-                    // Action Buttons
-                    HStack(spacing: 16) {
-                        Button(action: saveMealRecord) {
-                            HStack {
-                                Image(systemName: "bookmark")
-                                Text("Save")
-                            }
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.white.opacity(0.9))
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                        }
-                        .disabled(!foodAnalysisManager.hasResults || isSaving)
-                        
-                        Button(action: {
-                            if let image = selectedImage {
-                                Task {
-                                    await foodAnalysisManager.analyze(image: image)
-                                }
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "sparkles")
-                                Text("Analyze")
-                            }
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.black.opacity(0.8))
-                            .cornerRadius(12)
-                        }
-                        .disabled(selectedImage == nil || foodAnalysisManager.isAnalyzing)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
-                    .padding(.bottom, 30)
-                }
-                .background(
-                    // Glass morphism effect
-                    RoundedRectangle(cornerRadius: 24)
-                        .fill(.ultraThinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 24)
-                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                        )
-                )
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
-            }
-            
-            // Analysis Status Overlay
-            if foodAnalysisManager.isAnalyzing {
-                VStack {
-                    Spacer()
-                    HStack {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        Text("Analyzing food...")
-                            .foregroundColor(.white)
-                            .font(.headline)
-                    }
-                    .padding()
-                    .background(Color.black.opacity(0.6))
-                    .cornerRadius(20)
-                    .padding(.bottom, 200)
-                }
-            }
-            
-            // Error Message Overlay
-            if let errorMessage = foodAnalysisManager.errorMessage {
-                VStack {
-                    Spacer()
-                    Text(errorMessage)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.red.opacity(0.8))
-                        .cornerRadius(12)
-                        .padding(.bottom, 200)
-                }
-            }
+            backgroundView
+            mainContentView
+            statusOverlays
         }
         .sheet(isPresented: $showPicker) {
             ImagePicker(image: $selectedImage, completion: { image in
@@ -469,6 +208,432 @@ struct FoodCalorieView: View {
         }
     }
     
+    // MARK: - Sub Views
+    private var backgroundView: some View {
+        Group {
+            if let image = selectedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .ignoresSafeArea()
+            } else {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+            }
+        }
+    }
+    
+    private var mainContentView: some View {
+        VStack(spacing: 0) {
+            topActionButtons
+            Spacer()
+            bottomInformationCard
+        }
+    }
+    
+    private var topActionButtons: some View {
+        HStack {
+            Spacer()
+            HStack(spacing: 12) {
+                Button(action: {
+                    useCamera = false
+                    showPicker = true
+                }) {
+                    Image(systemName: "photo.on.rectangle")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: {
+                    useCamera = true
+                    showPicker = true
+                }) {
+                    Image(systemName: "camera")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+                
+                Button(action: {
+                    showAnalysisSettings = true
+                }) {
+                    Image(systemName: "gearshape")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.trailing, 20)
+        }
+        .padding(.top, 20)
+    }
+    
+    private var bottomInformationCard: some View {
+        VStack(spacing: 0) {
+            dragHandle
+            cardContent
+        }
+        .background(glassMorphismBackground)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 20)
+        .offset(y: cardOffset + dragOffset)
+        .gesture(cardDragGesture)
+        .onTapGesture {
+            toggleCardExpansion()
+        }
+    }
+    
+    private var dragHandle: some View {
+        VStack(spacing: 8) {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(Color.secondary.opacity(0.6))
+                .frame(width: 40, height: 4)
+                .padding(.top, 8)
+        }
+    }
+    
+    private var cardContent: some View {
+        Group {
+            if !isCardExpanded {
+                collapsedCardContent
+            } else {
+                expandedCardContent
+            }
+        }
+    }
+    
+    private var collapsedCardContent: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(selectedImage != nil ? getFoodName() : "Select a food photo")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                
+                HStack {
+                    Image(systemName: "flame.fill")
+                        .foregroundColor(.orange)
+                    Text("\(Int(foodAnalysisManager.totalCalories * portionMultiplier))")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    Text("Calories")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            quickActionButtons
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 16)
+    }
+    
+    private var expandedCardContent: some View {
+        VStack(spacing: 0) {
+            foodNameAndPortion
+            analysisResults
+            actionButtons
+        }
+    }
+    
+    private var foodNameAndPortion: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(selectedImage != nil ? getFoodName() : "Select a food photo")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
+                
+                portionSelector
+            }
+            
+            caloriesAndMacronutrients
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+    }
+    
+    private var portionSelector: some View {
+        HStack(spacing: 8) {
+            Button(action: { adjustPortion(-1) }) {
+                Image(systemName: "minus")
+                    .font(.title3)
+                    .foregroundColor(.primary)
+            }
+            
+            Text("\(Int(portionMultiplier))")
+                .font(.title3)
+                .fontWeight(.semibold)
+                .frame(minWidth: 30)
+            
+            Button(action: { adjustPortion(1) }) {
+                Image(systemName: "plus")
+                    .font(.title3)
+                    .foregroundColor(.primary)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color.white.opacity(0.8))
+        .cornerRadius(20)
+    }
+    
+    private var caloriesAndMacronutrients: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Image(systemName: "flame.fill")
+                        .foregroundColor(.orange)
+                    Text("\(Int(foodAnalysisManager.totalCalories * portionMultiplier))")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    Text("Calories")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            macronutrientCards
+        }
+    }
+    
+    private var macronutrientCards: some View {
+        HStack(spacing: 8) {
+            MacronutrientCard(
+                title: "Protein",
+                value: "\(String(format: "%.0f", foodAnalysisManager.totalProtein * portionMultiplier))g",
+                icon: "fork.knife",
+                color: .red
+            )
+            
+            MacronutrientCard(
+                title: "Carbs",
+                value: "\(String(format: "%.0f", foodAnalysisManager.totalCarbs * portionMultiplier))g",
+                icon: "leaf",
+                color: .green
+            )
+            
+            MacronutrientCard(
+                title: "Fat",
+                value: "\(String(format: "%.0f", foodAnalysisManager.totalFat * portionMultiplier))g",
+                icon: "drop",
+                color: .blue
+            )
+        }
+    }
+    
+    private var analysisResults: some View {
+        Group {
+            if foodAnalysisManager.hasResults {
+                VStack(alignment: .leading, spacing: 12) {
+                    detectedFoods
+                    analysisNotes
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+            }
+        }
+    }
+    
+    private var detectedFoods: some View {
+        Group {
+            if !foodAnalysisManager.detectedFoods.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Detected Foods")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    ForEach(Array(foodAnalysisManager.detectedFoods.enumerated()), id: \.offset) { index, item in
+                        CompactFoodItemView(item: item, index: index)
+                    }
+                }
+            }
+        }
+    }
+    
+    private var analysisNotes: some View {
+        Group {
+            if let notes = foodAnalysisManager.analysisNotes, !notes.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Analysis Notes")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(notes)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+    
+    private var actionButtons: some View {
+        HStack(spacing: 16) {
+            saveButton
+            analyzeButton
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 20)
+        .padding(.bottom, 30)
+    }
+    
+    private var saveButton: some View {
+        Button(action: saveMealRecord) {
+            HStack {
+                Image(systemName: "bookmark")
+                Text("Save")
+            }
+            .font(.headline)
+            .foregroundColor(.primary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+            )
+        }
+        .disabled(!foodAnalysisManager.hasResults || isSaving)
+    }
+    
+    private var analyzeButton: some View {
+        Button(action: {
+            if let image = selectedImage {
+                Task {
+                    await foodAnalysisManager.analyze(image: image)
+                }
+            }
+        }) {
+            HStack {
+                Image(systemName: "sparkles")
+                Text("Analyze")
+            }
+            .font(.headline)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(Color.black.opacity(0.8))
+            .cornerRadius(12)
+        }
+        .disabled(selectedImage == nil || foodAnalysisManager.isAnalyzing)
+    }
+    
+    private var quickActionButtons: some View {
+        HStack(spacing: 12) {
+            Button(action: {
+                if let image = selectedImage {
+                    Task {
+                        await foodAnalysisManager.analyze(image: image)
+                    }
+                }
+            }) {
+                Image(systemName: "sparkles")
+                    .font(.title3)
+                    .foregroundColor(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Color.black.opacity(0.8))
+                    .clipShape(Circle())
+            }
+            .disabled(selectedImage == nil || foodAnalysisManager.isAnalyzing)
+            
+            Button(action: saveMealRecord) {
+                Image(systemName: "bookmark")
+                    .font(.title3)
+                    .foregroundColor(.primary)
+                    .frame(width: 36, height: 36)
+                    .background(Color.white.opacity(0.9))
+                    .clipShape(Circle())
+            }
+            .disabled(!foodAnalysisManager.hasResults || isSaving)
+        }
+    }
+    
+    private var glassMorphismBackground: some View {
+        RoundedRectangle(cornerRadius: 24)
+            .fill(.ultraThinMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
+    }
+    
+    private var cardDragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                if isCardExpanded && value.translation.height > 0 {
+                    dragOffset = value.translation.height
+                } else if !isCardExpanded && value.translation.height < 0 {
+                    dragOffset = value.translation.height
+                }
+            }
+            .onEnded { value in
+                handleDragEnd(value)
+            }
+    }
+    
+    private var statusOverlays: some View {
+        Group {
+            if foodAnalysisManager.isAnalyzing {
+                analysisStatusOverlay
+            }
+            
+            if let errorMessage = foodAnalysisManager.errorMessage {
+                errorMessageOverlay(errorMessage)
+            }
+        }
+    }
+    
+    private var analysisStatusOverlay: some View {
+        VStack {
+            Spacer()
+            HStack {
+                ProgressView()
+                    .scaleEffect(0.8)
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                Text("Analyzing food...")
+                    .foregroundColor(.white)
+                    .font(.headline)
+            }
+            .padding()
+            .background(Color.black.opacity(0.6))
+            .cornerRadius(20)
+            .padding(.bottom, isCardExpanded ? 200 : 100)
+        }
+    }
+    
+    private func errorMessageOverlay(_ message: String) -> some View {
+        VStack {
+            Spacer()
+            Text(message)
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.red.opacity(0.8))
+                .cornerRadius(12)
+                .padding(.bottom, isCardExpanded ? 200 : 100)
+        }
+    }
+    
     // MARK: - Helper Methods
     private func getFoodName() -> String {
         if foodAnalysisManager.hasResults && !foodAnalysisManager.detectedFoods.isEmpty {
@@ -482,6 +647,48 @@ struct FoodCalorieView: View {
         let newValue = portionMultiplier + Double(delta)
         if newValue >= 0.5 && newValue <= 5.0 {
             portionMultiplier = newValue
+        }
+    }
+    
+    private func handleDragEnd(_ value: DragGesture.Value) {
+        let threshold: CGFloat = 50
+        
+        if isCardExpanded {
+            // Currently expanded - check if should collapse
+            if value.translation.height > threshold || value.predictedEndTranslation.height > 100 {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    isCardExpanded = false
+                    cardOffset = 0
+                    dragOffset = 0
+                }
+            } else {
+                // Snap back to expanded
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    dragOffset = 0
+                }
+            }
+        } else {
+            // Currently collapsed - check if should expand
+            if value.translation.height < -threshold || value.predictedEndTranslation.height < -100 {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    isCardExpanded = true
+                    cardOffset = 0
+                    dragOffset = 0
+                }
+            } else {
+                // Snap back to collapsed
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    dragOffset = 0
+                }
+            }
+        }
+    }
+    
+    private func toggleCardExpansion() {
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            isCardExpanded.toggle()
+            cardOffset = 0
+            dragOffset = 0
         }
     }
 }
