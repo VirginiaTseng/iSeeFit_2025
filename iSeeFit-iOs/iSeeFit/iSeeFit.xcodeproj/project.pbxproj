@@ -21,6 +21,8 @@
 		C49EFC262E80546D00025E88 /* WeightChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC232E80546D00025E88 /* WeightChartView.swift */; };
 		C49EFC2A2E81BDD400025E88 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC292E81BDD400025E88 /* PrivacyPolicyView.swift */; };
 		C49EFC2C2E82066700025E88 /* VideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC2B2E82066700025E88 /* VideoView.swift */; };
+		C49EFC322E85025300025E88 /* FoodHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC312E85025300025E88 /* FoodHistoryView.swift */; };
+		C49EFC342E8502AE00025E88 /* FoodRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC332E8502AE00025E88 /* FoodRecord.swift */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -110,6 +112,8 @@
 		C49EFC242E80546D00025E88 /* WeightInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightInputView.swift; sourceTree = "<group>"; };
 		C49EFC292E81BDD400025E88 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		C49EFC2B2E82066700025E88 /* VideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoView.swift; sourceTree = "<group>"; };
+		C49EFC312E85025300025E88 /* FoodHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodHistoryView.swift; sourceTree = "<group>"; };
+		C49EFC332E8502AE00025E88 /* FoodRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodRecord.swift; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -250,6 +254,7 @@
 		CB0672762D694E1300C044BD /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC332E8502AE00025E88 /* FoodRecord.swift */,
 				C49EFC212E80544000025E88 /* WeightRecord.swift */,
 				C49EFC1B2E7F59FF00025E88 /* FoodItem.swift */,
 				C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */,
@@ -310,6 +315,7 @@
 		CB4C9C8B2D64A4B70074A095 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC312E85025300025E88 /* FoodHistoryView.swift */,
 				C49EFC2B2E82066700025E88 /* VideoView.swift */,
 				C49EFC292E81BDD400025E88 /* PrivacyPolicyView.swift */,
 				C49EFC232E80546D00025E88 /* WeightChartView.swift */,
@@ -594,6 +600,7 @@
 				C49EFC1A2E7F54AA00025E88 /* Login2View.swift in Sources */,
 				C49EFC1C2E7F5A0400025E88 /* FoodItem.swift in Sources */,
 				C49EFC2A2E81BDD400025E88 /* PrivacyPolicyView.swift in Sources */,
+				C49EFC342E8502AE00025E88 /* FoodRecord.swift in Sources */,
 				C49EFC222E80544000025E88 /* WeightRecord.swift in Sources */,
 				CBFFFFA12D99999900000001 /* FoodCalorieView.swift in Sources */,
 				CBFFFFC12D99999900000021 /* TodayView.swift in Sources */,
@@ -605,6 +612,7 @@
 				CB4C9CD92D6695520074A095 /* ThemeToggleButton.swift in Sources */,
 				CB4C9CA42D64AAFA0074A095 /* SemanticAnalysisManager.swift in Sources */,
 				CB06728C2D702EA200C044BD /* Incident.swift in Sources */,
+				C49EFC322E85025300025E88 /* FoodHistoryView.swift in Sources */,
 				CB4C9C9C2D64A4B70074A095 /* iSeeFitApp.swift in Sources */,
 				CB0672872D6EC5FD00C044BD /* Theme.swift in Sources */,
 			);

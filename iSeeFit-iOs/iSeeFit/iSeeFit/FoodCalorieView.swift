@@ -255,7 +255,22 @@ struct FoodCalorieView: View {
                     detailedNotes += "\nAI Notes: \(analysisNotes)\n"
                 }
                 
-                let mealRecord = try await apiService.createMealRecord(
+                // Convert FoodAnalysisItem to DetectedFoodItem for local storage
+                let detectedFoods = foodAnalysisManager.detectedFoods.map { item in
+                    DetectedFoodItem(
+                        foodName: item.food_detected,
+                        portionGrams: item.portion_g,
+                        confidence: item.confidence,
+                        calories: item.calories_kcal,
+                        protein: item.protein_g,
+                        carbs: item.carbs_g,
+                        fat: item.fat_g,
+                        source: item.source
+                    )
+                }
+                
+                // Create local food record first
+                let localRecord = FoodRecord(
                     mealType: mealType,
                     foodName: foodName,
                     calories: foodAnalysisManager.totalCalories,
@@ -264,12 +279,73 @@ struct FoodCalorieView: View {
                     fat: foodAnalysisManager.totalFat,
                     portionSize: portionSize.isEmpty ? nil : portionSize,
                     notes: detailedNotes.isEmpty ? nil : detailedNotes,
-                    image: selectedImage
+                    imagePath: nil, // Will be set after saving image
+                    analysisMode: foodAnalysisManager.analysisMode,
+                    detectedFoods: detectedFoods
                 )
+                
+                // Save image locally if available
+                var imagePath: String? = nil
+                if let image = selectedImage {
+                    imagePath = ImageManager.shared.saveFoodImage(image, recordId: localRecord.id)
+                }
+                
+                // Update local record with image path
+                let finalLocalRecord = FoodRecord(
+                    mealType: localRecord.mealType,
+                    foodName: localRecord.foodName,
+                    calories: localRecord.calories,
+                    protein: localRecord.protein,
+                    carbs: localRecord.carbs,
+                    fat: localRecord.fat,
+                    portionSize: localRecord.portionSize,
+                    notes: localRecord.notes,
+                    imagePath: imagePath,
+                    analysisMode: localRecord.analysisMode,
+                    detectedFoods: localRecord.detectedFoods,
+                    date: localRecord.date
+                )
+                
+                // Save to local storage first (offline-friendly)
+                FoodLocalStore.shared.addRecord(finalLocalRecord)
+                print("DEBUG: FoodCalorieView - saved local record: \(foodName) (\(foodAnalysisManager.totalCalories)kcal)")
+                
+                // Debug logging
+                print("🔍 Saving meal record with data:")
+                print("  - Meal Type: \(mealType)")
+                print("  - Food Name: \(foodName)")
+                print("  - Calories: \(foodAnalysisManager.totalCalories)")
+                print("  - Protein: \(foodAnalysisManager.totalProtein)")
+                print("  - Carbs: \(foodAnalysisManager.totalCarbs)")
+                print("  - Fat: \(foodAnalysisManager.totalFat)")
+                print("  - Portion Size: \(portionSize.isEmpty ? "nil" : portionSize)")
+                print("  - Has Image: \(selectedImage != nil)")
+                print("  - Image Path: \(imagePath ?? "nil")")
+                print("  - Is Authenticated: \(apiService.isAuthenticated)")
+                
+                // Save to backend API if authenticated
+                if apiService.isAuthenticated {
+                    let mealRecord = try await apiService.createMealRecord(
+                        mealType: mealType,
+                        foodName: foodName,
+                        calories: foodAnalysisManager.totalCalories,
+                        protein: foodAnalysisManager.totalProtein,
+                        carbs: foodAnalysisManager.totalCarbs,
+                        fat: foodAnalysisManager.totalFat,
+                        portionSize: portionSize.isEmpty ? nil : portionSize,
+                        notes: detailedNotes.isEmpty ? nil : detailedNotes,
+                        image: selectedImage
+                    )
+                    
+                    print("DEBUG: FoodCalorieView - saved to backend: \(mealRecord.food_name) (ID: \(mealRecord.id))")
+                } else {
+                    print("DEBUG: FoodCalorieView - not authenticated, saved locally only")
+                }
                 
                 await MainActor.run {
                     isSaving = false
-                    saveMessage = "Meal record saved successfully!\nFood: \(mealRecord.food_name)\nCalories: \(Int(mealRecord.calories))"
+                    let authStatus = apiService.isAuthenticated ? " (synced to cloud)" : " (local only)"
+                    saveMessage = "Meal record saved successfully\(authStatus)!\nFood: \(foodName)\nCalories: \(Int(foodAnalysisManager.totalCalories))"
                     showSaveAlert = true
                     
                     // Clear form
@@ -282,7 +358,23 @@ struct FoodCalorieView: View {
             } catch {
                 await MainActor.run {
                     isSaving = false
-                    saveMessage = "Failed to save meal record: \(error.localizedDescription)"
+                    // Enhanced error message with more details
+                    var errorDetails = error.localizedDescription
+                    if let apiError = error as? APIError {
+                        switch apiError {
+                        case .unauthorized:
+                            errorDetails = "Authentication failed. Please login again."
+                        case .networkError(let message):
+                            errorDetails = "Network error: \(message)"
+                        case .serverError(let code):
+                            errorDetails = "Server error (\(code)). Please try again later."
+                        case .decodingError:
+                            errorDetails = "Failed to parse server response. Please try again."
+                        default:
+                            errorDetails = "Unknown error: \(error.localizedDescription)"
+                        }
+                    }
+                    saveMessage = "Failed to save meal record: \(errorDetails)"
                     showSaveAlert = true
                 }
             }

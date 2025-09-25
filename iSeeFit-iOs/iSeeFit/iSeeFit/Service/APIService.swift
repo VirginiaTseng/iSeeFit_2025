@@ -324,37 +324,30 @@ class APIService: ObservableObject {
         image: UIImage? = nil
     ) async throws -> MealRecordResponse {
         
-        var request = MealRecordRequest(
-            meal_type: mealType,
-            food_name: foodName,
+        // Always use multipart form data since backend expects Form parameters
+        return try await createMealRecordWithMultipart(
+            mealType: mealType,
+            foodName: foodName,
             calories: calories,
             protein: protein,
             carbs: carbs,
             fat: fat,
-            portion_size: portionSize,
-            notes: notes
+            portionSize: portionSize,
+            notes: notes,
+            image: image
         )
-        
-        // If we have an image, we need to use multipart form data
-        if let image = image {
-            return try await createMealRecordWithImage(
-                request: request,
-                image: image
-            )
-        } else {
-            // Regular JSON request
-            let response: MealRecordResponse = try await performRequest(
-                endpoint: "/meals/",
-                method: "POST",
-                body: request
-            )
-            return response
-        }
     }
     
-    private func createMealRecordWithImage(
-        request: MealRecordRequest,
-        image: UIImage
+    private func createMealRecordWithMultipart(
+        mealType: String,
+        foodName: String,
+        calories: Double,
+        protein: Double?,
+        carbs: Double?,
+        fat: Double?,
+        portionSize: String?,
+        notes: String?,
+        image: UIImage?
     ) async throws -> MealRecordResponse {
         
         guard let url = URL(string: "\(APIConfig.baseURL)/meals/") else {
@@ -377,14 +370,14 @@ class APIService: ObservableObject {
         
         // Add form fields
         let fields: [(String, String)] = [
-            ("meal_type", request.meal_type),
-            ("food_name", request.food_name),
-            ("calories", String(request.calories)),
-            ("protein", request.protein.map(String.init(_:)) ?? "0"),
-            ("carbs", request.carbs.map(String.init(_:)) ?? "0"),
-            ("fat", request.fat.map(String.init(_:)) ?? "0"),
-            ("portion_size", request.portion_size ?? ""),
-            ("notes", request.notes ?? "")
+            ("meal_type", mealType),
+            ("food_name", foodName),
+            ("calories", String(calories)),
+            ("protein", String(protein ?? 0.0)),
+            ("carbs", String(carbs ?? 0.0)),
+            ("fat", String(fat ?? 0.0)),
+            ("portion_size", portionSize ?? ""),
+            ("notes", notes ?? "")
         ]
         
         for (key, value) in fields {
@@ -393,8 +386,8 @@ class APIService: ObservableObject {
             body.append("\(value)\r\n".data(using: .utf8)!)
         }
         
-        // Add image
-        if let imageData = image.jpegData(compressionQuality: 0.8) {
+        // Add image if provided
+        if let image = image, let imageData = image.jpegData(compressionQuality: 0.8) {
             body.append("--\(boundary)\r\n".data(using: .utf8)!)
             body.append("Content-Disposition: form-data; name=\"image\"; filename=\"food_image.jpg\"\r\n".data(using: .utf8)!)
             body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
@@ -411,7 +404,21 @@ class APIService: ObservableObject {
             throw APIError.networkError("Invalid response")
         }
         
-        guard httpResponse.statusCode == 200 else {
+        switch httpResponse.statusCode {
+        case 200...299:
+            break
+        case 401:
+            throw APIError.unauthorized
+        case 422:
+            // Validation error - print response for debugging
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Validation error response: \(responseString)")
+            }
+            throw APIError.networkError("Validation error - please check your input data")
+        default:
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Server error response: \(responseString)")
+            }
             throw APIError.serverError(httpResponse.statusCode)
         }
         
@@ -420,6 +427,9 @@ class APIService: ObservableObject {
             return mealRecord
         } catch {
             print("Decoding error: \(error)")
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Response data: \(responseString)")
+            }
             throw APIError.decodingError
         }
     }

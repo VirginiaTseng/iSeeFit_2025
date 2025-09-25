@@ -42,7 +42,9 @@ struct ContentView: View {
                                 Image(systemName: "fork.knife")
                                 Text("Food")
                             }
-                            .tag(1)                       
+                            .tag(1)
+                            
+                  
                         
                         WeightChartView()
                             .tabItem {
@@ -95,6 +97,13 @@ struct ContentView: View {
                                 Text("Fitness")
                             }
                             .tag(8)
+                
+                        FoodHistoryView()
+                            .tabItem {
+                                Image(systemName: "list.bullet")
+                                Text("History")
+                            }
+                            .tag(6)     
                     }
                     .accentColor(.purple)
                     .preferredColorScheme(.light)
