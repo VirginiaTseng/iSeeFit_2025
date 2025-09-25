@@ -99,6 +99,17 @@ class NotificationManager: NSObject, ObservableObject, UNUserNotificationCenterD
         }
     }
     
+    // 停止自动通知
+    func stopAutomaticNotifications() {
+        // 取消所有待发送的通知请求
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        
+        // 清除通知中心的所有通知
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        
+        print("✅ All automatic notifications have been stopped and cleared")
+    }
+    
     // 设置通知类别和按钮
     private func setupNotificationCategories() {
         // 定义操作按钮

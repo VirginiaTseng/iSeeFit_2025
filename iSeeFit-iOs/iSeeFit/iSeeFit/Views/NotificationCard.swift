@@ -39,13 +39,29 @@ struct NotificationCard: View {
                                       Button("Send Automatic Test Notification") {
                                          // notificationManager.sendTestNotification()
                                           // 设置每30分钟发送一次通知
+                                          print("🔄 User requested to start automatic notifications")
                                           notificationManager.scheduleDefaultReminders()
+                                          print("✅ Automatic notifications scheduled successfully")
                   //                            .scheduleNotification(
                   //                            title: "iSeeFit Safety Reminder",
                   //                            body: "Regular safety check reminder",
                   //                            interval: 1800 // 30 minutes in seconds
                   //                        )
                                       }
+                                      .padding()
+                                      .background(Color.green.opacity(0.1))
+                                      .cornerRadius(10)
+                                      
+                                      // 停止自动通知按钮
+                                      Button("Stop Automatic Notifications") {
+                                          // 停止所有自动通知
+                                          print("🛑 User requested to stop automatic notifications")
+                                          notificationManager.stopAutomaticNotifications()
+                                          print("✅ Automatic notifications stopped successfully")
+                                      }
+                                      .padding()
+                                      .background(Color.red.opacity(0.1))
+                                      .cornerRadius(10)
                                       
                                       Button("Send Safety Alert") {
                                           notificationManager.sendSafetyAlert(
