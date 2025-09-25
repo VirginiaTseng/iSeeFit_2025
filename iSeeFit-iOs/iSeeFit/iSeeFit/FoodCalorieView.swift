@@ -28,14 +28,14 @@ struct FoodCalorieView: View {
     @State private var dragOffset: CGFloat = 0
 
     var body: some View {
-        GeometryReader { geometry in
+//        GeometryReader { geometry in
             ZStack {
                 backgroundView
                 mainContentView
                 statusOverlays
             }
-            .frame(width: geometry.size.width, height: geometry.size.height)
-        }
+//            .frame(width: geometry.size.width, height: geometry.size.height)
+//        }
         .ignoresSafeArea(.container, edges: .all)  // 重置 Safe Area 影响
         .sheet(isPresented: $showPicker) {
             ImagePicker(image: $selectedImage, completion: { image in
@@ -57,7 +57,7 @@ struct FoodCalorieView: View {
         } message: {
             Text(saveMessage)
         }
-        .navigationTitle("Food Calories")
+        //.navigationTitle("Food Calories")
     }
     
     // MARK: - Save Meal Record
@@ -268,7 +268,7 @@ private var topActionButtons: some View {
             }
         }
         .padding(.leading, 20)
-        .padding(.top, 140)
+        .padding(.top, 100)
         
         Spacer()
         
