@@ -239,51 +239,54 @@ struct FoodCalorieView: View {
         }
     }
     
-    private var topActionButtons: some View {
-        HStack {
-            Spacer()
-            HStack(spacing: 12) {
-                Button(action: {
-                    useCamera = true
-                    showPicker = true
-                }) {
-                    Image(systemName: "camera")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .frame(width: 144, height: 144)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
-                }
-                
-                
-                Button(action: {
-                    useCamera = false
-                    showPicker = true
-                }) {
-                    Image(systemName: "photo.on.rectangle")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .frame(width: 44, height: 44)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
-                }
-                
-          
-                Button(action: {
-                    showAnalysisSettings = true
-                }) {
-                    Image(systemName: "gearshape")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .frame(width: 44, height: 44)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
-                }
+private var topActionButtons: some View {
+    HStack {
+        // 左侧：相机和相册按钮纵向排列
+        VStack(spacing: 16) {
+            Button(action: {
+                useCamera = true
+                showPicker = true
+            }) {
+                Image(systemName: "camera")
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .frame(width: 80, height: 80)
+                    .background(Color.black.opacity(0.3))
+                    .clipShape(Circle())
             }
-            .padding(.trailing, 20)
+            
+            Button(action: {
+                useCamera = false
+                showPicker = true
+            }) {
+                Image(systemName: "photo.on.rectangle")
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .frame(width: 80, height: 80)
+                    .background(Color.black.opacity(0.3))
+                    .clipShape(Circle())
+            }
         }
-        .padding(.top, 20)
+        .padding(.leading, 20)
+        .padding(.top, 140)
+        
+        Spacer()
+        
+        // 右侧：设置按钮
+        Button(action: {
+            showAnalysisSettings = true
+        }) {
+            Image(systemName: "gearshape")
+                .font(.title2)
+                .foregroundColor(.white)
+                .frame(width: 44, height: 44)
+                .background(Color.black.opacity(0.3))
+                .clipShape(Circle())
+        }
+        .padding(.trailing, 20)
     }
+    .padding(.top, 20)
+}
     
     private var bottomInformationCard: some View {
         VStack(spacing: 0) {
@@ -292,7 +295,7 @@ struct FoodCalorieView: View {
         }
         .background(glassMorphismBackground)
         .padding(.horizontal, 16)
-        .padding(.bottom, 20)
+        .padding(.bottom, 90)
         .offset(y: cardOffset + dragOffset)
         .gesture(cardDragGesture)
         .onTapGesture {
