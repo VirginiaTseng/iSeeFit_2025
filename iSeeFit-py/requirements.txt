@@ -1,3 +1,14 @@
 # Qwen API Caller Dependencies
 requests>=2.28.0
 python-dotenv>=1.0.0
+gradio>=4.36.0
+openai>=1.40.0
+pillow>=10.0.0
+pandas>=2.2.0
+transformers>=4.43.0
+torch>=2.1.0
+torchvision>=0.16.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+# torch==2.3.1+cpu
+# torchvision==0.18.1+cpu
+accelerate>=0.31.0

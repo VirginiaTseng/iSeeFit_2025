@@ -16,7 +16,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "437"
             endingLineNumber = "437"
-            landmarkName = "performRequest(endpoint:method:body:)"
+            landmarkName = "getTodayMealRecords()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -32,7 +32,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "457"
             endingLineNumber = "457"
-            landmarkName = "performRequest(endpoint:method:body:)"
+            landmarkName = "getWeightHistory(page:pageSize:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

@@ -9,7 +9,7 @@ import SwiftUI
 import UIKit
 
 struct FoodCalorieView: View {
-    @StateObject private var manager = FoodRecognitionManager()
+    @StateObject private var foodAnalysisManager = FoodAnalysisManager()
     @StateObject private var apiService = APIService.shared
     @State private var selectedImage: UIImage?
     @State private var showPicker = false
@@ -21,6 +21,7 @@ struct FoodCalorieView: View {
     @State private var showSaveAlert = false
     @State private var saveMessage = ""
     @State private var showLoginSheet = false
+    @State private var showAnalysisSettings = false
 
     var body: some View {
         ScrollView {
@@ -53,35 +54,81 @@ struct FoodCalorieView: View {
                         showPicker = true
                     }
                     .buttonStyle(.bordered)
+                    
+                    Button("Settings") {
+                        showAnalysisSettings = true
+                    }
+                    .buttonStyle(.bordered)
                 }
 
-                if !manager.items.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Detected Items")
-                            .font(.headline)
-                        ForEach(manager.items) { item in
-                            HStack {
-                                Text(item.name)
-                                    .fontWeight(.medium)
-                                Spacer()
-                                Text(String(format: "%.0f%%", item.confidence * 100))
-                                    .foregroundColor(.secondary)
-                                Text("· \(item.calories) kcal")
-                                    .fontWeight(.semibold)
+                // Analysis Status
+                if foodAnalysisManager.isAnalyzing {
+                    HStack {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("Analyzing food...")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color(UIColor.systemGray6))
+                    .cornerRadius(12)
+                }
+                
+                // Analysis Results
+                if foodAnalysisManager.hasResults {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Analysis Mode Info
+                        HStack {
+                            Image(systemName: foodAnalysisManager.isOpenAIEnabled ? "brain.head.profile" : "cpu")
+                                .foregroundColor(.blue)
+                            Text("Analysis Mode: \(foodAnalysisManager.analysisMode)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Spacer()
+                        }
+                        
+                        // Detected Foods
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Detected Foods")
+                                .font(.headline)
+                            
+                            ForEach(Array(foodAnalysisManager.detectedFoods.enumerated()), id: \.offset) { index, item in
+                                FoodItemCard(item: item, index: index)
                             }
-                            .padding(10)
-                            .background(Color(UIColor.systemGray6))
-                            .cornerRadius(8)
+                        }
+                        
+                        // Nutrition Summary
+                        NutritionSummaryCard(
+                            calories: foodAnalysisManager.totalCalories,
+                            protein: foodAnalysisManager.totalProtein,
+                            carbs: foodAnalysisManager.totalCarbs,
+                            fat: foodAnalysisManager.totalFat,
+                            portion: foodAnalysisManager.totalPortion
+                        )
+                        
+                        // Analysis Notes
+                        if let notes = foodAnalysisManager.analysisNotes, !notes.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Analysis Notes")
+                                    .font(.headline)
+                                Text(notes)
+                                    .font(.body)
+                                    .foregroundColor(.secondary)
+                                    .padding()
+                                    .background(Color(UIColor.systemGray6))
+                                    .cornerRadius(8)
+                            }
                         }
                     }
                 }
-
-                HStack {
-                    Text("Total Calories")
-                        .font(.headline)
-                    Spacer()
-                    Text("\(manager.totalCalories) kcal")
-                        .font(.title3).bold()
+                
+                // Error Message
+                if let errorMessage = foodAnalysisManager.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .padding()
+                        .background(Color.red.opacity(0.1))
+                        .cornerRadius(8)
                 }
                 
                 // Meal Type Selection
@@ -121,7 +168,7 @@ struct FoodCalorieView: View {
                 }
                 
                 // Save Button
-                if !manager.items.isEmpty {
+                if foodAnalysisManager.hasResults {
                     Button(action: saveMealRecord) {
                         HStack {
                             if isSaving {
@@ -156,18 +203,20 @@ struct FoodCalorieView: View {
                     .cornerRadius(12)
                 }
 
-                if let error = manager.errorMessage {
-                    Text(error).foregroundColor(.red)
-                }
             }
             .padding()
         }
         .sheet(isPresented: $showPicker) {
             ImagePicker(image: $selectedImage, completion: { image in
                 if let image = image {
-                    manager.analyze(image: image)
+                    Task {
+                        await foodAnalysisManager.analyze(image: image)
+                    }
                 }
             }, sourceType: useCamera ? .camera : .photoLibrary)
+        }
+        .sheet(isPresented: $showAnalysisSettings) {
+            AnalysisSettingsView(foodAnalysisManager: foodAnalysisManager)
         }
         .sheet(isPresented: $showLoginSheet) {
             LoginView()
@@ -182,44 +231,40 @@ struct FoodCalorieView: View {
     
     // MARK: - Save Meal Record
     private func saveMealRecord() {
-        guard !manager.items.isEmpty else { return }
+        guard foodAnalysisManager.hasResults else { return }
         
         isSaving = true
         
         Task {
             do {
-                // Calculate total nutrition values
-//                let totalProtein = manager.items.reduce(into: 0.0) { result, item in
-//                    result += item.protein
-//                }
-//                let totalCarbs = manager.items.reduce(into: 0.0) { result, item in
-//                    result += item.carbs
-//                }
-//                let totalFat = manager.items.reduce(into: 0.0) { result, item in
-//                    result += item.fat
-//                }
-                
                 // Create food name from detected items
-                let foodNames = manager.items.map { $0.name }
+                let foodNames = foodAnalysisManager.detectedFoods.map { $0.food_detected }
                 let foodName = foodNames.joined(separator: ", ")
                 
                 // Create notes with detailed information
                 var detailedNotes = notes.isEmpty ? "" : notes + "\n\n"
-                detailedNotes += "Detected items:\n"
-                for item in manager.items {
-                    detailedNotes += "• \(item.name) (\(String(format: "%.0f%%", item.confidence * 100)) confidence)\n"
+                detailedNotes += "Analysis Details:\n"
+                detailedNotes += "• Mode: \(foodAnalysisManager.analysisMode)\n"
+                detailedNotes += "• Total Portion: \(String(format: "%.1f", foodAnalysisManager.totalPortion))g\n"
+                detailedNotes += "• Detected items:\n"
+                for item in foodAnalysisManager.detectedFoods {
+                    detailedNotes += "  - \(item.food_detected) (\(String(format: "%.1f", item.portion_g))g, \(String(format: "%.0f%%", item.confidence * 100)) confidence)\n"
+                }
+                
+                if let analysisNotes = foodAnalysisManager.analysisNotes, !analysisNotes.isEmpty {
+                    detailedNotes += "\nAI Notes: \(analysisNotes)\n"
                 }
                 
                 let mealRecord = try await apiService.createMealRecord(
                     mealType: mealType,
                     foodName: foodName,
-                    calories: Double(manager.totalCalories),
-//                    protein: totalProtein,
-//                    carbs: totalCarbs,
-//                    fat: totalFat,
+                    calories: foodAnalysisManager.totalCalories,
+                    protein: foodAnalysisManager.totalProtein,
+                    carbs: foodAnalysisManager.totalCarbs,
+                    fat: foodAnalysisManager.totalFat,
                     portionSize: portionSize.isEmpty ? nil : portionSize,
                     notes: detailedNotes.isEmpty ? nil : detailedNotes,
-                  //  image: selectedImage
+                    image: selectedImage
                 )
                 
                 await MainActor.run {
@@ -229,7 +274,7 @@ struct FoodCalorieView: View {
                     
                     // Clear form
                     selectedImage = nil
-                    manager.items.removeAll()
+                    foodAnalysisManager.clearResults()
                     portionSize = ""
                     notes = ""
                 }
@@ -241,6 +286,214 @@ struct FoodCalorieView: View {
                     showSaveAlert = true
                 }
             }
+        }
+    }
+}
+
+// MARK: - Supporting Views
+struct FoodItemCard: View {
+    let item: FoodAnalysisItem
+    let index: Int
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("\(index + 1). \(item.food_detected)")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Spacer()
+                Text(String(format: "%.0f%%", item.confidence * 100))
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(confidenceColor.opacity(0.2))
+                    .foregroundColor(confidenceColor)
+                    .cornerRadius(8)
+            }
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(String(format: "%.1f", item.portion_g))g")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text("\(String(format: "%.0f", item.calories_kcal)) kcal")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.orange)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("P: \(String(format: "%.1f", item.protein_g))g")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                    Text("C: \(String(format: "%.1f", item.carbs_g))g")
+                        .font(.caption)
+                        .foregroundColor(.green)
+                    Text("F: \(String(format: "%.1f", item.fat_g))g")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+            }
+            
+            HStack {
+                Text("Source: \(item.source)")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+        }
+        .padding()
+        .background(Color(UIColor.systemGray6))
+        .cornerRadius(12)
+    }
+    
+    private var confidenceColor: Color {
+        if item.confidence >= 0.8 {
+            return .green
+        } else if item.confidence >= 0.6 {
+            return .orange
+        } else {
+            return .red
+        }
+    }
+}
+
+struct NutritionSummaryCard: View {
+    let calories: Double
+    let protein: Double
+    let carbs: Double
+    let fat: Double
+    let portion: Double
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Nutrition Summary")
+                .font(.headline)
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 8) {
+                    NutritionItemView(
+                        title: "Total Portion",
+                        value: "\(String(format: "%.1f", portion))g",
+                        color: .primary
+                    )
+                    NutritionItemView(
+                        title: "Calories",
+                        value: "\(String(format: "%.0f", calories)) kcal",
+                        color: .orange
+                    )
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: 8) {
+                    NutritionItemView(
+                        title: "Protein",
+                        value: "\(String(format: "%.1f", protein))g",
+                        color: .blue
+                    )
+                    NutritionItemView(
+                        title: "Carbs",
+                        value: "\(String(format: "%.1f", carbs))g",
+                        color: .green
+                    )
+                    NutritionItemView(
+                        title: "Fat",
+                        value: "\(String(format: "%.1f", fat))g",
+                        color: .red
+                    )
+                }
+            }
+        }
+        .padding()
+        .background(Color(UIColor.systemBackground))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(UIColor.systemGray4), lineWidth: 1)
+        )
+        .cornerRadius(12)
+    }
+}
+
+struct NutritionItemView: View {
+    let title: String
+    let value: String
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(color)
+        }
+    }
+}
+
+struct AnalysisSettingsView: View {
+    @ObservedObject var foodAnalysisManager: FoodAnalysisManager
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("Analysis Settings")) {
+                    Toggle("Use AI Portion Estimation", isOn: $foodAnalysisManager.useAIPortions)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Manual Portion Size (grams)")
+                            .font(.subheadline)
+                        Slider(value: $foodAnalysisManager.portionSlider, in: 50...1000, step: 25)
+                        Text("\(Int(foodAnalysisManager.portionSlider))g")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Manual Override (optional)")
+                            .font(.subheadline)
+                        TextField("e.g., roast chicken", text: $foodAnalysisManager.manualOverride)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                }
+                
+                Section(header: Text("Service Status")) {
+                    HStack {
+                        Text("OpenAI Enabled")
+                        Spacer()
+                        Text(foodAnalysisManager.isOpenAIEnabled ? "Yes" : "No")
+                            .foregroundColor(foodAnalysisManager.isOpenAIEnabled ? .green : .red)
+                    }
+                    
+                    if let modelName = foodAnalysisManager.modelName {
+                        HStack {
+                            Text("Model")
+                            Spacer()
+                            Text(modelName)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    HStack {
+                        Text("Fallback Classifier")
+                        Spacer()
+                        Text(foodAnalysisManager.fallbackClassifier)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .navigationTitle("Analysis Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                trailing: Button("Done") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            )
         }
     }
 }

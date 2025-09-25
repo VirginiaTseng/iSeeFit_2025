@@ -10,8 +10,8 @@ import UIKit
 
 // MARK: - API Configuration
 struct APIConfig {
-    static let baseURL = "https://br676689.xyz"
-    //static let baseURL = "http://10.0.0.82:8000"
+    //static let baseURL = "https://br676689.xyz"
+    static let baseURL = "http://10.0.0.82:8000"
     //static let baseURL = "http://127.0.0.1:8000"
     static let timeout: TimeInterval = 30
 }
@@ -144,6 +144,68 @@ struct BMICalculationResponse: Codable {
     let category: String
     let description: String
     let color: String
+}
+
+// MARK: - Food Analysis Models
+struct FoodAnalysisRequest: Codable {
+    let use_ai_portions: Bool
+    let manual_override: String
+    let portion_slider: Double
+}
+
+struct FoodAnalysisItem: Codable {
+    let food_detected: String
+    let portion_g: Double
+    let confidence: Double
+    let calories_kcal: Double
+    let protein_g: Double
+    let carbs_g: Double
+    let fat_g: Double
+    let source: String
+    
+    enum CodingKeys: String, CodingKey {
+        case food_detected = "Food (detected)"
+        case portion_g = "Portion (g)"
+        case confidence = "Confidence"
+        case calories_kcal = "Calories (kcal)"
+        case protein_g = "Protein (g)"
+        case carbs_g = "Carbs (g)"
+        case fat_g = "Fat (g)"
+        case source = "Source"
+    }
+}
+
+struct FoodAnalysisTotals: Codable {
+    let portion_g: Double
+    let calories_kcal: Double
+    let protein_g: Double
+    let carbs_g: Double
+    let fat_g: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case portion_g = "Portion (g)"
+        case calories_kcal = "Calories (kcal)"
+        case protein_g = "Protein (g)"
+        case carbs_g = "Carbs (g)"
+        case fat_g = "Fat (g)"
+    }
+}
+
+struct FoodAnalysisResponse: Codable {
+    let timestamp: String
+    let mode: String
+    let per_item: [FoodAnalysisItem]
+    let totals: FoodAnalysisTotals
+    let notes: String?
+    let debug: String?
+    let error: String?
+}
+
+struct FoodAnalysisConfigResponse: Codable {
+    let openai_enabled: Bool
+    let model_name: String?
+    let fallback_classifier: String
+    let openai_error: String?
 }
 
 // MARK: - API Error
@@ -483,6 +545,96 @@ class APIService: ObservableObject {
         } catch {
             throw APIError.networkError(error.localizedDescription)
         }
+    }
+    
+    // MARK: - Food Analysis
+    func analyzeFood(
+        image: UIImage,
+        useAIPortions: Bool = true,
+        manualOverride: String = "",
+        portionSlider: Double = 250.0
+    ) async throws -> FoodAnalysisResponse {
+        
+        guard let url = URL(string: "\(APIConfig.baseURL)/api/food/analyze") else {
+            throw APIError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.timeoutInterval = APIConfig.timeout
+        
+        // Create multipart form data
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add image data
+        if let imageData = image.jpegData(compressionQuality: 0.8) {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"image\"; filename=\"food.jpg\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            body.append(imageData)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+        
+        // Add other parameters
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"use_ai_portions\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(useAIPortions)\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"manual_override\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(manualOverride)\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"portion_slider\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(portionSlider)\r\n".data(using: .utf8)!)
+        
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.networkError("Invalid response")
+        }
+        
+        switch httpResponse.statusCode {
+        case 200...299:
+            break
+        case 400:
+            throw APIError.networkError("Bad request - please check your image and parameters")
+        case 500:
+            throw APIError.networkError("Server error - food analysis failed")
+        default:
+            throw APIError.serverError(httpResponse.statusCode)
+        }
+        
+        do {
+            let analysisResult = try JSONDecoder().decode(FoodAnalysisResponse.self, from: data)
+            return analysisResult
+        } catch {
+            print("Food analysis decoding error: \(error)")
+            print("Response data: \(String(data: data, encoding: .utf8) ?? "Unable to convert to string")")
+            throw APIError.decodingError
+        }
+    }
+    
+    func getFoodAnalysisConfig() async throws -> FoodAnalysisConfigResponse {
+        let config: FoodAnalysisConfigResponse = try await performRequest(
+            endpoint: "/api/food/config",
+            method: "GET"
+        )
+        return config
+    }
+    
+    func getFoodAnalysisHealth() async throws -> HealthResponse {
+        let health: HealthResponse = try await performRequest(
+            endpoint: "/api/food/health",
+            method: "GET"
+        )
+        return health
     }
     
     // MARK: - Token Management
