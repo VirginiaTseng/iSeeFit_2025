@@ -76,7 +76,8 @@ struct TodaysMemoryView2: View {
     
     private func timelineView() -> some View {
         HStack {
-            ForEach(["01:23", "01:23", "01:17", "01:09", "01:09", "01:09", "01:09"], id: \.self) { time in
+            //ForEach(["01:23", "01:23", "01:17", "01:09", "01:09", "01:09", "01:09"], id: \.self) { time in
+            ForEach(Array(["01:23", "01:23", "01:17", "01:09", "01:09", "01:09", "01:09"].enumerated()), id: \.offset) { index, time in
                 VStack(spacing: 5) {
                     Text(time)
                         .font(.system(size: 12))

@@ -28,11 +28,15 @@ struct FoodCalorieView: View {
     @State private var dragOffset: CGFloat = 0
 
     var body: some View {
-        ZStack {
-            backgroundView
-            mainContentView
-            statusOverlays
+        GeometryReader { geometry in
+            ZStack {
+                backgroundView
+                mainContentView
+                statusOverlays
+            }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
+        .ignoresSafeArea(.container, edges: .all)  // 重置 Safe Area 影响
         .sheet(isPresented: $showPicker) {
             ImagePicker(image: $selectedImage, completion: { image in
                 if let image = image {
@@ -240,6 +244,19 @@ struct FoodCalorieView: View {
             Spacer()
             HStack(spacing: 12) {
                 Button(action: {
+                    useCamera = true
+                    showPicker = true
+                }) {
+                    Image(systemName: "camera")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 144, height: 144)
+                        .background(Color.black.opacity(0.3))
+                        .clipShape(Circle())
+                }
+                
+                
+                Button(action: {
                     useCamera = false
                     showPicker = true
                 }) {
@@ -251,18 +268,7 @@ struct FoodCalorieView: View {
                         .clipShape(Circle())
                 }
                 
-                Button(action: {
-                    useCamera = true
-                    showPicker = true
-                }) {
-                    Image(systemName: "camera")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                        .frame(width: 44, height: 44)
-                        .background(Color.black.opacity(0.3))
-                        .clipShape(Circle())
-                }
-                
+          
                 Button(action: {
                     showAnalysisSettings = true
                 }) {
