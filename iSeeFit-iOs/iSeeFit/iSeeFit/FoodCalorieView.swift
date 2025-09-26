@@ -8,6 +8,52 @@
 import SwiftUI
 import UIKit
 
+// struct ImageProcessor {
+//     static func processImage(_ image: UIImage, targetSize: CGSize = CGSize(width: 400, height: 600)) -> UIImage? {
+//         // 计算裁剪区域，保持竖屏比例
+//         let imageSize = image.size
+//         let targetAspectRatio = targetSize.width / targetSize.height
+        
+//         var cropRect: CGRect
+        
+//         if imageSize.width / imageSize.height > targetAspectRatio {
+//             // 图片太宽，需要裁剪宽度
+//             let newWidth = imageSize.height * targetAspectRatio
+//             cropRect = CGRect(
+//                 x: (imageSize.width - newWidth) / 2,
+//                 y: 0,
+//                 width: newWidth,
+//                 height: imageSize.height
+//             )
+//         } else {
+//             // 图片太高，需要裁剪高度
+//             let newHeight = imageSize.width / targetAspectRatio
+//             cropRect = CGRect(
+//                 x: 0,
+//                 y: (imageSize.height - newHeight) / 2,
+//                 width: imageSize.width,
+//                 height: newHeight
+//             )
+//         }
+        
+//         // 裁剪图片
+//         guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return nil }
+//         let croppedImage = UIImage(cgImage: cgImage)
+        
+//         // 压缩到目标尺寸
+//         return resizeImage(croppedImage, to: targetSize)
+//     }
+    
+//     static func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage? {
+//         UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+//         image.draw(in: CGRect(origin: .zero, size: size))
+//         let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+//         UIGraphicsEndImageContext()
+//         return resizedImage
+//     }
+// }
+
+
 struct FoodCalorieView: View {
     @StateObject private var foodAnalysisManager = FoodAnalysisManager()
     @StateObject private var apiService = APIService.shared
@@ -28,20 +74,41 @@ struct FoodCalorieView: View {
     @State private var dragOffset: CGFloat = 0
 
     var body: some View {
-//        GeometryReader { geometry in
-            ZStack {
-                backgroundView
-                mainContentView
-                statusOverlays
-            }
-//            .frame(width: geometry.size.width, height: geometry.size.height)
-//        }
+        ZStack {
+            backgroundView
+            
+            mainContentView
+            
+//            VStack(spacing: 0) {
+//                topActionButtons
+//                Spacer()
+//                
+//                // 直接内联卡片，避免过度嵌套
+//                VStack(spacing: 0) {
+//                    dragHandle
+//                    cardContent
+//                }
+//                .background(glassMorphismBackground)
+//                .padding(.horizontal, 16)
+//                .padding(.bottom, 90)
+//                .frame(maxWidth: .infinity, maxHeight: 400) // 使用 maxWidth 而不是计算宽度
+//                .offset(y: cardOffset + dragOffset)
+//                .gesture(cardDragGesture)
+//                .onTapGesture {
+//                    toggleCardExpansion()
+//                }
+//            }
+            
+            statusOverlays
+        }
         .ignoresSafeArea(.container, edges: .all)  // 重置 Safe Area 影响
         .sheet(isPresented: $showPicker) {
             ImagePicker(image: $selectedImage, completion: { image in
                 if let image = image {
+                    let compressedImage = cropImageToScreenRatio(image)
+                                selectedImage = compressedImage
                     Task {
-                        await foodAnalysisManager.analyze(image: image)
+                        await foodAnalysisManager.analyze(image: compressedImage)
                     }
                 }
             }, sourceType: useCamera ? .camera : .photoLibrary)
@@ -58,6 +125,74 @@ struct FoodCalorieView: View {
             Text(saveMessage)
         }
         //.navigationTitle("Food Calories")
+    }
+    
+    private func cropImageToScreenRatio(_ image: UIImage) -> UIImage {
+        let screenSize = UIScreen.main.bounds.size
+        let screenRatio = screenSize.width / screenSize.height
+        let imageSize = image.size
+        let imageRatio = imageSize.width / imageSize.height
+        
+        // 如果图片比例接近屏幕比例，直接压缩
+        if abs(imageRatio - screenRatio) < 0.1 {
+            return resizeImage(image, to: screenSize)
+        }
+        
+        // 如果是宽图，进行中心裁剪
+        if imageRatio > screenRatio {
+            let targetWidth = imageSize.height * screenRatio
+            let cropX = (imageSize.width - targetWidth) / 2
+            let cropRect = CGRect(x: cropX, y: 0, width: targetWidth, height: imageSize.height)
+            
+            guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return image }
+            let croppedImage = UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+            
+            return resizeImage(croppedImage, to: screenSize)
+        }
+        // 如果是竖图，保持宽度裁剪高度
+        else {
+            let targetHeight = imageSize.width / screenRatio
+            let cropY = (imageSize.height - targetHeight) / 2
+            let cropRect = CGRect(x: 0, y: cropY, width: imageSize.width, height: targetHeight)
+            
+            guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return image }
+            let croppedImage = UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+            
+            return resizeImage(croppedImage, to: screenSize)
+        }
+    }
+
+    private func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+    
+    private func compressImageToScreenWidth(_ image: UIImage) -> UIImage {
+        let screenWidth = UIScreen.main.bounds.width
+        let originalSize = image.size
+        
+        // 如果图片宽度已经小于等于屏幕宽度，直接返回
+        if originalSize.width <= screenWidth {
+            return image
+        }
+        
+        // 计算压缩比例，保持宽高比
+        let scale = screenWidth / originalSize.width
+        let newSize = CGSize(
+            width: screenWidth,
+            height: originalSize.height * scale
+        )
+        
+        // 创建压缩后的图片
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        let compressedImage = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+        
+        print("压缩前: \(originalSize), 压缩后: \(newSize)")
+        return compressedImage
     }
     
     // MARK: - Save Meal Record
@@ -218,7 +353,9 @@ struct FoodCalorieView: View {
             if let image = selectedImage {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)// 保持填充效果
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()  // 裁剪超出部分
                     .ignoresSafeArea()
             } else {
                 LinearGradient(
@@ -295,12 +432,32 @@ private var topActionButtons: some View {
         }
         .background(glassMorphismBackground)
         .padding(.horizontal, 16)
-        .padding(.bottom, 90)
+        .padding(.bottom, safeAreaBottom + 90)
+        .frame(maxWidth: UIScreen.main.bounds.width - 0, maxHeight: 400) // 使用屏幕宽度
         .offset(y: cardOffset + dragOffset)
-        .gesture(cardDragGesture)
+        .gesture(cardDragGesture2)
         .onTapGesture {
             toggleCardExpansion()
         }
+        .onAppear {
+            print("Screen width: \(UIScreen.main.bounds.width)")
+        }
+    }
+    
+    // 计算安全的最大高度和底部边距
+    private var safeAreaBottom: CGFloat {
+        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        return windowScene?.windows.first?.safeAreaInsets.bottom ?? 0
+    }
+
+    private var maxCardHeight: CGFloat {
+        let screenHeight = UIScreen.main.bounds.height
+        let safeTop = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+            .windows.first?.safeAreaInsets.top ?? 0
+        let safeBottom = safeAreaBottom
+        let navigationHeight: CGFloat = 90 // 你的导航栏高度
+        
+        return screenHeight - safeTop - safeBottom - navigationHeight - 100 // 留一些边距
     }
     
     private var dragHandle: some View {
@@ -601,6 +758,24 @@ private var topActionButtons: some View {
             }
     }
     
+    private var cardDragGesture2: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                let screenHeight = UIScreen.main.bounds.height
+                let cardCollapsedOffset = screenHeight * 0.4
+                
+                if isCardExpanded && value.translation.height > 0 {
+                    dragOffset = value.translation.height
+                } else if !isCardExpanded && value.translation.height < 0 {
+                    // 从折叠状态向上拖拽
+                    dragOffset = value.translation.height
+                }
+            }
+            .onEnded { value in
+                handleDragEnd(value)
+            }
+    }
+    
     private var statusOverlays: some View {
         Group {
             if foodAnalysisManager.isAnalyzing {
@@ -693,10 +868,63 @@ private var topActionButtons: some View {
         }
     }
     
+    private func handleDragEnd2(_ value: DragGesture.Value) {
+        let threshold: CGFloat = 50
+        let screenHeight = UIScreen.main.bounds.height
+        let cardCollapsedOffset = screenHeight * 0.4 // 折叠时向下偏移
+        
+        if isCardExpanded {
+            // 当前展开 - 检查是否应该折叠
+            if value.translation.height > threshold || value.predictedEndTranslation.height > 100 {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    isCardExpanded = false
+                    cardOffset = cardCollapsedOffset // 移动到底部
+                    dragOffset = 0
+                }
+            } else {
+                // 回弹到展开状态
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    cardOffset = 0
+                    dragOffset = 0
+                }
+            }
+        } else {
+            // 当前折叠 - 检查是否应该展开
+            if value.translation.height < -threshold || value.predictedEndTranslation.height < -100 {
+                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                    isCardExpanded = true
+                    cardOffset = 0 // 回到原始位置
+                    dragOffset = 0
+                }
+            } else {
+                // 回弹到折叠状态
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    cardOffset = cardCollapsedOffset
+                    dragOffset = 0
+                }
+            }
+        }
+    }
+    
     private func toggleCardExpansion() {
         withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
             isCardExpanded.toggle()
             cardOffset = 0
+            dragOffset = 0
+        }
+    }
+    
+    private func toggleCardExpansion2() {
+        let screenHeight = UIScreen.main.bounds.height
+        let cardCollapsedOffset = screenHeight * 0.4
+        
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            isCardExpanded.toggle()
+            if isCardExpanded {
+                cardOffset = 0
+            } else {
+                cardOffset = cardCollapsedOffset
+            }
             dragOffset = 0
         }
     }
