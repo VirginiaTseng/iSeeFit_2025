@@ -436,6 +436,7 @@ struct FoodDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showDeleteAlert = false
     @State private var showDeleteConfirmation = false
+    @State private var animatedCalories: Int = 0
     
     var body: some View {
         NavigationView {
@@ -486,10 +487,11 @@ struct FoodDetailView: View {
                             Spacer()
                             
                             VStack(alignment: .trailing, spacing: 4) {
-                                Text("\(entry.calories)")
+                                Text("\(animatedCalories)")
                                     .font(.title)
                                     .fontWeight(.bold)
                                     .foregroundColor(entry.kind == .meal ? .orange : .green)
+                                    .animation(.easeOut(duration: 1.5), value: animatedCalories)
                                 
                                 Text("kcal")
                                     .font(.caption)
@@ -566,6 +568,10 @@ struct FoodDetailView: View {
                     }
                 }
             }
+            .onAppear {
+                // 启动卡路里数字动画
+                startCaloriesAnimation()
+            }
             // .alert("Delete Food Record", isPresented: $showDeleteAlert) {
             //     Button("Cancel", role: .cancel) {
             //         showDeleteAlert = false
@@ -588,6 +594,24 @@ struct FoodDetailView: View {
             // } message: {
             //     Text("This will permanently delete the food record. Are you absolutely sure?")
             // }
+        }
+    }
+    
+    // 卡路里数字动画函数
+    private func startCaloriesAnimation() {
+        animatedCalories = 0
+        let targetCalories = entry.calories
+        let duration: Double = 1.5
+        let steps = 30
+        let stepDuration = duration / Double(steps)
+        let increment = targetCalories / steps
+        
+        for i in 0...steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(i)) {
+                withAnimation(.easeOut(duration: stepDuration)) {
+                    animatedCalories = min(Int(Double(increment) * Double(i)), targetCalories)
+                }
+            }
         }
     }
 }
