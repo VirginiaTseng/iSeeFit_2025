@@ -347,14 +347,28 @@ struct TodayView: View {
                 .frame(height: 110)
                 .overlay(
                     ZStack {
+                        // 背景图片或占位符
                         if let img = item.image { 
                             img
                                 .resizable()
-                                .aspectRatio(4/3, contentMode: .fill)
+                                .aspectRatio(5/3, contentMode: .fill)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .clipped()
+                        } else {
+                            // 没有图片时的占位符，保持相同大小
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color.orange.opacity(0.3), Color.pink.opacity(0.3)]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                          if let note = item.note {
+                        
+                        // 文字叠加
+                        if let note = item.note {
                             VStack {
                                 Spacer()
                                 Text(note)
