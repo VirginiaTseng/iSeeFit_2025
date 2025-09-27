@@ -436,7 +436,7 @@ struct FoodDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showDeleteAlert = false
     @State private var showDeleteConfirmation = false
-    @State private var animatedCalories: Int = 0
+    @State private var animatedCalories: Int = 100
     
     var body: some View {
         NavigationView {
@@ -490,8 +490,8 @@ struct FoodDetailView: View {
                                 Text("\(animatedCalories)")
                                     .font(.title)
                                     .fontWeight(.bold)
-                                    .foregroundColor(entry.kind == .meal ? .orange : .green)
-                                    .animation(.easeOut(duration: 1.5), value: animatedCalories)
+                                    .foregroundColor(getCaloriesColor(for: animatedCalories))
+                                    .animation(.easeOut(duration: 0.3), value: animatedCalories)
                                 
                                 Text("kcal")
                                     .font(.caption)
@@ -597,19 +597,33 @@ struct FoodDetailView: View {
         }
     }
     
+    // 根据卡路里数值计算颜色
+    private func getCaloriesColor(for calories: Int) -> Color {
+        switch calories {
+        case 0..<200:
+            return .green // 低热量 - 绿色
+        case 200..<400:
+            return .yellow // 中等热量 - 黄色
+        case 400..<600:
+            return .orange // 较高热量 - 橙色
+        default:
+            return .red // 高热量 - 红色
+        }
+    }
+    
     // 卡路里数字动画函数
     private func startCaloriesAnimation() {
-        animatedCalories = 0
+        animatedCalories = 100
         let targetCalories = entry.calories
         let duration: Double = 1.5
         let steps = 30
         let stepDuration = duration / Double(steps)
-        let increment = targetCalories / steps
+        let increment = (targetCalories - 100) / steps
         
         for i in 0...steps {
             DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(i)) {
                 withAnimation(.easeOut(duration: stepDuration)) {
-                    animatedCalories = min(Int(Double(increment) * Double(i)), targetCalories)
+                    animatedCalories = min(100 + Int(Double(increment) * Double(i)), targetCalories)
                 }
             }
         }
