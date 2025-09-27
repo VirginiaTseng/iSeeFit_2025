@@ -437,6 +437,7 @@ struct FoodDetailView: View {
     @State private var showDeleteAlert = false
     @State private var showDeleteConfirmation = false
     @State private var animatedCalories: Int = 100
+    @State private var scaleEffect: CGFloat = 1.0
     
     var body: some View {
         NavigationView {
@@ -491,7 +492,9 @@ struct FoodDetailView: View {
                                     .font(.title)
                                     .fontWeight(.bold)
                                     .foregroundColor(getCaloriesColor(for: animatedCalories))
+                                    .scaleEffect(scaleEffect)
                                     .animation(.easeOut(duration: 0.3), value: animatedCalories)
+                                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: scaleEffect)
                                 
                                 Text("kcal")
                                     .font(.caption)
@@ -611,9 +614,24 @@ struct FoodDetailView: View {
         }
     }
     
+    // 根据卡路里数值计算放大倍数
+    private func getScaleMultiplier(for calories: Int) -> CGFloat {
+        switch calories {
+        case 0..<200:
+            return 1.2 // 低热量 - 轻微放大
+        case 200..<400:
+            return 1.4 // 中等热量 - 中等放大
+        case 400..<600:
+            return 1.6 // 较高热量 - 明显放大
+        default:
+            return 1.8 // 高热量 - 大幅放大
+        }
+    }
+    
     // 卡路里数字动画函数
     private func startCaloriesAnimation() {
         animatedCalories = 100
+        scaleEffect = 1.0
         let targetCalories = entry.calories
         let duration: Double = 1.5
         let steps = 30
@@ -624,6 +642,22 @@ struct FoodDetailView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(i)) {
                 withAnimation(.easeOut(duration: stepDuration)) {
                     animatedCalories = min(100 + Int(Double(increment) * Double(i)), targetCalories)
+                }
+                
+                // 添加放大缩小效果
+                if i % 5 == 0 { // 每5步触发一次缩放效果
+                    let currentCalories = min(100 + Int(Double(increment) * Double(i)), targetCalories)
+                    let scaleMultiplier = getScaleMultiplier(for: currentCalories)
+                    
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        scaleEffect = scaleMultiplier // 根据卡路里数值动态放大
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                            scaleEffect = 1.0 // 缩小回正常大小
+                        }
+                    }
                 }
             }
         }
