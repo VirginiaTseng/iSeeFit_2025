@@ -21,6 +21,7 @@ from models.recommendation import Recommendation
 from models.schemas import RecommendationResponse
 from utils.auth import get_current_user
 from services.recommendation_service import RecommendationService
+from services.simple_food_advisor import get_food_advice
 
 logger = logging.getLogger(__name__)
 
@@ -98,13 +99,13 @@ async def get_unread_recommendations(
 
 @router.get("/getadvice")
 async def getadvice(
-    #current_user: User = Depends(get_current_user),
-    #db: Session = Depends(get_db)
+        food_name:str,
+        health_condition:str,
+        prompt_style:str
 ):
     # """food name params, health condition params, simple/professional/detailed"""
     
-    # return get_food_advice(food_name, health_condition, prompt_style)
-    return "get advice111" 
+    return get_food_advice(food_name, health_condition, prompt_style)
     
 
 @router.get("/stats")
