@@ -7,3 +7,4 @@ iSeeFit-py/iseefit/models/__pycache__/schemas.cpython-313.pyc
 iSeeFit-py/iseefit/models/__pycache__/user.cpython-313.pyc
 iSeeFit-py/iseefit/models/__pycache__/weight.cpython-313.pyc
 iSeeFit-py/iseefit/routes/__pycache__/weight.cpython-313.pyc
+iSeeFit-py/iseefit/checkpoints/best_model.pt

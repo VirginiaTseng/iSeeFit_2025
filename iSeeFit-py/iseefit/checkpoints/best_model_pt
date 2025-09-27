@@ -1,0 +1,136 @@
+best_model.pt file should be put here
+
+
+curl -X POST "http://localhost:8000/api/food/predict" \
+  -F "file=@/Users/virginiazheng/Downloads/testimage2.jpg" \
+  -F "topk=5"
+
+{"topk":[{"label":"steak","prob":0.5655851364135742},{"label":"baby_back_ribs","prob":0.23485177755355835},{"label":"peking_duck","prob":0.012386061251163483},{"label":"chocolate_cake","prob":0.009358623996376991},{"label":"foie_gras","prob":0.008740251883864403}]}%                                                                                                          
+
+
+
+curl -X POST "http://localhost:8000/api/food/predict" \
+  -F "file=@/Users/virginiazheng/Downloads/testimage3.png" \
+  -F "topk=5"
+
+
+{"topk":[{"label":"apple_pie","prob":0.8645810484886169},{"label":"bread_pudding","prob":0.01151770818978548},{"label":"lasagna","prob":0.00872804969549179},{"label":"baklava","prob":0.005564163438975811},{"label":"waffles","prob":0.0054512168280780315}]}%                                                         
+
+
+
+# 基本测试
+curl -X POST "http://localhost:8000/predict" \
+  -F "file=@/path/to/your/image.jpg" \
+  -F "topk=5"
+
+# 带更多参数的测试
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@/path/to/your/image.jpg" \
+  -F "topk=3"
+
+
+  import requests
+import json
+
+def test_food_analysis_api():
+    # API 端点
+    url = "http://localhost:8000/predict"
+    
+    # 测试图片路径
+    image_path = "/path/to/your/test_image.jpg"
+    
+    try:
+        # 准备文件
+        with open(image_path, 'rb') as f:
+            files = {'file': f}
+            data = {'topk': 5}
+            
+            # 发送请求
+            response = requests.post(url, files=files, data=data)
+            
+            if response.status_code == 200:
+                result = response.json()
+                print("✅ API 测试成功!")
+                print(f"📊 结果: {json.dumps(result, indent=2, ensure_ascii=False)}")
+            else:
+                print(f"❌ API 测试失败: {response.status_code}")
+                print(f"错误信息: {response.text}")
+                
+    except FileNotFoundError:
+        print("❌ 找不到测试图片文件")
+    except requests.exceptions.ConnectionError:
+        print("❌ 无法连接到服务器，请确保服务器正在运行")
+    except Exception as e:
+        print(f"❌ 测试出错: {e}")
+
+if __name__ == "__main__":
+    test_food_analysis_api()
+
+
+
+    
+    方法3：使用 Postman 测试
+    设置请求：
+    方法：POST
+    URL：http://localhost:8000/predict
+    设置 Body：
+    选择 form-data
+    添加字段：
+    file: 选择图片文件
+    topk: 输入数字（如 5）
+
+
+
+    方法4：使用 FastAPI 自动生成的文档
+启动服务器后，访问：
+Swagger UI: http://localhost:8000/docs
+ReDoc: http://localhost:8000/redoc
+在 Swagger UI 中可以直接测试接口。
+方法5：创建简单的测试客户端
+
+
+
+# test_client.py
+import asyncio
+import aiohttp
+import aiofiles
+
+async def test_api():
+    url = "http://localhost:8000/predict"
+    
+    async with aiohttp.ClientSession() as session:
+        # 准备文件
+        async with aiofiles.open("test_image.jpg", "rb") as f:
+            data = aiohttp.FormData()
+            data.add_field('file', f, filename='test_image.jpg')
+            data.add_field('topk', '5')
+            
+            async with session.post(url, data=data) as response:
+                if response.status == 200:
+                    result = await response.json()
+                    print("✅ 测试成功!")
+                    print(f"结果: {result}")
+                else:
+                    print(f"❌ 测试失败: {response.status}")
+
+# 运行测试
+asyncio.run(test_api())
+
+启动服务器
+首先确保服务器正在运行：
+测试图片准备
+准备一些测试图片：
+食物照片
+不同角度的图片
+不同分辨率的图片
+预期结果
+成功的响应应该类似：
+{
+  "topk": [
+    {"label": "apple", "prob": 0.85},
+    {"label": "banana", "prob": 0.10},
+    {"label": "orange", "prob": 0.05}
+  ]
+}
+
