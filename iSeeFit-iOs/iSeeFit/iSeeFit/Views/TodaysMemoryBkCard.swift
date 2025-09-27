@@ -31,7 +31,7 @@ struct TodaysMemoryBkCard: View {
         GeometryReader { geometry in
             headerView(geometry: geometry)
         }
-        .frame(height: 300) // 设置固定高度确保正确显示
+        .frame(height:300) // 设置固定高度确保正确显示
         .onAppear {
             startIdleAnimations()
         }
@@ -96,7 +96,7 @@ struct TodaysMemoryBkCard: View {
                 
                 Spacer()
             }
-        }         
+        }
     }
     
     private func chickenStarView() -> some View {
@@ -105,7 +105,7 @@ struct TodaysMemoryBkCard: View {
             starWithRope()
             
             // Avocado
-            avocadoView()
+            //avocadoView()
         }
         .frame(height: 120)
     }
