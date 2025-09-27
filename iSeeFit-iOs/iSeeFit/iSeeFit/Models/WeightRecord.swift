@@ -25,7 +25,7 @@ struct WeightRecord: Identifiable, Codable {
         self.imagePath = imagePath
         
         // Debug log for weight record initialization
-        print("DEBUG: Initialized WeightRecord - Weight: \(weight)kg, Date: \(date)")
+        //print("DEBUG: Initialized WeightRecord - Weight: \(weight)kg, Date: \(date)")
     }
 }
 
@@ -36,7 +36,7 @@ struct BMICalculator {
         let heightInMeters = height / 100.0 // Convert cm to meters
         let bmi = weight / (heightInMeters * heightInMeters)
         
-        print("DEBUG: BMI Calculation - Weight: \(weight)kg, Height: \(height)cm, BMI: \(String(format: "%.1f", bmi))")
+        //print("DEBUG: BMI Calculation - Weight: \(weight)kg, Height: \(height)cm, BMI: \(String(format: "%.1f", bmi))")
         return bmi
     }
     

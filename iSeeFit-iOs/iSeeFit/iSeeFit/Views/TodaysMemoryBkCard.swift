@@ -16,6 +16,8 @@ struct TodaysMemoryBkCard: View {
     @State private var isAnimating = false
     @State private var starRotation: Double = 0
     @State private var glowPhase: Double = 0
+    @State private var avocadoAppear: Bool = false
+    @State private var avocadoActive: Bool = false
     
     // MARK: - Public interface for external scroll offset
     var externalScrollOffset: CGFloat = 0
@@ -46,7 +48,8 @@ struct TodaysMemoryBkCard: View {
                 scrollOffset: externalScrollOffset != 0 ? externalScrollOffset : scrollOffset, 
                 glowPhase: glowPhase
             )
-            .frame(height: 200)
+            .frame(height: 150)
+            
             
             VStack(spacing: 10) {
                 HStack {
@@ -93,7 +96,7 @@ struct TodaysMemoryBkCard: View {
                 
                 Spacer()
             }
-        }
+        }         
     }
     
     private func chickenStarView() -> some View {
@@ -101,62 +104,50 @@ struct TodaysMemoryBkCard: View {
             // Star with rope/string
             starWithRope()
             
-            // Chicken
-            chickenView()
+            // Avocado
+            avocadoView()
         }
         .frame(height: 120)
     }
     
-    private func chickenView() -> some View {
+    private func avocadoView() -> some View {
         HStack {
             ZStack {
-                // Chicken body
-                Ellipse()
+                // 牛油果主体
+                AvocadoBody()
                     .fill(
                         LinearGradient(
-                            colors: [Color.yellow, Color.orange.opacity(0.8)],
+                            colors: [Color.green.opacity(0.8), Color.green.opacity(0.6)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    .frame(width: 60, height: 55)
+                    .frame(width: 60, height: 70)
+                    .scaleEffect(avocadoAppear ? 1.0 : 0.8)
+                    .offset(x: avocadoAppear ? 0 : -20, y: avocadoAppear ? 0 : 10)
                 
-                // Chicken comb
-                HStack(spacing: 2) {
-                    ForEach(0..<3) { _ in
-                        Ellipse()
-                            .fill(Color.orange)
-                            .frame(width: 8, height: 15)
-                    }
+                // 牛油果核
+                AvocadoSeed()
+                    .fill(Color.brown.opacity(0.8))
+                    .frame(width: 20, height: 30)
+                    .offset(y: 5)
+                    .scaleEffect(avocadoAppear ? 1.0 : 0.6)
+                    .offset(x: avocadoAppear ? 0 : 15, y: avocadoAppear ? 0 : -5)
+                
+                // 叶子
+                AvocadoLeaf()
+                    .fill(Color.green.opacity(0.9))
+                    .frame(width: 25, height: 15)
+                    .offset(y: -25)
+                    .rotationEffect(.degrees(avocadoAppear ? 0 : -15))
+                    .offset(x: avocadoAppear ? 0 : -10, y: avocadoAppear ? 0 : -5)
+            }
+            .opacity(avocadoActive ? 1 : 0)
+            .onAppear {
+                withAnimation(.easeOut(duration: 1.2)) {
+                    avocadoAppear = true
+                    avocadoActive = true
                 }
-                .offset(y: -25)
-                
-                // Eyes that follow the star
-                HStack(spacing: 8) {
-                    eyeView()
-                    eyeView()
-                }
-                .offset(y: -8)
-                .rotationEffect(.degrees(eyeRotation))
-                
-                // Beak
-                Triangle()
-                    .fill(Color.orange)
-                    .frame(width: 8, height: 6)
-                    .offset(x: 25, y: -2)
-                
-                // Wing
-                Ellipse()
-                    .fill(Color.orange.opacity(0.7))
-                    .frame(width: 20, height: 35)
-                    .offset(x: -5, y: 5)
-                
-                // Feet
-                HStack(spacing: 15) {
-                    chickenFoot()
-                    chickenFoot()
-                }
-                .offset(y: 25)
             }
             
             Spacer()
@@ -293,23 +284,23 @@ struct MovingGradientBackground: View {
             // Moving gradient overlay
             RadialGradient(
                 colors: [
-                    Color.blue.opacity(0.4),
+                    Color.blue.opacity(0.1),
                     Color.clear
                 ],
                 center: .topTrailing,
                 startRadius: 50,
-                endRadius: 200
+                endRadius: 400
             )
             .offset(x: scrollOffset * 0.1, y: scrollOffset * 0.05)
             
             RadialGradient(
                 colors: [
-                    Color.pink.opacity(0.3),
+                    Color.pink.opacity(0.1),
                     Color.clear
                 ],
                 center: .bottomLeading,
                 startRadius: 80,
-                endRadius: 150
+                endRadius: 250
             )
             .offset(x: -scrollOffset * 0.08, y: scrollOffset * 0.03)
             
@@ -320,7 +311,7 @@ struct MovingGradientBackground: View {
                     .fill(
                         RadialGradient(
                             colors: [
-                                [Color.yellow, Color.blue, Color.pink][index].opacity(0.3),
+                                [Color.yellow, Color.blue, Color.pink][index].opacity(0.15),
                                 Color.clear
                             ],
                             center: .center,
@@ -388,6 +379,7 @@ struct Triangle: Shape {
         return path
     }
 }
+
 
 // MARK: - Preview
 struct TodaysMemoryBkCard_Previews: PreviewProvider {
