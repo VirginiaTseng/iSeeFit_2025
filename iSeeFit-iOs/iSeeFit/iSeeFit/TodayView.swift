@@ -242,7 +242,7 @@ struct TodayView: View {
                     calories: Int(record.calories),
                     kind: .meal,
                     image: foodImage,
-                    note: record.notes
+                    note: record.foodName
                 )
             }.sorted { $0.time < $1.time }
         }
@@ -354,7 +354,7 @@ struct TodayView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .clipped()
                         }
-                        if let note = item.note {
+                          if let note = item.note {
                             VStack {
                                 Spacer()
                                 Text(note)
@@ -506,22 +506,22 @@ struct FoodDetailView: View {
                             }
                         }
                         
-                        // Delete button
-                        Button(action: {
-                            showDeleteAlert = true
-                        }) {
-                            HStack {
-                                Image(systemName: "trash.fill")
-                                    .foregroundColor(.white)
-                                // Text("Delete Record")
-                                //     .fontWeight(.semibold)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.red)
-                            .cornerRadius(12)
-                        }
-                        .padding(.top, 8)
+                        // // Delete button
+                        // Button(action: {
+                        //     showDeleteAlert = true
+                        // }) {
+                        //     HStack {
+                        //         Image(systemName: "trash.fill")
+                        //             .foregroundColor(.white)
+                        //         // Text("Delete Record")
+                        //         //     .fontWeight(.semibold)
+                        //     }
+                        //     .frame(maxWidth: .infinity)
+                        //     .padding()
+                        //     .background(Color.red)
+                        //     .cornerRadius(12)
+                        // }
+                        // .padding(.top, 8)
                     }
                     .padding()
                     .background(
