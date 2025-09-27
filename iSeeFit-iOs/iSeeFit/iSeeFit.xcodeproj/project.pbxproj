@@ -871,7 +871,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iSeeFit/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Allow iSeeFit to take photos of food to estimate calories.";
+				INFOPLIST_KEY_CFBundleDisplayName = Calorix;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is needed for food analysis";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need background location access to update your location for emergency services";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need your location to provide precise weather information";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show nearby incidents and emergency services";
@@ -910,7 +911,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iSeeFit/Info.plist;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Allow iSeeFit to take photos of food to estimate calories.";
+				INFOPLIST_KEY_CFBundleDisplayName = Calorix;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is needed for food analysis";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need background location access to update your location for emergency services";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need your location to provide precise weather information";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show nearby incidents and emergency services";

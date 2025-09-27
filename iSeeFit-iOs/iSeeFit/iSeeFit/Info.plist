@@ -8,8 +8,6 @@
 	<string></string>
 	<key>MKDirectionsApplicationSupportedModes</key>
 	<array/>
-	<key>NSCameraUsageDescription</key>
-	<string>Camera access is needed for food analysis</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
