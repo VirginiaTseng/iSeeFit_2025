@@ -7,6 +7,9 @@
 
 import SwiftUI
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct TodayEntry: Identifiable {
     enum Kind { case meal, workout }
@@ -23,6 +26,8 @@ struct TodayView: View {
     // 使用真实数据源
     @StateObject private var foodLocalStore = FoodLocalStore.shared
     @State private var entries: [TodayEntry] = []
+    @State private var selectedEntry: TodayEntry? = nil
+    @State private var showDetailView = false
     
     // 默认演示数据（当没有真实数据时显示）
     private let defaultEntries: [TodayEntry] = [
@@ -61,6 +66,18 @@ struct TodayView: View {
         return formatter.string(from: date)
     }
     
+    // 加载图片的辅助函数
+    private func loadImageFromPath(_ path: String) -> Image? {
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let imageURL = documentsPath.appendingPathComponent(path)
+        
+        if FileManager.default.fileExists(atPath: imageURL.path),
+           let uiImage = UIImage(contentsOfFile: imageURL.path) {
+            return Image(uiImage: uiImage)
+        }
+        return nil
+    }
+    
     // 加载今日数据
     private func loadTodayData() {
         let todayRecords = foodLocalStore.getTodayRecords()
@@ -77,8 +94,8 @@ struct TodayView: View {
                 var foodImage: Image? = nil
                 if let imagePath = record.imagePath {
                     print("DEBUG: TodayView - Loading image from path: \(imagePath)")
-                    if let uiImage = ImageManager.shared.loadImage(from: imagePath) {
-                        foodImage = Image(uiImage: uiImage)
+                    if let image = loadImageFromPath(imagePath) {
+                        foodImage = image
                         print("DEBUG: TodayView - Successfully loaded image")
                     } else {
                         print("DEBUG: TodayView - Failed to load image from path: \(imagePath)")
@@ -112,15 +129,15 @@ struct TodayView: View {
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
-            .navigationBarTitleDisplayMode(.inline)
+            // .navigationBarTitleDisplayMode(.inline) // 在 macOS 上不可用
 //            .toolbar { ToolbarItem(placement: .principal) { Text("Today's Memory").font(.headline) } }
             .background(LinearGradient(colors: [Color.black.opacity(0.04), Color.clear], startPoint: .top, endPoint: .bottom))
-            .onAppear {
-                loadTodayData()
-            }
-            .onChange(of: foodLocalStore.records) { _ in
-                loadTodayData()
-            }
+        .onAppear {
+            loadTodayData()
+        }
+        .onChange(of: foodLocalStore.records) {
+            loadTodayData()
+        }
         }
     }
 
@@ -220,6 +237,16 @@ struct TodayView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 )
         }
+        .onTapGesture {
+            print("DEBUG: TodayView - Card tapped for: \(item.title)")
+            selectedEntry = item
+            showDetailView = true
+        }
+        .sheet(isPresented: $showDetailView) {
+            if let entry = selectedEntry {
+                FoodDetailView(entry: entry)
+            }
+        }
     }
 
     private var summary: some View {
@@ -248,6 +275,193 @@ struct TodayView: View {
             .padding(10)
             .background(RoundedRectangle(cornerRadius: 12).fill(Color.secondary.opacity(0.1)))
         }
+    }
+}
+
+// MARK: - Food Detail View
+struct FoodDetailView: View {
+    let entry: TodayEntry
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // 食物图片区域
+                    if let image = entry.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 300)
+                            .clipped()
+                            .cornerRadius(20)
+                            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                    } else {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [Color.orange.opacity(0.3), Color.pink.opacity(0.3)]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(height: 300)
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.white.opacity(0.7))
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                    }
+                    
+                    // 食物信息卡片
+                    VStack(alignment: .leading, spacing: 16) {
+                        // 标题和卡路里
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(entry.title)
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.primary)
+                                
+                                Text(entry.time)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .trailing, spacing: 4) {
+                                Text("\(entry.calories)")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(entry.kind == .meal ? .orange : .green)
+                                
+                                Text("kcal")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        // 营养信息（模拟数据）
+                        VStack(spacing: 12) {
+                            Text("营养分析")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            
+                            HStack(spacing: 20) {
+                                NutritionItem(title: "蛋白质", value: "25g", color: .blue)
+                                NutritionItem(title: "碳水", value: "45g", color: .green)
+                                NutritionItem(title: "脂肪", value: "15g", color: .purple)
+                            }
+                        }
+                        
+                        // 备注信息
+                        if let note = entry.note {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("备注")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                
+                                Text(note)
+                                    .font(.body)
+                                    .foregroundColor(.secondary)
+                                    .padding()
+                                    .background(Color.secondary.opacity(0.1))
+                                    .cornerRadius(12)
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.primary.opacity(0.05))
+                            .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                    )
+                }
+                .padding()
+            }
+            .navigationTitle("食物详情")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("完成") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Nutrition Item
+struct NutritionItem: View {
+    let title: String
+    let value: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.title3)
+                .fontWeight(.bold)
+                .foregroundColor(color)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(color.opacity(0.1))
+        )
+    }
+}
+//
+//// MARK: - Temporary FoodLocalStore Implementation
+//// 临时实现，避免依赖问题
+//class FoodLocalStore: ObservableObject {
+//    static let shared = FoodLocalStore()
+//    private init() {}
+//    
+//    @Published private(set) var records: [TemporaryFoodRecord] = []
+//    
+//    func getTodayRecords() -> [TemporaryFoodRecord] {
+//        // 从 UserDefaults 加载今日记录
+//        if let data = UserDefaults.standard.data(forKey: "foodRecords") {
+//            do {
+//                let allRecords = try JSONDecoder().decode([TemporaryFoodRecord].self, from: data)
+//                let today = Calendar.current.startOfDay(for: Date())
+//                let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
+//                
+//                return allRecords.filter { record in
+//                    record.date >= today && record.date < tomorrow
+//                }
+//            } catch {
+//                print("DEBUG: FoodLocalStore - Failed to decode records: \(error)")
+//            }
+//        }
+//        return []
+//    }
+//}
+
+// MARK: - Temporary Food Record
+struct TemporaryFoodRecord: Identifiable, Codable, Equatable {
+    let id: UUID
+    let date: Date
+    let foodName: String
+    let calories: Double
+    let notes: String?
+    let imagePath: String?
+    
+    init(date: Date, foodName: String, calories: Double, notes: String? = nil, imagePath: String? = nil) {
+        self.id = UUID()
+        self.date = date
+        self.foodName = foodName
+        self.calories = calories
+        self.notes = notes
+        self.imagePath = imagePath
     }
 }
 
