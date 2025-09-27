@@ -68,14 +68,74 @@ struct TodayView: View {
     
     // 加载图片的辅助函数
     private func loadImageFromPath(_ path: String) -> Image? {
-        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let imageURL = documentsPath.appendingPathComponent(path)
+        print("DEBUG: TodayView - Attempting to load image from: \(path)")
         
-        if FileManager.default.fileExists(atPath: imageURL.path),
-           let uiImage = UIImage(contentsOfFile: imageURL.path) {
-            return Image(uiImage: uiImage)
+        // 检查路径是否已经是绝对路径
+        let imageURL: URL
+        if path.hasPrefix("/") {
+            // 已经是绝对路径
+            imageURL = URL(fileURLWithPath: path)
+        } else {
+            // 相对路径，需要拼接 Documents 目录
+            let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            imageURL = documentsPath.appendingPathComponent(path)
         }
-        return nil
+        
+        print("DEBUG: TodayView - Final image URL: \(imageURL.path)")
+        
+        // 检查文件是否存在
+        guard FileManager.default.fileExists(atPath: imageURL.path) else {
+            print("ERROR: TodayView - Image file does not exist at: \(imageURL.path)")
+            
+            // 尝试列出 Images 目录的内容来调试
+            let imagesDir = imageURL.deletingLastPathComponent()
+            do {
+                let contents = try FileManager.default.contentsOfDirectory(atPath: imagesDir.path)
+                print("DEBUG: TodayView - Images directory contents: \(contents)")
+            } catch {
+                print("ERROR: TodayView - Failed to list Images directory: \(error)")
+                
+                // 尝试创建 Images 目录
+                print("DEBUG: TodayView - Attempting to create Images directory")
+                do {
+                    try FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
+                    print("DEBUG: TodayView - Successfully created Images directory")
+                } catch {
+                    print("ERROR: TodayView - Failed to create Images directory: \(error)")
+                }
+            }
+            return nil
+        }
+        
+        // 检查文件大小
+        do {
+            let attributes = try FileManager.default.attributesOfItem(atPath: imageURL.path)
+            if let fileSize = attributes[.size] as? NSNumber {
+                print("DEBUG: TodayView - Image file size: \(fileSize.intValue) bytes")
+            }
+        } catch {
+            print("WARNING: TodayView - Could not get file attributes: \(error)")
+        }
+        
+        // 尝试加载图片
+        #if canImport(UIKit)
+        guard let uiImage = UIImage(contentsOfFile: imageURL.path) else {
+            print("ERROR: TodayView - Failed to create UIImage from file: \(imageURL.path)")
+            return nil
+        }
+        
+        print("DEBUG: TodayView - Successfully loaded image from: \(imageURL.path)")
+        return Image(uiImage: uiImage)
+        #else
+        // 在 macOS 上使用 NSImage
+        guard let nsImage = NSImage(contentsOf: imageURL) else {
+            print("ERROR: TodayView - Failed to create NSImage from file: \(imageURL.path)")
+            return nil
+        }
+        
+        print("DEBUG: TodayView - Successfully loaded image from: \(imageURL.path)")
+        return Image(nsImage: nsImage)
+        #endif
     }
     
     // 加载今日数据
@@ -416,52 +476,6 @@ struct NutritionItem: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(color.opacity(0.1))
         )
-    }
-}
-//
-//// MARK: - Temporary FoodLocalStore Implementation
-//// 临时实现，避免依赖问题
-//class FoodLocalStore: ObservableObject {
-//    static let shared = FoodLocalStore()
-//    private init() {}
-//    
-//    @Published private(set) var records: [TemporaryFoodRecord] = []
-//    
-//    func getTodayRecords() -> [TemporaryFoodRecord] {
-//        // 从 UserDefaults 加载今日记录
-//        if let data = UserDefaults.standard.data(forKey: "foodRecords") {
-//            do {
-//                let allRecords = try JSONDecoder().decode([TemporaryFoodRecord].self, from: data)
-//                let today = Calendar.current.startOfDay(for: Date())
-//                let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
-//                
-//                return allRecords.filter { record in
-//                    record.date >= today && record.date < tomorrow
-//                }
-//            } catch {
-//                print("DEBUG: FoodLocalStore - Failed to decode records: \(error)")
-//            }
-//        }
-//        return []
-//    }
-//}
-
-// MARK: - Temporary Food Record
-struct TemporaryFoodRecord: Identifiable, Codable, Equatable {
-    let id: UUID
-    let date: Date
-    let foodName: String
-    let calories: Double
-    let notes: String?
-    let imagePath: String?
-    
-    init(date: Date, foodName: String, calories: Double, notes: String? = nil, imagePath: String? = nil) {
-        self.id = UUID()
-        self.date = date
-        self.foodName = foodName
-        self.calories = calories
-        self.notes = notes
-        self.imagePath = imagePath
     }
 }
 
