@@ -339,7 +339,7 @@ struct WeightInputView: View {
         isSaving = true
         
         Task {
-            do {
+           
                 // Save locally first (offline-friendly)
                 let localRecord = WeightRecord(
                     weight: weightValue,
@@ -350,6 +350,7 @@ struct WeightInputView: View {
                 WeightLocalStore.shared.addRecord(localRecord)
                 print("DEBUG: WeightInputView - saved local record: \(weightValue)kg @ \(selectedDate)")
                 
+            do {
                 // Save to backend API
                 let weightRecord = try await apiService.createWeightRecord(
                     weight: weightValue,
@@ -366,8 +367,8 @@ struct WeightInputView: View {
             } catch {
                 await MainActor.run {
                     isSaving = false
-                    alertMessage = "保存失败: \(error.localizedDescription)"
-                    showAlert = true
+                    // alertMessage = "保存失败: \(error.localizedDescription)"
+                    // showAlert = true
                     print("ERROR: Failed to save weight record: \(error)")
                 }
             }
