@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct TodayEntry: Identifiable {
     enum Kind { case meal, workout }
@@ -19,8 +20,12 @@ struct TodayEntry: Identifiable {
 }
 
 struct TodayView: View {
-    // Demo data; 后续可替换成真实数据源
-    @State private var entries: [TodayEntry] = [
+    // 使用真实数据源
+    @StateObject private var foodLocalStore = FoodLocalStore.shared
+    @State private var entries: [TodayEntry] = []
+    
+    // 默认演示数据（当没有真实数据时显示）
+    private let defaultEntries: [TodayEntry] = [
         TodayEntry(time: "08:12", title: "Breakfast", calories: 320, kind: .meal, image: nil, note: "Yogurt & fruits"),
         TodayEntry(time: "12:48", title: "Lunch", calories: 640, kind: .meal, image: nil, note: "Chicken salad"),
         TodayEntry(time: "18:30", title: "Workout", calories: 420, kind: .workout, image: nil, note: "Treadmill 40min"),
@@ -29,6 +34,54 @@ struct TodayView: View {
 
     private var intake: Int { entries.filter { $0.kind == .meal }.map { $0.calories }.reduce(0, +) }
     private var burn: Int { entries.filter { $0.kind == .workout }.map { $0.calories }.reduce(0, +) }
+    
+    // 判断餐次类型
+    private func getMealType(for date: Date) -> String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: date)
+        
+        switch hour {
+        case 5..<11:
+            return "Breakfast"
+        case 11..<15:
+            return "Lunch"
+        case 15..<18:
+            return "Snack"
+        case 18..<22:
+            return "Dinner"
+        default:
+            return "Snack"
+        }
+    }
+    
+    // 格式化时间
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
+    }
+    
+    // 加载今日数据
+    private func loadTodayData() {
+        let todayRecords = foodLocalStore.getTodayRecords()
+        
+        if todayRecords.isEmpty {
+            // 没有数据时使用默认演示数据
+            entries = defaultEntries
+        } else {
+            // 有数据时转换为 TodayEntry 格式
+            entries = todayRecords.map { record in
+                TodayEntry(
+                    time: formatTime(record.date),
+                    title: getMealType(for: record.date),
+                    calories: Int(record.calories),
+                    kind: .meal,
+                    image: record.imagePath != nil ? Image(uiImage: ImageManager.shared.loadImage(from: record.imagePath!) ?? UIImage()) : nil,
+                    note: record.notes
+                )
+            }.sorted { $0.time < $1.time }
+        }
+    }
 
     var body: some View {
         NavigationView {
@@ -46,6 +99,12 @@ struct TodayView: View {
             .navigationBarTitleDisplayMode(.inline)
 //            .toolbar { ToolbarItem(placement: .principal) { Text("Today's Memory").font(.headline) } }
             .background(LinearGradient(colors: [Color.black.opacity(0.04), Color.clear], startPoint: .top, endPoint: .bottom))
+            .onAppear {
+                loadTodayData()
+            }
+            .onChange(of: foodLocalStore.records) { _ in
+                loadTodayData()
+            }
         }
     }
 

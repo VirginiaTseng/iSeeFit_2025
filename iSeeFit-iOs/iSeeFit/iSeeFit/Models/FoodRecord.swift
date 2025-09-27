@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 // MARK: - Food Record Data Model
-struct FoodRecord: Identifiable, Codable {
+struct FoodRecord: Identifiable, Codable, Equatable {
     let id: UUID
     let date: Date
     let mealType: String // breakfast, lunch, dinner, snack
@@ -59,7 +59,7 @@ struct FoodRecord: Identifiable, Codable {
 }
 
 // MARK: - Detected Food Item
-struct DetectedFoodItem: Identifiable, Codable {
+struct DetectedFoodItem: Identifiable, Codable, Equatable {
     let id: UUID
     let foodName: String
     let portionGrams: Double
