@@ -64,19 +64,35 @@ struct TodayView: View {
     // 加载今日数据
     private func loadTodayData() {
         let todayRecords = foodLocalStore.getTodayRecords()
+        print("DEBUG: TodayView - Found \(todayRecords.count) records for today")
         
         if todayRecords.isEmpty {
             // 没有数据时使用默认演示数据
             entries = defaultEntries
+            print("DEBUG: TodayView - Using default entries")
         } else {
             // 有数据时转换为 TodayEntry 格式
             entries = todayRecords.map { record in
-                TodayEntry(
+                // 尝试加载图片
+                var foodImage: Image? = nil
+                if let imagePath = record.imagePath {
+                    print("DEBUG: TodayView - Loading image from path: \(imagePath)")
+                    if let uiImage = ImageManager.shared.loadImage(from: imagePath) {
+                        foodImage = Image(uiImage: uiImage)
+                        print("DEBUG: TodayView - Successfully loaded image")
+                    } else {
+                        print("DEBUG: TodayView - Failed to load image from path: \(imagePath)")
+                    }
+                } else {
+                    print("DEBUG: TodayView - No image path for record: \(record.foodName)")
+                }
+                
+                return TodayEntry(
                     time: formatTime(record.date),
                     title: getMealType(for: record.date),
                     calories: Int(record.calories),
                     kind: .meal,
-                    image: record.imagePath != nil ? Image(uiImage: ImageManager.shared.loadImage(from: record.imagePath!) ?? UIImage()) : nil,
+                    image: foodImage,
                     note: record.notes
                 )
             }.sorted { $0.time < $1.time }
@@ -178,14 +194,27 @@ struct TodayView: View {
                 }
             }
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.secondarySystemBackground))
+                .fill(Color.secondary.opacity(0.1))
                 .frame(height: 110)
                 .overlay(
                     ZStack {
-                        if let img = item.image { img.resizable().scaledToFill().clipped() }
+                        if let img = item.image { 
+                            img
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .clipped()
+                        }
                         if let note = item.note {
-                            Text(note).font(.caption).foregroundColor(.secondary)
-                                .padding(8).frame(maxWidth: .infinity, alignment: .leading)
+                            VStack {
+                                Spacer()
+                                Text(note)
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color.black.opacity(0.6))
+                            }
                         }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -201,7 +230,7 @@ struct TodayView: View {
                 Text("\(intake) kcal").bold()
             }
             .padding(10)
-            .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(0.05)))
 
             HStack {
                 Label("Burned", systemImage: "figure.run").foregroundColor(.green)
@@ -209,7 +238,7 @@ struct TodayView: View {
                 Text("\(burn) kcal").bold()
             }
             .padding(10)
-            .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(0.05)))
 
             HStack {
                 Label("Net", systemImage: "scalemass").foregroundColor(.blue)
@@ -217,7 +246,7 @@ struct TodayView: View {
                 Text("\(intake - burn) kcal").bold()
             }
             .padding(10)
-            .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.secondary.opacity(0.1)))
         }
     }
 }
