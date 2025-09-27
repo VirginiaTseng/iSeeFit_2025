@@ -15,18 +15,33 @@ final class ImageManager {
     private let documentsDirectory: URL
     
     private init() {
-        // Get documents directory
-        self.documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        // Try Documents directory first, fallback to Caches if permission denied
+        let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let imagesDirectory = documentsPath.appendingPathComponent("Images")
         
-        // Create Images directory if it doesn't exist
-        let imagesDirectory = documentsDirectory.appendingPathComponent("Images")
         if !fileManager.fileExists(atPath: imagesDirectory.path) {
             do {
                 try fileManager.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
                 print("DEBUG: ImageManager - Created Images directory at: \(imagesDirectory.path)")
+                self.documentsDirectory = documentsPath
             } catch {
-                print("ERROR: ImageManager - Failed to create Images directory: \(error)")
+                print("ERROR: ImageManager - Failed to create Images directory in Documents: \(error)")
+                
+                // Fallback to Caches directory
+                let cachesPath = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                let cachesImagesDirectory = cachesPath.appendingPathComponent("Images")
+                
+                do {
+                    try fileManager.createDirectory(at: cachesImagesDirectory, withIntermediateDirectories: true)
+                    print("DEBUG: ImageManager - Created Images directory in Caches at: \(cachesImagesDirectory.path)")
+                    self.documentsDirectory = cachesPath
+                } catch {
+                    print("ERROR: ImageManager - Failed to create Images directory in Caches: \(error)")
+                    self.documentsDirectory = documentsPath // Use original path as fallback
+                }
             }
+        } else {
+            self.documentsDirectory = documentsPath
         }
     }
     

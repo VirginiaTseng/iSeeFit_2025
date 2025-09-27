@@ -70,15 +70,23 @@ struct TodayView: View {
     private func loadImageFromPath(_ path: String) -> Image? {
         print("DEBUG: TodayView - Attempting to load image from: \(path)")
         
-        // 检查路径是否已经是绝对路径
+        // Check if path is already absolute
         let imageURL: URL
         if path.hasPrefix("/") {
-            // 已经是绝对路径
+            // Already absolute path
             imageURL = URL(fileURLWithPath: path)
         } else {
-            // 相对路径，需要拼接 Documents 目录
+            // Try Documents directory first
             let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            imageURL = documentsPath.appendingPathComponent(path)
+            let documentsImageURL = documentsPath.appendingPathComponent(path)
+            
+            if FileManager.default.fileExists(atPath: documentsImageURL.path) {
+                imageURL = documentsImageURL
+            } else {
+                // Try Caches directory as fallback
+                let cachesPath = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+                imageURL = cachesPath.appendingPathComponent(path)
+            }
         }
         
         print("DEBUG: TodayView - Final image URL: \(imageURL.path)")
@@ -95,13 +103,24 @@ struct TodayView: View {
             } catch {
                 print("ERROR: TodayView - Failed to list Images directory: \(error)")
                 
-                // 尝试创建 Images 目录
+                // Try to create Images directory
                 print("DEBUG: TodayView - Attempting to create Images directory")
                 do {
                     try FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
                     print("DEBUG: TodayView - Successfully created Images directory")
                 } catch {
                     print("ERROR: TodayView - Failed to create Images directory: \(error)")
+                    
+                    // Try alternative approach - use a different directory
+                    let alternativeDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("Images")
+                    print("DEBUG: TodayView - Trying alternative directory: \(alternativeDir.path)")
+                    
+                    do {
+                        try FileManager.default.createDirectory(at: alternativeDir, withIntermediateDirectories: true)
+                        print("DEBUG: TodayView - Successfully created Images directory in Caches")
+                    } catch {
+                        print("ERROR: TodayView - Failed to create Images directory in Caches: \(error)")
+                    }
                 }
             }
             return nil
