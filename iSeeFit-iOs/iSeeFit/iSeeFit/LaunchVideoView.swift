@@ -24,7 +24,7 @@ struct LaunchVideoView: View {
             if let player {
                 VideoPlayer(player: player)
                     .ignoresSafeArea()
-                    //.aspectRatio(contentMode: .fill)  // 铺满（会“居中裁切”少量画面）
+                    .aspectRatio(contentMode: .fill)  // 铺满（会“居中裁切”少量画面）
                     //.clipped()
                     .onAppear {
                         // 循环播放
@@ -62,7 +62,7 @@ struct LaunchVideoView: View {
                 Button {
                     onFinish()
                 } label: {
-                    Text("SKIP")
+                    Text("Start")
                         .font(.headline)
                         .padding(.horizontal, 24).padding(.vertical, 12)
                         .background(.ultraThinMaterial, in: Capsule())

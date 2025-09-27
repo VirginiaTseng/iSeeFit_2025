@@ -95,6 +95,7 @@ struct ContentView: View {
                         }
                         .tag(7)
                         
+                        //PoseDetectionView()
                         VideoView()
                             .tabItem {
                                 Image(systemName: "video.fill")

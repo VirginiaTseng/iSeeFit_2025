@@ -25,6 +25,7 @@
 		C49EFC342E8502AE00025E88 /* FoodRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC332E8502AE00025E88 /* FoodRecord.swift */; };
 		C49EFC3D2E859B4000025E88 /* LaunchVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC3C2E859B3100025E88 /* LaunchVideoView.swift */; };
 		C49EFC3F2E859C7A00025E88 /* output_vertical.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C49EFC3E2E859C7A00025E88 /* output_vertical.mp4 */; };
+		C49EFC412E86D11000025E88 /* PoseDetectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC402E86D0F900025E88 /* PoseDetectionView.swift */; };
 		CB0671F82D692D6E00C044BD /* CommonToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0671F72D692D6600C044BD /* CommonToolbar.swift */; };
 		CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672722D694D7300C044BD /* EmergencyContactView.swift */; };
 		CB0672772D694E1300C044BD /* EmergencyContactPerson.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */; };
@@ -118,6 +119,7 @@
 		C49EFC332E8502AE00025E88 /* FoodRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodRecord.swift; sourceTree = "<group>"; };
 		C49EFC3C2E859B3100025E88 /* LaunchVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchVideoView.swift; sourceTree = "<group>"; };
 		C49EFC3E2E859C7A00025E88 /* output_vertical.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = output_vertical.mp4; sourceTree = "<group>"; };
+		C49EFC402E86D0F900025E88 /* PoseDetectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseDetectionView.swift; sourceTree = "<group>"; };
 		CB0671F72D692D6600C044BD /* CommonToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonToolbar.swift; sourceTree = "<group>"; };
 		CB0672722D694D7300C044BD /* EmergencyContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactView.swift; sourceTree = "<group>"; };
 		CB0672752D694E1300C044BD /* EmergencyContactPerson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactPerson.swift; sourceTree = "<group>"; };
@@ -333,6 +335,7 @@
 		CB4C9C8B2D64A4B70074A095 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C49EFC402E86D0F900025E88 /* PoseDetectionView.swift */,
 				C49EFC312E85025300025E88 /* FoodHistoryView.swift */,
 				C49EFC2B2E82066700025E88 /* VideoView.swift */,
 				C49EFC292E81BDD400025E88 /* PrivacyPolicyView.swift */,
@@ -604,6 +607,7 @@
 				C49EFC2C2E82066700025E88 /* VideoView.swift in Sources */,
 				C49EFC102E7F344500025E88 /* TodaysMemory2View.swift in Sources */,
 				C49EFC042E7F036F00025E88 /* NotificationCard.swift in Sources */,
+				C49EFC412E86D11000025E88 /* PoseDetectionView.swift in Sources */,
 				C49EFC0C2E7F32F400025E88 /* ObservableHeaderView.swift in Sources */,
 				C49EFC0A2E7F2FF700025E88 /* AnimatedHeaderView.swift in Sources */,
 				CB0672742D694D7300C044BD /* EmergencyContactView.swift in Sources */,
@@ -867,10 +871,13 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iSeeFit/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow iSeeFit to take photos of food to estimate calories.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need background location access to update your location for emergency services";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need your location to provide precise weather information";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show nearby incidents and emergency services";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app requires access to the microphone to record audio.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow iSeeFit to select photos to estimate calories.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We use speech recognition so you can log meals and workouts hands-free. Audio is processed only to transcribe your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -903,10 +910,13 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iSeeFit/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Allow iSeeFit to take photos of food to estimate calories.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need background location access to update your location for emergency services";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need your location to provide precise weather information";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show nearby incidents and emergency services";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app requires access to the microphone to record audio.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow iSeeFit to select photos to estimate calories.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "We use speech recognition so you can log meals and workouts hands-free. Audio is processed only to transcribe your voice commands.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
