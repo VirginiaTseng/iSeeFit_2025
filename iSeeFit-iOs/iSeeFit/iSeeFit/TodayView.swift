@@ -66,6 +66,56 @@ struct TodayView: View {
         return formatter.string(from: date)
     }
     
+    // Helper function to crop and resize images to 4:3 ratio
+    #if canImport(UIKit)
+    private func cropImageTo4x3Ratio(_ image: UIImage) -> UIImage {
+        let targetAspectRatio: CGFloat = 4.0 / 3.0
+        let imageSize = image.size
+        let imageRatio = imageSize.width / imageSize.height
+        
+        // If image ratio is close to 4:3, just resize
+        if abs(imageRatio - targetAspectRatio) < 0.1 {
+            let targetSize = CGSize(width: 400, height: 300) // 4:3 ratio
+            return resizeImage(image, to: targetSize)
+        }
+        
+        // If image is wider than 4:3, crop width (center crop)
+        if imageRatio > targetAspectRatio {
+            let targetWidth = imageSize.height * targetAspectRatio
+            let cropX = (imageSize.width - targetWidth) / 2
+            let cropRect = CGRect(x: cropX, y: 0, width: targetWidth, height: imageSize.height)
+            
+            guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return image }
+            let croppedImage = UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+            
+            let targetSize = CGSize(width: 400, height: 300) // 4:3 ratio
+            return resizeImage(croppedImage, to: targetSize)
+        }
+        // If image is taller than 4:3, crop height (center crop)
+        else {
+            let targetHeight = imageSize.width / targetAspectRatio
+            let cropY = (imageSize.height - targetHeight) / 2
+            let cropRect = CGRect(x: 0, y: cropY, width: imageSize.width, height: targetHeight)
+            
+            guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return image }
+            let croppedImage = UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+            
+            let targetSize = CGSize(width: 400, height: 300) // 4:3 ratio
+            return resizeImage(croppedImage, to: targetSize)
+        }
+    }
+    #endif
+    
+    // Helper function to resize images
+    #if canImport(UIKit)
+    private func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+    }
+    #endif
+    
     // 加载图片的辅助函数
     private func loadImageFromPath(_ path: String) -> Image? {
         print("DEBUG: TodayView - Attempting to load image from: \(path)")
@@ -143,8 +193,11 @@ struct TodayView: View {
             return nil
         }
         
-        print("DEBUG: TodayView - Successfully loaded image from: \(imageURL.path)")
-        return Image(uiImage: uiImage)
+        // Crop and resize to 4:3 ratio
+        let croppedImage = cropImageTo4x3Ratio(uiImage)
+        
+        print("DEBUG: TodayView - Successfully loaded and cropped image from: \(imageURL.path)")
+        return Image(uiImage: croppedImage)
         #else
         // 在 macOS 上使用 NSImage
         guard let nsImage = NSImage(contentsOf: imageURL) else {
@@ -297,7 +350,7 @@ struct TodayView: View {
                         if let img = item.image { 
                             img
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
+                                .aspectRatio(4/3, contentMode: .fill)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .clipped()
                         }
@@ -372,7 +425,7 @@ struct FoodDetailView: View {
                     if let image = entry.image {
                         image
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
+                            .aspectRatio(4/3, contentMode: .fill)
                             .frame(height: 300)
                             .clipped()
                             .cornerRadius(20)
@@ -460,8 +513,8 @@ struct FoodDetailView: View {
                             HStack {
                                 Image(systemName: "trash.fill")
                                     .foregroundColor(.white)
-                                Text("Delete Record")
-                                    .fontWeight(.semibold)
+                                // Text("Delete Record")
+                                //     .fontWeight(.semibold)
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -487,28 +540,28 @@ struct FoodDetailView: View {
                     }
                 }
             }
-            .alert("Delete Food Record", isPresented: $showDeleteAlert) {
-                Button("Cancel", role: .cancel) {
-                    showDeleteAlert = false
-                }
-                Button("Delete", role: .destructive) {
-                    showDeleteConfirmation = true
-                }
-            } message: {
-                Text("Are you sure you want to delete this food record?\n🍽️ This action cannot be undone.")
-            }
-            .alert("Confirm Deletion", isPresented: $showDeleteConfirmation) {
-                Button("Cancel", role: .cancel) {
-                    showDeleteConfirmation = false
-                }
-                Button("Yes, Delete", role: .destructive) {
-                    // TODO: Implement actual deletion logic
-                    print("DEBUG: FoodDetailView - Deleting record: \(entry.title)")
-                    presentationMode.wrappedValue.dismiss()
-                }
-            } message: {
-                Text("This will permanently delete the food record. Are you absolutely sure?")
-            }
+            // .alert("Delete Food Record", isPresented: $showDeleteAlert) {
+            //     Button("Cancel", role: .cancel) {
+            //         showDeleteAlert = false
+            //     }
+            //     Button("Delete", role: .destructive) {
+            //         showDeleteConfirmation = true
+            //     }
+            // } message: {
+            //     Text("Are you sure you want to delete this food record?\n🍽️ This action cannot be undone.")
+            // }
+            // .alert("Confirm Deletion", isPresented: $showDeleteConfirmation) {
+            //     Button("Cancel", role: .cancel) {
+            //         showDeleteConfirmation = false
+            //     }
+            //     Button("Yes, Delete", role: .destructive) {
+            //         // TODO: Implement actual deletion logic
+            //         print("DEBUG: FoodDetailView - Deleting record: \(entry.title)")
+            //         presentationMode.wrappedValue.dismiss()
+            //     }
+            // } message: {
+            //     Text("This will permanently delete the food record. Are you absolutely sure?")
+            // }
         }
     }
 }
