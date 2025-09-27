@@ -342,12 +342,14 @@ struct TodayView: View {
 struct FoodDetailView: View {
     let entry: TodayEntry
     @Environment(\.presentationMode) var presentationMode
+    @State private var showDeleteAlert = false
+    @State private var showDeleteConfirmation = false
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    // 食物图片区域
+                    // Food image area
                     if let image = entry.image {
                         image
                             .resizable()
@@ -374,9 +376,9 @@ struct FoodDetailView: View {
                             .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
                     }
                     
-                    // 食物信息卡片
+                    // Food information card
                     VStack(alignment: .leading, spacing: 16) {
-                        // 标题和卡路里
+                        // Title and calories
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(entry.title)
@@ -403,23 +405,23 @@ struct FoodDetailView: View {
                             }
                         }
                         
-                        // 营养信息（模拟数据）
+                        // Nutrition information (demo data)
                         VStack(spacing: 12) {
-                            Text("营养分析")
+                            Text("Nutrition Analysis")
                                 .font(.headline)
                                 .foregroundColor(.primary)
                             
                             HStack(spacing: 20) {
-                                NutritionItem(title: "蛋白质", value: "25g", color: .blue)
-                                NutritionItem(title: "碳水", value: "45g", color: .green)
-                                NutritionItem(title: "脂肪", value: "15g", color: .purple)
+                                NutritionItem(title: "Protein", value: "25g", color: .blue)
+                                NutritionItem(title: "Carbs", value: "45g", color: .green)
+                                NutritionItem(title: "Fat", value: "15g", color: .purple)
                             }
                         }
                         
-                        // 备注信息
+                        // Notes information
                         if let note = entry.note {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("备注")
+                                Text("Notes")
                                     .font(.headline)
                                     .foregroundColor(.primary)
                                 
@@ -431,6 +433,23 @@ struct FoodDetailView: View {
                                     .cornerRadius(12)
                             }
                         }
+                        
+                        // Delete button
+                        Button(action: {
+                            showDeleteAlert = true
+                        }) {
+                            HStack {
+                                Image(systemName: "trash.fill")
+                                    .foregroundColor(.white)
+                                Text("Delete Record")
+                                    .fontWeight(.semibold)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .cornerRadius(12)
+                        }
+                        .padding(.top, 8)
                     }
                     .padding()
                     .background(
@@ -441,13 +460,35 @@ struct FoodDetailView: View {
                 }
                 .padding()
             }
-            .navigationTitle("食物详情")
+            .navigationTitle("Food Details")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("完成") {
+                    Button("Done") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
+            }
+            .alert("Delete Food Record", isPresented: $showDeleteAlert) {
+                Button("Cancel", role: .cancel) {
+                    showDeleteAlert = false
+                }
+                Button("Delete", role: .destructive) {
+                    showDeleteConfirmation = true
+                }
+            } message: {
+                Text("Are you sure you want to delete this food record?\n🍽️ This action cannot be undone.")
+            }
+            .alert("Confirm Deletion", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) {
+                    showDeleteConfirmation = false
+                }
+                Button("Yes, Delete", role: .destructive) {
+                    // TODO: Implement actual deletion logic
+                    print("DEBUG: FoodDetailView - Deleting record: \(entry.title)")
+                    presentationMode.wrappedValue.dismiss()
+                }
+            } message: {
+                Text("This will permanently delete the food record. Are you absolutely sure?")
             }
         }
     }
