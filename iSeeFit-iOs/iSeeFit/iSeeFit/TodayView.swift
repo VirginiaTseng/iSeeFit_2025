@@ -35,15 +35,16 @@ struct TodayView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     header
+                    
                     timeline
-                    summary
+
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { Text("Today's Memory").font(.headline) } }
+//            .toolbar { ToolbarItem(placement: .principal) { Text("Today's Memory").font(.headline) } }
             .background(LinearGradient(colors: [Color.black.opacity(0.04), Color.clear], startPoint: .top, endPoint: .bottom))
         }
     }
@@ -54,10 +55,11 @@ struct TodayView: View {
                 .fill(LinearGradient(colors: [Color.yellow.opacity(0.35), Color.orange.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing))
                 .frame(height: 120)
             VStack(alignment: .leading, spacing: 8) {
-                Text("Today's Memory").font(.title3).bold()
+                //Text("Today's Memory").font(.title3).bold()
                 Text("Track your meals and workouts today")
                     .font(.caption)
                     .foregroundColor(.secondary)
+                summary
             }
             .padding(16)
         }
@@ -133,13 +135,13 @@ struct TodayView: View {
     }
 
     private var summary: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 2) {
             HStack {
                 Label("Intake", systemImage: "fork.knife").foregroundColor(.orange)
                 Spacer()
                 Text("\(intake) kcal").bold()
             }
-            .padding(12)
+            .padding(10)
             .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
 
             HStack {
@@ -147,7 +149,7 @@ struct TodayView: View {
                 Spacer()
                 Text("\(burn) kcal").bold()
             }
-            .padding(12)
+            .padding(10)
             .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)))
 
             HStack {
@@ -155,7 +157,7 @@ struct TodayView: View {
                 Spacer()
                 Text("\(intake - burn) kcal").bold()
             }
-            .padding(12)
+            .padding(10)
             .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
         }
     }

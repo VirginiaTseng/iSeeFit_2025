@@ -21,7 +21,8 @@ struct TodaysMemoryView: View {
                 
                 // 可滚动的内容区域
                 ScrollView {
-                    contentView()
+                   // contentView()
+                    TodayView()
                         .background(GeometryReader { geo in
                             Color.clear.onAppear {
                                 scrollOffset = geo.frame(in: .global).minY

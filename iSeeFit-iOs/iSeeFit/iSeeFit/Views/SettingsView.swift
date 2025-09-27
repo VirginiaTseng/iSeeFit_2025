@@ -31,19 +31,19 @@ struct SettingsView: View {
                     widgetWatchCard
                     settingsList
             // Privacy entry at the bottom
-            Button(action: {
-                print("DEBUG: SettingsView - open PrivacyPolicyView")
-                showPrivacy = true
-            }) {
-                HStack {
-                    Image(systemName: "hand.raised.fill").foregroundColor(.gray)
-                    Text("Privacy Policy")
-                    Spacer()
-                    Image(systemName: "chevron.right").foregroundColor(.gray)
-                }
-                .padding(12)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
-            }
+            // Button(action: {
+            //     print("DEBUG: SettingsView - open PrivacyPolicyView")
+            //     showPrivacy = true
+            // }) {
+            //     HStack {
+            //         Image(systemName: "hand.raised.fill").foregroundColor(.gray)
+            //         Text("Privacy Policy")
+            //         Spacer()
+            //         Image(systemName: "chevron.right").foregroundColor(.gray)
+            //     }
+            //     .padding(12)
+            //     .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+            // }
                     NotificationCard()
                     Spacer(minLength: 24)
                 }
@@ -188,7 +188,9 @@ struct SettingsView: View {
             }
             
             AppSettingsRow(icon: "message.fill", title: "Feedback")
-            AppSettingsRow(icon: "book.fill", title: "RedNote")
+            AppSettingsRow(icon: "hand.raised.fill", title: "Privacy Policy", action: {
+                    showPrivacy = true
+            })
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 16).fill(Color.secondary.opacity(0.1)))

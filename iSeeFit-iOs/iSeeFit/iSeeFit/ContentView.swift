@@ -48,14 +48,20 @@ struct ContentView: View {
                             }
                             .tag(1)
                             
-                  
+                        //PoseDetectionView()
+                        VideoView()
+                            .tabItem {
+                                Image(systemName: "video.fill")
+                                Text("Fitness")
+                            }
+                            .tag(2)
                         
                         WeightChartView()
                             .tabItem {
-                                Image(systemName: "clock").symbolRenderingMode(.palette)
-                                Text("Today")
+                                Image(systemName: "list.bullet") //.symbolRenderingMode(.palette)
+                                Text("Tracking")
                             }
-                            .tag(2)
+                            .tag(3)
                         
 //                        EmergencyView()
 //                            .tabItem {
@@ -65,13 +71,8 @@ struct ContentView: View {
 //                            .tag(2)
 //
 
-                        CommunityView()
-                            .tabItem {
-                                Image(systemName: "heart.fill")
-                                Text("Community")
-                            }
-                            .tag(3)
-                        
+        
+
 //                        ProfileView()
 //                            .tabItem {
 //                                Image(systemName: "person.fill")
@@ -83,32 +84,28 @@ struct ContentView: View {
                                 Image(systemName: "person.crop.circle")
                                 Text("Profile")
                             }.tag(4)
-                        HomeView()
-                            .tabItem {
-                                Image(systemName: "house.fill")
-                                Text("Home")
-                            }
-                            .tag(5)
-                        TodayView().tabItem {
-                            Image(systemName: "house.fill")
-                            Text("Timeline")
-                        }
-                        .tag(7)
-                        
-                        //PoseDetectionView()
-                        VideoView()
-                            .tabItem {
-                                Image(systemName: "video.fill")
-                                Text("Fitness")
-                            }
-                            .tag(8)
                 
-                        FoodHistoryView()
-                            .tabItem {
-                                Image(systemName: "list.bullet")
-                                Text("History")
-                            }
-                            .tag(6)     
+                
+//                        HomeView()
+//                            .tabItem {
+//                                Image(systemName: "house.fill")
+//                                Text("Home")
+//                            }
+//                            .tag(25)
+//                        
+//                        CommunityView()
+//                            .tabItem {
+//                                Image(systemName: "heart.fill")
+//                                Text("Community")
+//                            }
+//                            .tag(23)
+//                
+//                        FoodHistoryView()
+//                            .tabItem {
+//                                Image(systemName: "list.bullet")
+//                                Text("History")
+//                            }
+//                            .tag(26)
                     }
                     .accentColor(.purple)
                     .preferredColorScheme(.light)

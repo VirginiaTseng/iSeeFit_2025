@@ -24,7 +24,8 @@ from services.food_analysis_service import analyze_food_image
 logger = logging.getLogger(__name__)
 
 # Create router
-router = APIRouter(prefix="/api/food", tags=["Food Analysis"])
+router = APIRouter(prefix="/api/food", tags=["food"])
+#router = APIRouter(prefix="/food", tags=["food"])
 
 
 

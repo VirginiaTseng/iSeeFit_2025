@@ -46,9 +46,9 @@ struct TodaysMemoryBkCard: View {
                 scrollOffset: externalScrollOffset != 0 ? externalScrollOffset : scrollOffset, 
                 glowPhase: glowPhase
             )
-                .frame(height: 300)
+            .frame(height: 200)
             
-            VStack(spacing: 20) {
+            VStack(spacing: 10) {
                 HStack {
     //                    Text("02:43")
     //                        .font(.system(size: 18, weight: .semibold))
@@ -72,11 +72,12 @@ struct TodaysMemoryBkCard: View {
                 // Title
                 HStack {
                     Text("Today's Memory")
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(.black)
                     Spacer()
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 20 )
+                .padding(.top, 50 )
                 .overlay(
                     // Underline
                     Rectangle()
