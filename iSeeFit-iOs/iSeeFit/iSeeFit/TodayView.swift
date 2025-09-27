@@ -20,6 +20,9 @@ struct TodayEntry: Identifiable {
     let kind: Kind
     let image: Image?
     let note: String?
+    let protein: Double?
+    let carbs: Double?
+    let fat: Double?
 }
 
 struct TodayView: View {
@@ -31,10 +34,10 @@ struct TodayView: View {
     
     // 默认演示数据（当没有真实数据时显示）
     private let defaultEntries: [TodayEntry] = [
-        TodayEntry(time: "08:12", title: "Breakfast", calories: 320, kind: .meal, image: nil, note: "Yogurt & fruits"),
-        TodayEntry(time: "12:48", title: "Lunch", calories: 640, kind: .meal, image: nil, note: "Chicken salad"),
-        TodayEntry(time: "18:30", title: "Workout", calories: 420, kind: .workout, image: nil, note: "Treadmill 40min"),
-        TodayEntry(time: "20:05", title: "Dinner", calories: 510, kind: .meal, image: nil, note: "Shrimp & veggies")
+        TodayEntry(time: "08:12", title: "Breakfast", calories: 320, kind: .meal, image: nil, note: "Yogurt & fruits", protein: 15.0, carbs: 45.0, fat: 8.0),
+        TodayEntry(time: "12:48", title: "Lunch", calories: 640, kind: .meal, image: nil, note: "Chicken salad", protein: 35.0, carbs: 25.0, fat: 12.0),
+        TodayEntry(time: "18:30", title: "Workout", calories: 420, kind: .workout, image: nil, note: "Treadmill 40min", protein: nil, carbs: nil, fat: nil),
+        TodayEntry(time: "20:05", title: "Dinner", calories: 510, kind: .meal, image: nil, note: "Shrimp & veggies", protein: 28.0, carbs: 30.0, fat: 18.0)
     ]
 
     private var intake: Int { entries.filter { $0.kind == .meal }.map { $0.calories }.reduce(0, +) }
@@ -242,7 +245,10 @@ struct TodayView: View {
                     calories: Int(record.calories),
                     kind: .meal,
                     image: foodImage,
-                    note: record.foodName
+                    note: record.foodName,
+                    protein: record.protein,
+                    carbs: record.carbs,
+                    fat: record.fat
                 )
             }.sorted { $0.time < $1.time }
         }
@@ -430,6 +436,7 @@ struct FoodDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showDeleteAlert = false
     @State private var showDeleteConfirmation = false
+    @State private var animatedCalories: Int = 100
     
     var body: some View {
         NavigationView {
@@ -480,10 +487,11 @@ struct FoodDetailView: View {
                             Spacer()
                             
                             VStack(alignment: .trailing, spacing: 4) {
-                                Text("\(entry.calories)")
+                                Text("\(animatedCalories)")
                                     .font(.title)
                                     .fontWeight(.bold)
-                                    .foregroundColor(entry.kind == .meal ? .orange : .green)
+                                    .foregroundColor(getCaloriesColor(for: animatedCalories))
+                                    .animation(.easeOut(duration: 0.3), value: animatedCalories)
                                 
                                 Text("kcal")
                                     .font(.caption)
@@ -491,16 +499,22 @@ struct FoodDetailView: View {
                             }
                         }
                         
-                        // Nutrition information (demo data)
+                        // Nutrition information (real data)
                         VStack(spacing: 12) {
                             Text("Nutrition Analysis")
                                 .font(.headline)
                                 .foregroundColor(.primary)
                             
                             HStack(spacing: 20) {
-                                NutritionItem(title: "Protein", value: "25g", color: .blue)
-                                NutritionItem(title: "Carbs", value: "45g", color: .green)
-                                NutritionItem(title: "Fat", value: "15g", color: .purple)
+                                if let protein = entry.protein {
+                                    NutritionItem(title: "Protein", value: String(format: "%.1fg", protein), color: .blue)
+                                }
+                                if let carbs = entry.carbs {
+                                    NutritionItem(title: "Carbs", value: String(format: "%.1fg", carbs), color: .green)
+                                }
+                                if let fat = entry.fat {
+                                    NutritionItem(title: "Fat", value: String(format: "%.1fg", fat), color: .purple)
+                                }
                             }
                         }
                         
@@ -554,6 +568,10 @@ struct FoodDetailView: View {
                     }
                 }
             }
+            .onAppear {
+                // 启动卡路里数字动画
+                startCaloriesAnimation()
+            }
             // .alert("Delete Food Record", isPresented: $showDeleteAlert) {
             //     Button("Cancel", role: .cancel) {
             //         showDeleteAlert = false
@@ -576,6 +594,38 @@ struct FoodDetailView: View {
             // } message: {
             //     Text("This will permanently delete the food record. Are you absolutely sure?")
             // }
+        }
+    }
+    
+    // 根据卡路里数值计算颜色
+    private func getCaloriesColor(for calories: Int) -> Color {
+        switch calories {
+        case 0..<200:
+            return .green // 低热量 - 绿色
+        case 200..<400:
+            return .yellow // 中等热量 - 黄色
+        case 400..<600:
+            return .orange // 较高热量 - 橙色
+        default:
+            return .red // 高热量 - 红色
+        }
+    }
+    
+    // 卡路里数字动画函数
+    private func startCaloriesAnimation() {
+        animatedCalories = 100
+        let targetCalories = entry.calories
+        let duration: Double = 1.5
+        let steps = 30
+        let stepDuration = duration / Double(steps)
+        let increment = (targetCalories - 100) / steps
+        
+        for i in 0...steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + stepDuration * Double(i)) {
+                withAnimation(.easeOut(duration: stepDuration)) {
+                    animatedCalories = min(100 + Int(Double(increment) * Double(i)), targetCalories)
+                }
+            }
         }
     }
 }
