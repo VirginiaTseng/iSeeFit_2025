@@ -96,6 +96,17 @@ async def get_unread_recommendations(
         ) for rec in recommendations
     ]
 
+@router.get("/getadvice")
+async def getadvice(
+    #current_user: User = Depends(get_current_user),
+    #db: Session = Depends(get_db)
+):
+    # """food name params, health condition params, simple/professional/detailed"""
+    
+    # return get_food_advice(food_name, health_condition, prompt_style)
+    return "get advice111" 
+    
+
 @router.get("/stats")
 async def get_recommendation_stats(
     current_user: User = Depends(get_current_user),
