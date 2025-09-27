@@ -2,12 +2,13 @@
 推荐相关的 API 路由
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, FastAPI, UploadFile, File
+from fastapi.responses import StreamingResponse
+from io import BytesIO
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 import logging
-
 import sys
 from pathlib import Path
 
@@ -22,6 +23,7 @@ from models.schemas import RecommendationResponse
 from utils.auth import get_current_user
 from services.recommendation_service import RecommendationService
 from services.simple_food_advisor import get_food_advice
+from services.detect_motion_service import process_video_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +108,22 @@ async def getadvice(
     # """food name params, health condition params, simple/professional/detailed"""
     
     return get_food_advice(food_name, health_condition, prompt_style)
-    
+
+@router.post("/process-video/")
+async def upload_video(file: UploadFile = File(...)):
+    if not file.filename.endswith(".mp4"):
+        raise HTTPException(status_code=400, detail="Only MP4 files are supported.")
+    video_bytes = await file.read()
+
+    try:
+        processed_bytes = process_video_bytes(video_bytes, file.filename, max_duration=10)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return StreamingResponse(BytesIO(processed_bytes), media_type="video/mp4", headers={
+        "Content-Disposition": f"attachment; filename=processed_video.mp4"
+    })
+
 
 @router.get("/stats")
 async def get_recommendation_stats(
