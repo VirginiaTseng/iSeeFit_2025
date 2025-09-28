@@ -16,6 +16,7 @@ struct PoseVideoView: View {
     @State private var selectedVideo: URL?
     @State private var showVideoPicker = false
     @State private var errorMessage: String?
+    @State private var showLiveCamera = false
     
     var body: some View {
         NavigationView {
@@ -133,6 +134,48 @@ struct PoseVideoView: View {
                         .padding()
                         .background(Color.red.opacity(0.1))
                         .cornerRadius(8)
+                }
+                
+                // Live camera section
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Live Pose Detection")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Button(action: { 
+                            showLiveCamera.toggle()
+                            print("DEBUG: PoseVideoView - Live camera toggle: \(showLiveCamera)")
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: showLiveCamera ? "video.slash" : "video")
+                                Text(showLiveCamera ? "Hide" : "Show")
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(showLiveCamera ? Color.orange : Color.blue)
+                            .cornerRadius(20)
+                        }
+                    }
+                    
+                    if showLiveCamera {
+                        Text("Real-time pose detection using your camera")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.horizontal, 20)
+                
+                // Live camera view
+                if showLiveCamera {
+                    VideoView()
+                        .frame(height: 300)
+                        .cornerRadius(12)
+                        .clipped()
+                        .shadow(radius: 8)
+                        .padding(.horizontal, 20)
                 }
                 
                 Spacer()
