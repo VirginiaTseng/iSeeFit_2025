@@ -6,16 +6,16 @@ from ultralytics import YOLO
 model = YOLO("yolov8n-pose.pt")  # load once
 SAVE_DIR = "processed_videos"  # folder to save videos
 os.makedirs(SAVE_DIR, exist_ok=True)
+
 def process_video_bytes(video_bytes: bytes, filename: str, max_duration: int = 10) -> bytes:
     """
     Process video and return as bytes for streaming.
+    Adds a counter that increases every second.
     """
-    # Save input video temporarily
     input_path = os.path.join(SAVE_DIR, f"input_{filename}")
     with open(input_path, "wb") as f:
         f.write(video_bytes)
 
-    # Output path
     output_path = os.path.join(SAVE_DIR, f"processed_{filename}")
 
     cap = cv2.VideoCapture(input_path)
@@ -36,22 +36,34 @@ def process_video_bytes(video_bytes: bytes, filename: str, max_duration: int = 1
         ret, frame = cap.read()
         if not ret:
             break
+        # Run your model (assuming `model` is defined elsewhere)
         results = model(frame, verbose=False)
         annotated_frame = results[0].plot()
+
+        # Calculate seconds elapsed
+        seconds_elapsed = frame_count // fps
+
+        # Add text overlay
+        text = f"Motion: Dancing, Calories burned: {seconds_elapsed}"
+        cv2.putText(
+            annotated_frame, text, (50, 50),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA
+        )
+
         out.write(annotated_frame)
         frame_count += 1
 
     cap.release()
     out.release()
 
-    # Read processed video and return as bytes
     with open(output_path, "rb") as f:
         processed_bytes = f.read()
-        
+
     os.remove(input_path)
     os.remove(output_path)
 
     return processed_bytes
+
 def process_video_bytes_to_frames(video_bytes: bytes, filename: str, max_duration: int = 10) -> list:
     """
     处理视频并返回帧列表（新增函数，不影响原有接口）
