@@ -137,12 +137,8 @@ struct PoseVideoView: View {
                 }
                 
                 // Live camera section
-                VStack(spacing: 12) {
+                VStack(spacing: 0) {
                     HStack {
-                        Text("Live Pose Detection")
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                        Spacer()
                         Button(action: { 
                             showLiveCamera.toggle()
                             print("DEBUG: PoseVideoView - Live camera toggle: \(showLiveCamera)")
@@ -160,13 +156,13 @@ struct PoseVideoView: View {
                         }
                     }
                     
-                    if showLiveCamera {
-                        Text("Real-time pose detection using your camera")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                    // if showLiveCamera {
+                    //     Text("Real-time pose detection using your camera")
+                    //         .font(.caption)
+                    //         .foregroundColor(.secondary)
+                    // }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 0)
                 
                 // Live camera view
                 if showLiveCamera {

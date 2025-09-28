@@ -319,41 +319,40 @@ struct VideoView: View {
                         }
                         
                         // Main control buttons
-                        HStack(spacing: 40) {
-                            Button(action: {
-                                print("DEBUG: VideoView - reset count tapped")
-                                workoutCount = 0
-                            }) {
-                                Image(systemName: "arrow.clockwise")
-                                    .font(.title2)
-                                    .foregroundColor(.white)
-                                    .padding(15)
-                                    .background(Color.black.opacity(0.7))
-                                    .clipShape(Circle())
-                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                            }
+                        HStack(spacing: 0) {
+                            // Button(action: {
+                            //     workoutCount = 0
+                            // }) {
+                            //     Image(systemName: "arrow.clockwise")
+                            //         .font(.title2)
+                            //         .foregroundColor(.white)
+                            //         .padding(15)
+                            //         .background(Color.black.opacity(0.7))
+                            //         .clipShape(Circle())
+                            //         .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                            // }
                             
-                            Button(action: {
-                                print("DEBUG: VideoView - record toggle tapped")
-                                isRecording.toggle()
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(isRecording ? Color.red : Color.white)
-                                        .frame(width: 80, height: 80)
-                                        .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
+                            // Button(action: {
+                            //     print("DEBUG: VideoView - record toggle tapped")
+                            //     isRecording.toggle()
+                            // }) {
+                            //     ZStack {
+                            //         Circle()
+                            //             .fill(isRecording ? Color.red : Color.white)
+                            //             .frame(width: 80, height: 80)
+                            //             .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
                                     
-                                    if isRecording {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.white)
-                                            .frame(width: 30, height: 30)
-                                    } else {
-                                        Circle()
-                                            .fill(Color.red)
-                                            .frame(width: 60, height: 60)
-                                    }
-                                }
-                            }
+                            //         if isRecording {
+                            //             RoundedRectangle(cornerRadius: 8)
+                            //                 .fill(Color.white)
+                            //                 .frame(width: 30, height: 30)
+                            //         } else {
+                            //             Circle()
+                            //                 .fill(Color.red)
+                            //                 .frame(width: 60, height: 60)
+                            //         }
+                            //     }
+                            // }
                             
                             // Placeholder for symmetry
                             Circle()
@@ -498,21 +497,11 @@ struct VideoView: View {
                     Text("Pose Detection")
                         .font(.headline)
                         .foregroundColor(.white)
-                    Spacer()
-                    Text("\(workoutCount)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.green)
-                }
-                
-                // 当前姿势和准确度
-                HStack {
+                    
                     Text("Current: \(currentPose.rawValue)")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.8))
-                    
-                    Spacer()
-                    
+
                     Text("Accuracy: \(Int(poseAccuracy * 100))%")
                         .font(.subheadline)
                         .foregroundColor(poseAccuracy > 0.7 ? .green : .orange)
@@ -530,12 +519,12 @@ struct VideoView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.green)
                         
-                        if poseDetector.isJumping {
-                            Text("JUMPING!")
-                                .font(.caption2)
-                                .foregroundColor(.green)
-                                .animation(.easeInOut(duration: 0.3), value: poseDetector.isJumping)
-                        }
+                        // if poseDetector.isJumping {
+                        //     Text("JUMPING!")
+                        //         .font(.caption2)
+                        //         .foregroundColor(.green)
+                        //         .animation(.easeInOut(duration: 0.3), value: poseDetector.isJumping)
+                        // }
                     }
                     
                     // 转圈统计
@@ -548,12 +537,12 @@ struct VideoView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.orange)
                         
-                        if poseDetector.isRotating {
-                            Text("ROTATING!")
-                                .font(.caption2)
-                                .foregroundColor(.orange)
-                                .animation(.easeInOut(duration: 0.3), value: poseDetector.isRotating)
-                        }
+                        // if poseDetector.isRotating {
+                        //     Text("ROTATING!")
+                        //         .font(.caption2)
+                        //         .foregroundColor(.orange)
+                        //         .animation(.easeInOut(duration: 0.3), value: poseDetector.isRotating)
+                        // }
                     }
                     
                     // 卡路里统计
@@ -565,10 +554,6 @@ struct VideoView: View {
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundColor(.red)
-                    }
-                    
-                    // 卡路里速率
-                    HStack(spacing: 8) {
                         Text("Rate:")
                             .font(.caption)
                             .foregroundColor(.white)
