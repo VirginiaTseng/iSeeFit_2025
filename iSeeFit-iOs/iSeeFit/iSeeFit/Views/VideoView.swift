@@ -22,7 +22,7 @@ struct VideoView: View {
     @State private var workoutCount = 0
     @State private var currentPose: PoseType = .unknown
     @State private var poseAccuracy: Float = 0.0
-    @State private var showInstructions = true
+    @State private var showInstructions = false
     @State private var debugMode = false
     
     // 训练记录相关
@@ -174,13 +174,6 @@ struct VideoView: View {
     
     private var poseOverlays: some View {
         Group {
-            if poseDetector.isDetecting {
-                PoseOverlayView(
-                    pose: poseDetector.currentPose,
-                    accuracy: poseAccuracy
-                )
-            }
-            
             if poseDetector.isDetecting && (poseDetector.currentPose.type != .unknown || debugMode) {
                 SkeletonOverlayView(
                     pose: poseDetector.currentPose,
@@ -372,12 +365,6 @@ struct VideoView: View {
                 }
                 
                 // Pose overlay with skeleton
-                if poseDetector.isDetecting {
-                    PoseOverlayView(
-                        pose: poseDetector.currentPose,
-                        accuracy: poseAccuracy
-                    )
-                }
                 
                 // Skeleton overlay
                 if poseDetector.isDetecting && (poseDetector.currentPose.type != .unknown || debugMode) {
@@ -438,9 +425,7 @@ struct VideoView: View {
                 .padding()
             }
             //.navigationTitle("Fitness Guide")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
+            //.navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 print("DEBUG: VideoView - appeared")
                 cameraManager.startSession()
@@ -451,13 +436,11 @@ struct VideoView: View {
                 cameraManager.stopSession()
                 poseDetector.stopDetection()
             }
-            #if canImport(UIKit)
             .onChange(of: cameraManager.capturedImage) { image in
                 if let image = image {
                     poseDetector.detectPose(in: image)
                 }
             }
-            #endif
             .onChange(of: poseDetector.detectedPose) { _, pose in
                 currentPose = pose.type
                 poseAccuracy = pose.accuracy
@@ -1128,35 +1111,6 @@ struct KeyPointView: Identifiable {
     let position: CGPoint
 }
 
-// MARK: - Pose Overlay
-struct PoseOverlayView: View {
-    let pose: DetectedPose
-    let accuracy: Float
-    
-    var body: some View {
-        VStack {
-            Spacer()
-            
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Pose: \(pose.type.rawValue)")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Text("Accuracy: \(Int(accuracy * 100))%")
-                        .font(.subheadline)
-                        .foregroundColor(accuracy > 0.7 ? .green : .orange)
-                }
-                .padding()
-                .background(Color.black.opacity(0.7))
-                .cornerRadius(8)
-                
-                Spacer()
-            }
-            .padding()
-        }
-    }
-}
 
 // MARK: - Skeleton Overlay
 struct SkeletonOverlayView: View {
