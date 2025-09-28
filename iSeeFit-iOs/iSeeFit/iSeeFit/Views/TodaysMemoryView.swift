@@ -173,7 +173,25 @@ struct TodaysMemoryView: View {
             let todayRecords = foodLocalStore.getTodayRecords()
             let foodNames = todayRecords.map { $0.foodName }
             
-            print("DEBUG: TodaysMemoryView - Extracted food names: \(foodNames)")
+            // 打印今日所有食物记录的详细信息
+            print("DEBUG: TodaysMemoryView - 今日所有食物记录:")
+            for (index, record) in todayRecords.enumerated() {
+                print("  [\(index + 1)] 食物记录:")
+                print("    - ID: \(record.id)")
+                print("    - 食物名称: \(record.foodName)")
+                print("    - 餐次类型: \(record.mealType)")
+                print("    - 卡路里: \(record.calories)")
+                print("    - 蛋白质: \(record.protein)g")
+                print("    - 碳水化合物: \(record.carbs)g")
+                print("    - 脂肪: \(record.fat)g")
+                print("    - 日期: \(record.date)")
+                print("    - 图片路径: \(record.imagePath ?? "无")")
+                print("    - 备注: \(record.notes ?? "无")")
+                print("    - 分析模式: \(record.analysisMode)")
+                print("    - 检测到的食物: \(record.detectedFoods.count) 项")
+                print("    ---")
+            }
+            print("DEBUG: TodaysMemoryView - 提取的食物名称: \(foodNames)")
             
             // 请求健康建议
             let advice = await recommendationService.getAdvice(
