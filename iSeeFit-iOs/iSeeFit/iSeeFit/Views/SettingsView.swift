@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var apiService = APIService.shared
+    @ObservedObject private var notificationManager = NotificationManager.shared
     @State private var iCloudSyncOn: Bool = false
     @State private var showLogin = false
     @State private var showLogoutAlert = false
@@ -44,7 +45,6 @@ struct SettingsView: View {
             //     .padding(12)
             //     .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
             // }
-                    NotificationCard()
                     Spacer(minLength: 24)
                 }
                 .padding(.horizontal, 16)
@@ -191,9 +191,19 @@ struct SettingsView: View {
             AppSettingsRow(icon: "hand.raised.fill", title: "Privacy Policy", action: {
                     showPrivacy = true
             })
+            
+            // 通知设置 - 开关样式
+            AppNotificationToggleRow(icon: "bell.fill", title: "Notifications", notificationManager: notificationManager)
+            
+            // 重置引导页面 - 纯按钮样式，无箭头
+            AppActionRow(icon: "arrow.clockwise", title: "Reset Onboarding", action: {
+                UserDefaults.standard.setValue(false, forKey: "hasSeenIntro")
+                UserDefaults.standard.setValue(false, forKey: "hasSeenOnboarding")
+            })
         }
-        .padding(12)
-        .background(RoundedRectangle(cornerRadius: 16).fill(Color.secondary.opacity(0.1)))
+        .padding(16)
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
+        .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
     }
     
     // 新增：用户信息卡片
@@ -440,6 +450,59 @@ private struct AppToggleRow: View {
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+    }
+}
+
+private struct AppNotificationToggleRow: View {
+    let icon: String
+    let title: String
+    @ObservedObject var notificationManager: NotificationManager
+
+    var body: some View {
+        HStack {
+            Image(systemName: icon).foregroundColor(.gray)
+            Text(title)
+            Spacer()
+            Toggle("", isOn: Binding(
+                get: { notificationManager.isAuthorized },
+                set: { newValue in
+                    if newValue {
+                        notificationManager.requestAuthorization()
+                    }
+                    // 注意：无法直接关闭通知权限，需要用户手动到设置中关闭
+                }
+            )).labelsHidden()
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+    }
+}
+
+private struct AppActionRow: View {
+    let icon: String
+    let title: String
+    let action: (() -> Void)?
+    
+    init(icon: String, title: String, action: (() -> Void)? = nil) {
+        self.icon = icon
+        self.title = title
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: {
+            action?()
+        }) {
+            HStack {
+                Image(systemName: icon).foregroundColor(.gray)
+                Text(title)
+                Spacer()
+                // 不显示箭头，这是一个纯按钮
+            }
+            .padding(12)
+            .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
