@@ -359,9 +359,9 @@ struct FoodCalorieView: View {
                     .ignoresSafeArea()
             } else {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
+                    gradient: Gradient(colors: [Color.cyan, Color.green]),
+                    startPoint: .leading,
+                    endPoint: .trailing
                 )
                 .ignoresSafeArea()
             }
@@ -370,9 +370,109 @@ struct FoodCalorieView: View {
     
     private var mainContentView: some View {
         VStack(spacing: 0) {
-            topActionButtons
-            Spacer()
-            bottomInformationCard
+            // 当没有选择图片时显示提示文字和按钮
+            if selectedImage == nil {
+                VStack(spacing: 0) {
+                    // 顶部留白
+                    Spacer()
+                        .frame(height: 60)
+                    
+                    // 中上部分：提示文字
+                    VStack(spacing: 16) {
+                        Spacer()
+                        
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.white.opacity(0.8))
+                        
+                        VStack(spacing: 8) {
+                            Text("Upload Photo or Take Picture")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                            
+                            Text("Analyze your food and get nutrition information")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                        }
+                        
+                        Spacer()
+                    }
+                    .frame(maxHeight: .infinity)
+                    
+                    // 中下部分：相机、相册和设置按钮
+                    VStack(spacing: 24) {
+                        HStack(spacing: 30) {
+                            Button(action: {
+                                useCamera = true
+                                showPicker = true
+                            }) {
+                                VStack(spacing: 8) {
+                                    Image(systemName: "camera")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.white)
+                                        .frame(width: 80, height: 80)
+                                        .background(Color.black.opacity(0.3))
+                                        .clipShape(Circle())
+                                    
+                                    Text("Camera")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            
+                            Button(action: {
+                                useCamera = false
+                                showPicker = true
+                            }) {
+                                VStack(spacing: 8) {
+                                    Image(systemName: "photo.on.rectangle")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.white)
+                                        .frame(width: 80, height: 80)
+                                        .background(Color.black.opacity(0.3))
+                                        .clipShape(Circle())
+                                    
+                                    Text("Gallery")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                            
+                            Button(action: {
+                                showAnalysisSettings = true
+                            }) {
+                                VStack(spacing: 8) {
+                                    Image(systemName: "gearshape")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.white)
+                                        .frame(width: 80, height: 80)
+                                        .background(Color.black.opacity(0.3))
+                                        .clipShape(Circle())
+                                    
+                                    Text("Settings")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.bottom, 120)
+                }
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.3), value: selectedImage)
+            } else {
+                // 选择图片后显示原来的布局
+                VStack(spacing: 0) {
+                    topActionButtons
+                    Spacer()
+                    
+                    bottomInformationCard
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .animation(.easeInOut(duration: 0.3), value: selectedImage)
+                }
+            }
         }
     }
     
