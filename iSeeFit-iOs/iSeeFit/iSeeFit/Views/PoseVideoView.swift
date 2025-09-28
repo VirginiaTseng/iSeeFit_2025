@@ -9,6 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct PoseVideoView: View {
+    // Pose detection
     @StateObject private var api = VideoFrameAPI()
     @StateObject private var player = VideoFramePlayer()
     @State private var isProcessing = false
