@@ -425,6 +425,7 @@ struct VideoView: View {
                                 .frame(width: 60, height: 20)
                             }
                         }
+                        .padding(.top, 30)
                     }
                     Spacer()
                 }
