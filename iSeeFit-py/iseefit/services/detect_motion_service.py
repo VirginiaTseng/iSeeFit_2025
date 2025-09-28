@@ -103,6 +103,16 @@ def process_video_bytes_to_frames(video_bytes: bytes, filename: str, max_duratio
             results = model(frame, verbose=False)
             annotated_frame = results[0].plot()
             
+            # Calculate seconds elapsed
+            seconds_elapsed = frame_count // fps
+
+            # Add text overlay
+            text = f"Motion: Dancing, Calories burned: {seconds_elapsed}"
+            cv2.putText(
+                annotated_frame, text, (50, 50),
+                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA
+            )
+
             # 编码为JPEG
             _, buffer = cv2.imencode('.jpg', annotated_frame)
             frames.append(buffer.tobytes())

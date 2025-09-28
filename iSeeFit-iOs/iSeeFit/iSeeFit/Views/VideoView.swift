@@ -26,7 +26,7 @@ struct VideoView: View {
     @State private var debugMode = false
     
     // 训练记录相关
-    @StateObject private var workoutRecorder = WorkoutRecorder()
+    @StateObject private var workoutRecorder = WorkoutRecorder.shared
     @State private var isWorkoutActive = false
     @State private var showWorkoutSummary = false
     

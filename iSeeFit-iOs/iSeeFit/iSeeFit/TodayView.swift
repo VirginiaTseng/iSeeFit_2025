@@ -28,7 +28,7 @@ struct TodayEntry: Identifiable {
 struct TodayView: View {
     // 使用真实数据源
     @StateObject private var foodLocalStore = FoodLocalStore.shared
-    @StateObject private var workoutRecorder = WorkoutRecorder()
+    @StateObject private var workoutRecorder = WorkoutRecorder.shared
     @State private var entries: [TodayEntry] = []
     @State private var selectedEntry: TodayEntry? = nil
     @State private var showDetailView = false

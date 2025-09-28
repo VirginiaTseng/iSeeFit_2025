@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 
 class WorkoutRecorder: ObservableObject {
+    // Shared singleton to ensure a single source of truth across views
+    static let shared = WorkoutRecorder()
     @Published var isRecording: Bool = false
     @Published var currentWorkout: WorkoutSession?
     @Published var workoutHistory: [WorkoutSession] = []
