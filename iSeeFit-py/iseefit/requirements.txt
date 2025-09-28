@@ -51,3 +51,6 @@ pytest-asyncio==0.21.1
 
 # 其他工具
 pathlib2==2.3.7
+
+ultralytics
+python-opencv
