@@ -1,5 +1,6 @@
 import os
 import cv2
+import numpy as np
 from ultralytics import YOLO
 
 model = YOLO("yolov8n-pose.pt")  # load once
@@ -51,3 +52,59 @@ def process_video_bytes(video_bytes: bytes, filename: str, max_duration: int = 1
     os.remove(output_path)
 
     return processed_bytes
+def process_video_bytes_to_frames(video_bytes: bytes, filename: str, max_duration: int = 10) -> list:
+    """
+    处理视频并返回帧列表（新增函数，不影响原有接口）
+    """
+    # 保存到临时文件进行处理
+    import tempfile
+    with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_file:
+        temp_file.write(video_bytes)
+        temp_path = temp_file.name
+    
+    try:
+        cap = cv2.VideoCapture(temp_path)
+        
+        if not cap.isOpened():
+            raise Exception("Cannot open video file")
+        
+        fps = int(cap.get(cv2.CAP_PROP_FPS) or 30)
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        max_frames = min(total_frames, int(max_duration * fps))
+        
+        # 优化参数
+        width = 640
+        height = 480
+        
+        frames = []
+        frame_count = 0
+        
+        while cap.isOpened() and frame_count < max_frames:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            
+            # 调整帧大小
+            frame = cv2.resize(frame, (width, height))
+            
+            # 姿势检测
+            results = model(frame, verbose=False)
+            annotated_frame = results[0].plot()
+            
+            # 编码为JPEG
+            _, buffer = cv2.imencode('.jpg', annotated_frame)
+            frames.append(buffer.tobytes())
+            
+            frame_count += 1
+        
+        cap.release()
+        return frames
+        
+    finally:
+        # 清理临时文件
+        import os
+        try:
+            os.unlink(temp_path)
+        except:
+            pass
+

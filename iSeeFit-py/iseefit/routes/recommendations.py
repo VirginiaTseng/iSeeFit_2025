@@ -2,9 +2,10 @@
 推荐相关的 API 路由
 """
 
-from fastapi import APIRouter, Depends, HTTPException, FastAPI, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, FastAPI, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from io import BytesIO
+import base64
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -23,7 +24,7 @@ from models.schemas import RecommendationResponse
 from utils.auth import get_current_user
 from services.recommendation_service import RecommendationService
 from services.simple_food_advisor import get_food_advice
-from services.detect_motion_service import process_video_bytes
+from services.detect_motion_service import process_video_bytes, process_video_bytes_to_frames
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +125,38 @@ async def upload_video(file: UploadFile = File(...)):
         "Content-Disposition": f"attachment; filename=processed_video.mp4"
     })
 
+
+@router.post("/process-video-frames/")
+async def process_video_frames(
+    video_file: UploadFile = File(...),
+    max_duration: int = Form(10)
+):
+    """
+    处理视频并返回帧列表（新增API，不影响原有接口）
+    """
+    try:
+        video_bytes = await video_file.read()
+        frames = process_video_bytes_to_frames(video_bytes, video_file.filename, max_duration)
+        
+        # 将帧转换为base64编码
+        frames_base64 = [base64.b64encode(frame).decode() for frame in frames]
+        
+        return {
+            "success": True,
+            "frames": frames_base64,
+            "total_frames": len(frames),
+            "fps": 30,
+            "duration": max_duration,
+            "message": f"Successfully processed {len(frames)} frames"
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to process video frames"
+        }
+        
 
 @router.get("/stats")
 async def get_recommendation_stats(
@@ -271,3 +304,34 @@ async def get_recommendation_detail(
         is_read=recommendation.is_read,
         created_at=recommendation.created_at
     )
+
+@router.post("/process-video-frames/")
+async def process_video_frames(
+    video_file: UploadFile = File(...),
+    max_duration: int = Form(10)
+):
+    """
+    处理视频并返回帧列表（新增API，不影响原有接口）
+    """
+    try:
+        video_bytes = await video_file.read()
+        frames = process_video_bytes_to_frames(video_bytes, video_file.filename, max_duration)
+        
+        # 将帧转换为base64编码
+        frames_base64 = [base64.b64encode(frame).decode() for frame in frames]
+        
+        return {
+            "success": True,
+            "frames": frames_base64,
+            "total_frames": len(frames),
+            "fps": 30,
+            "duration": max_duration,
+            "message": f"Successfully processed {len(frames)} frames"
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to process video frames"
+        }

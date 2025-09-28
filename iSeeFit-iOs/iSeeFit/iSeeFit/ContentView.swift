@@ -63,6 +63,13 @@ struct ContentView: View {
                             }
                             .tag(3)
                         
+                
+                PoseVideoView()
+                    .tabItem {
+                        Image(systemName: "figure.walk")
+                        Text("姿势检测")
+                    }
+                
 //                        EmergencyView()
 //                            .tabItem {
 //                                Image(systemName: "exclamationmark.triangle.fill")
@@ -85,6 +92,7 @@ struct ContentView: View {
                                 Text("Profile")
                             }.tag(4)
                 
+
                 
 //                        HomeView()
 //                            .tabItem {

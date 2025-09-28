@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C456AB932E88BA89005055EE /* PoseVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C456AB922E88BA86005055EE /* PoseVideoView.swift */; };
 		C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */; };
 		C49EFC022E7EFE2E00025E88 /* TodaysMemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */; };
 		C49EFC042E7F036F00025E88 /* NotificationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC032E7F036E00025E88 /* NotificationCard.swift */; };
@@ -101,6 +102,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C456AB922E88BA86005055EE /* PoseVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseVideoView.swift; sourceTree = "<group>"; };
 		C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyRecord.swift; sourceTree = "<group>"; };
 		C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaysMemoryView.swift; sourceTree = "<group>"; };
 		C49EFC032E7F036E00025E88 /* NotificationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCard.swift; sourceTree = "<group>"; };
@@ -335,6 +337,7 @@
 		CB4C9C8B2D64A4B70074A095 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C456AB922E88BA86005055EE /* PoseVideoView.swift */,
 				C49EFC402E86D0F900025E88 /* PoseDetectionView.swift */,
 				C49EFC312E85025300025E88 /* FoodHistoryView.swift */,
 				C49EFC2B2E82066700025E88 /* VideoView.swift */,
@@ -643,6 +646,7 @@
 				CB4C9C9C2D64A4B70074A095 /* iSeeFitApp.swift in Sources */,
 				CB0672872D6EC5FD00C044BD /* Theme.swift in Sources */,
 				C49EFC3D2E859B4000025E88 /* LaunchVideoView.swift in Sources */,
+				C456AB932E88BA89005055EE /* PoseVideoView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
