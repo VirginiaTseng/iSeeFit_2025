@@ -64,8 +64,8 @@ struct TodaysMemoryBkCard: View {
                     )
                 )
                 .clipShape(
-                    // 自定义形状：只有底部倒角
-                    RoundedCorners(radius: 24, corners: [.bottomLeft, .bottomRight])
+                    // 自定义形状：只有底部倒角，增大圆角
+                    RoundedCorners(radius: 40, corners: [.bottomLeft, .bottomRight])
                 )
                 .ignoresSafeArea(.all) // 确保背景覆盖所有区域
             
@@ -211,10 +211,12 @@ struct TodaysMemoryBkCard: View {
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
+                        .shadow(color: Color.black.opacity(0.5), radius: 2, x: 1, y: 1)
                     
                     Text("Every bite and every step counts!")
                         .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
+                        .foregroundColor(.white.opacity(0.9))
+                        .shadow(color: Color.black.opacity(0.4), radius: 1.5, x: 0.5, y: 0.5)
                 }
                 
                 Spacer()
