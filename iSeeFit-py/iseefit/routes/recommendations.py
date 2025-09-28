@@ -100,7 +100,7 @@ async def get_unread_recommendations(
         ) for rec in recommendations
     ]
 
-@router.get("/getadvice")
+@router.post("/getadvice")
 async def getadvice(
         food_name:str,
         health_condition:str,

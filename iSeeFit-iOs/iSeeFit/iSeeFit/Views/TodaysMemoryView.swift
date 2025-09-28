@@ -11,8 +11,11 @@ struct TodaysMemoryView: View {
     @State private var scrollOffset: CGFloat = 0
     @StateObject private var foodLocalStore = FoodLocalStore.shared
     @StateObject private var workoutRecorder = WorkoutRecorder.shared
+    @StateObject private var recommendationService = RecommendationService.shared
     @State private var entries: [TodayEntry] = []
     @State private var workoutEntries: [TodayEntry] = []
+    @State private var recommendation: String? = nil
+    @State private var isLoadingRecommendation = false
     
     // 默认演示数据（当没有真实数据时显示）
     private let defaultEntries: [TodayEntry] = [
@@ -36,16 +39,29 @@ struct TodaysMemoryView: View {
                 TodaysMemoryBkCard(externalScrollOffset: scrollOffset, burnedValue: burn)
                 
                 ScrollView(showsIndicators: false) {
-                    TodayContentView(workoutEntries: workoutEntries)
-                        .background(GeometryReader { geo in
-                            Color.clear.onAppear {
-                                scrollOffset = geo.frame(in: .global).minY
-                            }
-                            .onChange(of: geo.frame(in: .global).minY) {
-                                scrollOffset = geo.frame(in: .global).minY
-                            }
-                        })
-                        .padding(.bottom, geometry.safeAreaInsets.bottom + 100) // 确保底部有足够空间
+                    VStack(spacing: 0) {
+                        // 健康建议卡片 - 顶部显示
+                        if let recommendation = recommendation {
+                            RecommendationCard(advice: recommendation)
+                                .padding(.top, 150)
+                                .padding(.horizontal, 16)
+                        } else if isLoadingRecommendation {
+                            RecommendationLoadingCard()
+                                .padding(.top, 150)
+                                .padding(.horizontal, 16)
+                        }
+                        
+                        TodayContentView(workoutEntries: workoutEntries)
+                            .background(GeometryReader { geo in
+                                Color.clear.onAppear {
+                                    scrollOffset = geo.frame(in: .global).minY
+                                }
+                                .onChange(of: geo.frame(in: .global).minY) {
+                                    scrollOffset = geo.frame(in: .global).minY
+                                }
+                            })
+                            .padding(.bottom, geometry.safeAreaInsets.bottom + 100) // 确保底部有足够空间
+                    }
                 }
                 .background(Color.white)
             }
@@ -56,6 +72,7 @@ struct TodaysMemoryView: View {
         .onAppear {
             loadTodayEntries()
             loadTodayWorkoutEntries()
+            loadRecommendation()
             print("DEBUG: TodaysMemoryView - onAppear entries: \(entries.count), workoutEntries: \(workoutEntries.count)")
         }
         .onChange(of: workoutRecorder.workoutHistory) {
@@ -142,6 +159,34 @@ struct TodaysMemoryView: View {
         // 打印映射后的训练条目，便于核对是否生成卡片数据
         for item in workoutEntries {
             print("DEBUG: TodaysMemoryView - workoutEntry => time: \(item.time), title: \(item.title), kcal: \(item.calories)")
+        }
+    }
+    
+    // 加载健康建议
+    private func loadRecommendation() {
+        Task {
+            await MainActor.run {
+                isLoadingRecommendation = true
+            }
+            
+            // 提取今日食物名称
+            let todayRecords = foodLocalStore.getTodayRecords()
+            let foodNames = todayRecords.map { $0.foodName }
+            
+            print("DEBUG: TodaysMemoryView - Extracted food names: \(foodNames)")
+            
+            // 请求健康建议
+            let advice = await recommendationService.getAdvice(
+                foodNames: foodNames,
+                healthCondition: "stomach",
+                promptStyle: "simple"
+            )
+            
+            await MainActor.run {
+                recommendation = advice
+                isLoadingRecommendation = false
+                print("DEBUG: TodaysMemoryView - Recommendation loaded: \(advice ?? "nil")")
+            }
         }
     }
     }
@@ -948,6 +993,73 @@ struct IntegratedNutritionBar: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white.opacity(0.95))
                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+// MARK: - Recommendation Card Components
+struct RecommendationCard: View {
+    let advice: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "lightbulb.fill")
+                    .foregroundColor(.yellow)
+                    .font(.title2)
+                
+                Text("Health Advice")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            
+            Text(advice)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .lineLimit(nil)
+                .multilineTextAlignment(.leading)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        )
+    }
+}
+
+struct RecommendationLoadingCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "lightbulb.fill")
+                    .foregroundColor(.yellow)
+                    .font(.title2)
+                
+                Text("Health Advice")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            
+            HStack {
+                ProgressView()
+                    .scaleEffect(0.8)
+                Text("Loading personalized advice...")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         )
     }
 }
