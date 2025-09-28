@@ -90,11 +90,10 @@ class CalorieCalculator: ObservableObject {
         
         lastUpdateTime = now
         
-        print("DEBUG: CalorieCalculator - Updated:")
-        print("  - Intensity: \(String(format: "%.3f", currentIntensity))")
-        print("  - Rate: \(String(format: "%.2f", calorieRate)) cal/min")
-        print("  - This interval: \(String(format: "%.3f", caloriesThisInterval)) cal")
-        print("  - Total: \(String(format: "%.2f", totalCalories)) cal")
+        // 减少日志频率 - 每30次更新打印一次
+        if intensityHistory.count % 30 == 0 {
+            print("DEBUG: CalorieCalculator - Updated: intensity=\(String(format: "%.2f", currentIntensity)), rate=\(String(format: "%.1f", calorieRate)) cal/min, total=\(String(format: "%.1f", totalCalories)) cal")
+        }
     }
     
     private func calculateActivityIntensity(
