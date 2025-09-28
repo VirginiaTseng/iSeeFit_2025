@@ -373,9 +373,22 @@ struct FoodCalorieView: View {
             // 当没有选择图片时显示提示文字和按钮
             if selectedImage == nil {
                 VStack(spacing: 0) {
-                    // 顶部留白
-                    Spacer()
-                        .frame(height: 60)
+                    // 顶部设置按钮
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            showAnalysisSettings = true
+                        }) {
+                            Image(systemName: "gearshape")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                                .frame(width: 44, height: 44)
+                                .background(Color.black.opacity(0.3))
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 20)
+                    }
+                    .padding(.top, 60)
                     
                     // 中上部分：提示文字
                     VStack(spacing: 16) {
@@ -401,9 +414,9 @@ struct FoodCalorieView: View {
                     }
                     .frame(maxHeight: .infinity)
                     
-                    // 中下部分：相机、相册和设置按钮
+                    // 中下部分：相机和相册按钮
                     VStack(spacing: 24) {
-                        HStack(spacing: 30) {
+                        HStack(spacing: 40) {
                             Button(action: {
                                 useCamera = true
                                 showPicker = true
@@ -439,23 +452,6 @@ struct FoodCalorieView: View {
                                         .foregroundColor(.white)
                                 }
                             }
-                            
-                            Button(action: {
-                                showAnalysisSettings = true
-                            }) {
-                                VStack(spacing: 8) {
-                                    Image(systemName: "gearshape")
-                                        .font(.system(size: 30))
-                                        .foregroundColor(.white)
-                                        .frame(width: 80, height: 80)
-                                        .background(Color.black.opacity(0.3))
-                                        .clipShape(Circle())
-                                    
-                                    Text("Settings")
-                                        .font(.subheadline)
-                                        .foregroundColor(.white)
-                                }
-                            }
                         }
                     }
                     .padding(.bottom, 120)
@@ -478,35 +474,6 @@ struct FoodCalorieView: View {
     
 private var topActionButtons: some View {
     HStack {
-        // 左侧：相机和相册按钮纵向排列
-        VStack(spacing: 16) {
-            Button(action: {
-                useCamera = true
-                showPicker = true
-            }) {
-                Image(systemName: "camera")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .frame(width: 80, height: 80)
-                    .background(Color.black.opacity(0.3))
-                    .clipShape(Circle())
-            }
-            
-            Button(action: {
-                useCamera = false
-                showPicker = true
-            }) {
-                Image(systemName: "photo.on.rectangle")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .frame(width: 80, height: 80)
-                    .background(Color.black.opacity(0.3))
-                    .clipShape(Circle())
-            }
-        }
-        .padding(.leading, 20)
-        .padding(.top, 100)
-        
         Spacer()
         
         // 右侧：设置按钮
@@ -522,7 +489,7 @@ private var topActionButtons: some View {
         }
         .padding(.trailing, 20)
     }
-    .padding(.top, 20)
+    .padding(.top, 60)
 }
     
     private var bottomInformationCard: some View {
@@ -754,9 +721,18 @@ private var topActionButtons: some View {
     }
     
     private var actionButtons: some View {
-        HStack(spacing: 16) {
-            saveButton
-            analyzeButton
+        VStack(spacing: 16) {
+            // 第一行：保存和重新分析按钮
+            HStack(spacing: 16) {
+                saveButton
+                analyzeButton
+            }
+            
+            // 第二行：相机和相册按钮
+            HStack(spacing: 16) {
+                cameraButton
+                galleryButton
+            }
         }
         .padding(.horizontal, 20)
         .padding(.top, 20)
@@ -803,6 +779,42 @@ private var topActionButtons: some View {
             .cornerRadius(12)
         }
         .disabled(selectedImage == nil || foodAnalysisManager.isAnalyzing)
+    }
+    
+    private var cameraButton: some View {
+        Button(action: {
+            useCamera = true
+            showPicker = true
+        }) {
+            HStack {
+                Image(systemName: "camera")
+                Text("Camera")
+            }
+            .font(.headline)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(Color.blue.opacity(0.8))
+            .cornerRadius(12)
+        }
+    }
+    
+    private var galleryButton: some View {
+        Button(action: {
+            useCamera = false
+            showPicker = true
+        }) {
+            HStack {
+                Image(systemName: "photo.on.rectangle")
+                Text("Gallery")
+            }
+            .font(.headline)
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(Color.green.opacity(0.8))
+            .cornerRadius(12)
+        }
     }
     
     private var quickActionButtons: some View {
