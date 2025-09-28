@@ -404,6 +404,82 @@ struct VideoView: View {
                                 .background(Color.black.opacity(0.7))
                                 .cornerRadius(8)
                             
+                            // 运动统计数据
+                            VStack(alignment: .trailing, spacing: 4) {
+                                // 跳跃统计
+                                HStack(spacing: 8) {
+                                    Text("Jumps:")
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                    Text("\(poseDetector.jumpCount)")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.green)
+                                    
+                                    if poseDetector.isJumping {
+                                        Text("JUMPING!")
+                                            .font(.caption2)
+                                            .foregroundColor(.green)
+                                            .animation(.easeInOut(duration: 0.3), value: poseDetector.isJumping)
+                                    }
+                                }
+                                
+                                // 转圈统计
+                                HStack(spacing: 8) {
+                                    Text("Rotations:")
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                    Text("\(poseDetector.rotationCount)")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.orange)
+                                    
+                                    if poseDetector.isRotating {
+                                        Text("ROTATING!")
+                                            .font(.caption2)
+                                            .foregroundColor(.orange)
+                                            .animation(.easeInOut(duration: 0.3), value: poseDetector.isRotating)
+                                    }
+                                }
+                                
+                                // 卡路里统计
+                                HStack(spacing: 8) {
+                                    Text("Calories:")
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                    Text("\(Int(poseDetector.caloriesBurned))")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.red)
+                                }
+                                
+                                // 卡路里速率
+                                HStack(spacing: 8) {
+                                    Text("Rate:")
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                    Text("\(String(format: "%.1f", poseDetector.currentCalorieRate)) cal/min")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.yellow)
+                                }
+                                
+                                // 平均强度
+                                HStack(spacing: 8) {
+                                    Text("Intensity:")
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                    Text("\(String(format: "%.1f", poseDetector.averageIntensity * 100))%")
+                                        .font(.caption)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.cyan)
+                                }
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(Color.black.opacity(0.7))
+                            .cornerRadius(8)
+                            
                             if debugMode {
                                 Text("Debug Mode")
                                     .font(.caption)
@@ -655,7 +731,21 @@ class PoseDetector: NSObject, ObservableObject {
     @Published var keyPoints: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
     @Published var debugMode = false
     
+    // 运动检测和卡路里计算属性
+    @Published var jumpCount: Int = 0
+    @Published var rotationCount: Int = 0
+    @Published var caloriesBurned: Double = 0.0
+    @Published var isJumping: Bool = false
+    @Published var isRotating: Bool = false
+    @Published var currentCalorieRate: Double = 0.0
+    @Published var averageIntensity: Double = 0.0
+    
     private var request: VNDetectHumanBodyPoseRequest?
+    
+    // 检测器和计算器
+    private let jumpDetector = JumpDetector()
+    private let rotationDetector = RotationDetector()
+    private let calorieCalculator = CalorieCalculator()
     
     override init() {
         super.init()
@@ -684,6 +774,22 @@ class PoseDetector: NSObject, ObservableObject {
     func stopDetection() {
         isDetecting = false
         print("DEBUG: PoseDetector - Detection stopped")
+    }
+    
+    func resetCounters() {
+        jumpDetector.reset()
+        rotationDetector.reset()
+        calorieCalculator.reset()
+        
+        jumpCount = 0
+        rotationCount = 0
+        caloriesBurned = 0.0
+        isJumping = false
+        isRotating = false
+        currentCalorieRate = 0.0
+        averageIntensity = 0.0
+        
+        print("DEBUG: PoseDetector - Counters reset")
     }
     
     #if canImport(UIKit)
@@ -748,11 +854,37 @@ class PoseDetector: NSObject, ObservableObject {
             }
         }
         
+        // 运动检测和卡路里计算
+        jumpDetector.processKeyPoints(extractedKeyPoints)
+        rotationDetector.processKeyPoints(extractedKeyPoints)
+        
+        // 判断是否活跃
+        let isActive = jumpDetector.isJumping || rotationDetector.isRotating || poseType != .unknown
+        
+        // 更新卡路里计算
+        calorieCalculator.updateCalories(
+            jumpCount: jumpDetector.jumpCount,
+            rotationCount: rotationDetector.rotationCount,
+            isActive: isActive,
+            poseType: poseType
+        )
+        
         DispatchQueue.main.async {
             self.currentPose = detectedPose
             self.detectedPose = detectedPose
             self.keyPoints = extractedKeyPoints
+            
+            // 更新运动检测数据
+            self.jumpCount = self.jumpDetector.jumpCount
+            self.rotationCount = self.rotationDetector.rotationCount
+            self.caloriesBurned = self.calorieCalculator.totalCalories
+            self.isJumping = self.jumpDetector.isJumping
+            self.isRotating = self.rotationDetector.isRotating
+            self.currentCalorieRate = self.calorieCalculator.currentRate
+            self.averageIntensity = self.calorieCalculator.averageIntensity
+            
             print("DEBUG: PoseDetector - Updated UI with pose: \(poseType.rawValue), accuracy: \(accuracy), key points: \(extractedKeyPoints.count)")
+            print("DEBUG: PoseDetector - Movement data: jumps=\(self.jumpCount), rotations=\(self.rotationCount), calories=\(String(format: "%.2f", self.caloriesBurned))")
         }
     }
     
