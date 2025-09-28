@@ -25,20 +25,219 @@ struct VideoView: View {
     @State private var showInstructions = true
     @State private var debugMode = false
     
+    // MARK: - Computed Views
+    private var cameraPreview: some View {
+        #if canImport(UIKit)
+        CameraPreviewView(session: cameraManager.session)
+        #else
+        Rectangle()
+            .fill(Color.black)
+            .overlay(
+                Text("Camera not available on this platform")
+                    .foregroundColor(.white)
+            )
+        #endif
+    }
+    
+    private var overlayUI: some View {
+        VStack {
+            topControls
+            Spacer()
+            bottomUI
+        }
+    }
+    
+    private var topControls: some View {
+        HStack {
+            workoutSelectorButton
+            Spacer()
+            instructionToggleButton
+            debugToggleButton
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 10)
+    }
+    
+    private var workoutSelectorButton: some View {
+        Button(action: {
+            print("DEBUG: VideoView - workout selector tapped")
+            showWorkoutSelector = true
+        }) {
+            HStack(spacing: 8) {
+                Image(systemName: "figure.strengthtraining.traditional")
+                    .font(.title2)
+                Text(selectedWorkout.rawValue)
+                    .font(.headline)
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.black.opacity(0.6))
+            .cornerRadius(20)
+        }
+    }
+    
+    private var instructionToggleButton: some View {
+        Button(action: {
+            print("DEBUG: VideoView - instructions toggle tapped")
+            showInstructions.toggle()
+        }) {
+            Image(systemName: showInstructions ? "info.circle.fill" : "info.circle")
+                .font(.title2)
+                .foregroundColor(.white)
+                .padding(8)
+                .background(Color.black.opacity(0.6))
+                .clipShape(Circle())
+        }
+    }
+    
+    private var debugToggleButton: some View {
+        Button(action: {
+            print("DEBUG: VideoView - debug mode toggle tapped")
+            debugMode.toggle()
+            poseDetector.debugMode = debugMode
+        }) {
+            Image(systemName: debugMode ? "eye.fill" : "eye")
+                .font(.title2)
+                .foregroundColor(.white)
+                .padding(8)
+                .background(Color.black.opacity(0.6))
+                .clipShape(Circle())
+        }
+    }
+    
+    private var bottomUI: some View {
+        VStack(spacing: 16) {
+            if showInstructions {
+                instructionCard
+            }
+            poseInfoCard
+        }
+        .padding(.bottom, 40)
+    }
+    
+    private var instructionCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "info.circle")
+                    .foregroundColor(.white)
+                Spacer()
+            }
+            
+            Text(selectedWorkout.instructions)
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.leading)
+        }
+        .padding(16)
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(12)
+        .padding(.horizontal, 20)
+    }
+    
+    private var poseInfoCard: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Current Pose")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+                Text(currentPose.rawValue)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.6))
+                    .cornerRadius(8)
+            }
+            
+            HStack {
+                Text("Accuracy")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                Spacer()
+                Text("\(Int(poseAccuracy * 100))%")
+                    .font(.subheadline)
+                    .foregroundColor(poseAccuracy > 0.7 ? .green : .orange)
+            }
+        }
+        .padding(16)
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(12)
+        .padding(.horizontal, 20)
+    }
+    
+    private var poseOverlays: some View {
+        Group {
+            if poseDetector.isDetecting {
+                PoseOverlayView(
+                    pose: poseDetector.currentPose,
+                    accuracy: poseAccuracy
+                )
+            }
+            
+            if poseDetector.isDetecting && (poseDetector.currentPose.type != .unknown || debugMode) {
+                SkeletonOverlayView(
+                    pose: poseDetector.currentPose,
+                    keyPoints: poseDetector.keyPoints,
+                    debugMode: debugMode
+                )
+            }
+        }
+    }
+    
+    private var debugOverlay: some View {
+        VStack {
+            HStack {
+                Spacer()
+                VStack(alignment: .trailing) {
+                    Text("Key Points: \(poseDetector.keyPoints.count)")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(8)
+                    
+                    Text("Detection: \(poseDetector.isDetecting ? "ON" : "OFF")")
+                        .font(.caption)
+                        .foregroundColor(poseDetector.isDetecting ? .green : .red)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(8)
+                    
+                    if debugMode {
+                        Text("Debug Mode")
+                            .font(.caption)
+                            .foregroundColor(.yellow)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.black.opacity(0.7))
+                            .cornerRadius(8)
+                        
+                        GeometryReader { geo in
+                            Text("Safe: \(Int(geo.safeAreaInsets.top))")
+                                .font(.caption)
+                                .foregroundColor(.cyan)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.7))
+                                .cornerRadius(8)
+                        }
+                        .frame(width: 60, height: 20)
+                    }
+                }
+            }
+            Spacer()
+        }
+        .padding()
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
-                // Camera preview
-                #if canImport(UIKit)
-                CameraPreviewView(session: cameraManager.session)
-                #else
-                Rectangle()
-                    .fill(Color.black)
-                    .overlay(
-                        Text("Camera not available on this platform")
-                            .foregroundColor(.white)
-                    )
-                #endif
+                cameraPreview
                 
                 // Overlay UI
                 VStack {
@@ -213,6 +412,17 @@ struct VideoView: View {
                                     .padding(.vertical, 4)
                                     .background(Color.black.opacity(0.7))
                                     .cornerRadius(8)
+                                
+                                GeometryReader { geo in
+                                    Text("Safe: \(Int(geo.safeAreaInsets.top))")
+                                        .font(.caption)
+                                        .foregroundColor(.cyan)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.black.opacity(0.7))
+                                        .cornerRadius(8)
+                                }
+                                .frame(width: 60, height: 20)
                             }
                         }
                     }
@@ -220,7 +430,7 @@ struct VideoView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Fitness Guide")
+            //.navigationTitle("Fitness Guide")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -703,6 +913,9 @@ struct SkeletonOverlayView: View {
             print("  - Height > Distance: \(shoulderHeightDiff > shoulderDistance)")
             print("  - Left shoulder: (\(leftShoulder.x), \(leftShoulder.y))")
             print("  - Right shoulder: (\(rightShoulder.x), \(rightShoulder.y))")
+            print("  - Safe area top: \(geometry.safeAreaInsets.top)")
+            print("  - Safe area bottom: \(geometry.safeAreaInsets.bottom)")
+            print("  - Adjusted height: \(geometry.size.height - geometry.safeAreaInsets.top - geometry.safeAreaInsets.bottom)")
             
             // If shoulders are more vertical than horizontal, we need rotation
             return isPortrait && shoulderHeightDiff > shoulderDistance
@@ -746,6 +959,11 @@ struct SkeletonOverlayView: View {
     private func validSkeletonConnections(for geometry: GeometryProxy) -> [SkeletonConnection] {
         let needsRotation = needsCoordinateRotation(for: geometry)
         
+        // 获取安全区域信息来补偿导航栏高度
+        let safeAreaTop = geometry.safeAreaInsets.top
+        let safeAreaBottom = geometry.safeAreaInsets.bottom
+        let adjustedHeight = geometry.size.height - safeAreaTop - safeAreaBottom
+        
         return skeletonConnections.compactMap { connection in
             guard let startPoint = keyPoints[connection.start],
                   let endPoint = keyPoints[connection.end] else { return nil }
@@ -757,21 +975,21 @@ struct SkeletonOverlayView: View {
                 // For portrait video, try different rotation approach
                 start = CGPoint(
                     x: (1.0 - startPoint.y) * geometry.size.width, // 翻转X坐标
-                    y: startPoint.x * geometry.size.height
+                    y: startPoint.x * adjustedHeight + safeAreaTop // 补偿导航栏高度
                 )
                 end = CGPoint(
                     x: (1.0 - endPoint.y) * geometry.size.width, // 翻转X坐标
-                    y: endPoint.x * geometry.size.height
+                    y: endPoint.x * adjustedHeight + safeAreaTop // 补偿导航栏高度
                 )
             } else {
                 // For landscape video, use normal coordinates with Y flip
                 start = CGPoint(
                     x: startPoint.x * geometry.size.width,
-                    y: (1.0 - startPoint.y) * geometry.size.height // 保持Y翻转
+                    y: (1.0 - startPoint.y) * adjustedHeight + safeAreaTop // 补偿导航栏高度
                 )
                 end = CGPoint(
                     x: endPoint.x * geometry.size.width,
-                    y: (1.0 - endPoint.y) * geometry.size.height // 保持Y翻转
+                    y: (1.0 - endPoint.y) * adjustedHeight + safeAreaTop // 补偿导航栏高度
                 )
             }
             
@@ -787,6 +1005,11 @@ struct SkeletonOverlayView: View {
     private func validKeyPoints(for geometry: GeometryProxy) -> [KeyPointView] {
         let needsRotation = needsCoordinateRotation(for: geometry)
         
+        // 获取安全区域信息来补偿导航栏高度
+        let safeAreaTop = geometry.safeAreaInsets.top
+        let safeAreaBottom = geometry.safeAreaInsets.bottom
+        let adjustedHeight = geometry.size.height - safeAreaTop - safeAreaBottom
+        
         return keyPoints.compactMap { (jointName, point) in
             let position: CGPoint
             
@@ -794,13 +1017,13 @@ struct SkeletonOverlayView: View {
                 // For portrait video, try different rotation approach
                 position = CGPoint(
                     x: (1.0 - point.y) * geometry.size.width, // 翻转X坐标
-                    y: point.x * geometry.size.height
+                    y: point.x * adjustedHeight + safeAreaTop // 补偿导航栏高度
                 )
             } else {
                 // For landscape video, use normal coordinates with Y flip
                 position = CGPoint(
                     x: point.x * geometry.size.width,
-                    y: (1.0 - point.y) * geometry.size.height // 保持Y翻转
+                    y: (1.0 - point.y) * adjustedHeight + safeAreaTop // 补偿导航栏高度
                 )
             }
             

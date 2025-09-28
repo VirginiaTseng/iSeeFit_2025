@@ -48,6 +48,13 @@ struct ContentView: View {
                             }
                             .tag(1)
                             
+                        VideoView()
+                            .tabItem {
+                                Image(systemName: "video.fill")
+                                Text("Fitness")
+                            }
+                            .tag(8)
+
                         PoseVideoView()
                         .tabItem {
                             Image(systemName: "figure.walk")
@@ -92,12 +99,7 @@ struct ContentView: View {
                                 Text("Profile")
                             }.tag(4)
 
-                            VideoView()
-                            .tabItem {
-                                Image(systemName: "video.fill")
-                                Text("Fitness")
-                            }
-                            .tag(8)
+ 
                 
 
                 
