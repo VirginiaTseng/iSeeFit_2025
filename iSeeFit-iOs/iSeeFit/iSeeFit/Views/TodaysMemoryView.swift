@@ -98,11 +98,11 @@ struct TodaysMemoryView: View {
                 
                 return TodayEntry(
                     time: formatTime(record.date),
-                    title: getMealType(for: record.date),
+                    title: getMealType(for: record.date),  // 显示餐次类型
                     calories: Int(record.calories),
                     kind: .meal,
                     image: image,
-                    note: record.notes,
+                    note: record.foodName,  // 食物名称作为备注
                     protein: record.protein,
                     carbs: record.carbs,
                     fat: record.fat
@@ -394,11 +394,11 @@ struct TodayContentView: View {
                 
                 return TodayEntry(
                     time: formatTime(record.date),
-                    title: getMealType(for: record.date),
+                    title: getMealType(for: record.date),  // 显示餐次类型
                     calories: Int(record.calories),
                     kind: .meal,
                     image: image,
-                    note: record.notes,
+                    note: record.foodName,  // 食物名称作为备注
                     protein: record.protein,
                     carbs: record.carbs,
                     fat: record.fat
