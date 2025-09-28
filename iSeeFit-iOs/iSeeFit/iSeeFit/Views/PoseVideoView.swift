@@ -35,9 +35,9 @@ struct PoseVideoView: View {
                         }
                 } else if isProcessing {
                     VStack {
-                        ProgressView("处理中...")
+                        ProgressView("Processing...")
                             .scaleEffect(1.2)
-                        Text("正在分析视频中的姿势")
+                        Text("Analyzing poses in video")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -47,20 +47,20 @@ struct PoseVideoView: View {
                         Image(systemName: "video.circle")
                             .font(.system(size: 60))
                             .foregroundColor(.gray)
-                        Text("选择视频开始姿势检测")
+                        Text("Select video to start pose detection")
                             .font(.headline)
                             .foregroundColor(.secondary)
                     }
                     .frame(height: 300)
                 }
                 
-                // 控制按钮
+                // Control buttons
                 if !player.frames.isEmpty {
                     VStack(spacing: 16) {
-                        // 进度条
+                        // Progress bar
                         VStack {
                             HStack {
-                                Text("进度")
+                                Text("Progress")
                                 Spacer()
                                 Text("\(player.currentIndex + 1) / \(player.frames.count)")
                             }
@@ -70,7 +70,7 @@ struct PoseVideoView: View {
                                 .progressViewStyle(LinearProgressViewStyle())
                         }
                         
-                        // 播放控制
+                        // Playback controls
                         HStack(spacing: 20) {
                             Button(action: { player.stop() }) {
                                 Image(systemName: "stop.fill")
@@ -104,11 +104,11 @@ struct PoseVideoView: View {
                     .background(Color.secondary.opacity(0.1))
                     .cornerRadius(12)
                 } else {
-                    // 选择视频按钮
+                    // Select video button
                     Button(action: { showVideoPicker = true }) {
                         HStack {
                             Image(systemName: "video.badge.plus")
-                            Text("选择视频")
+                            Text("Select Video")
                         }
                         .font(.headline)
                         .foregroundColor(.white)
@@ -118,7 +118,7 @@ struct PoseVideoView: View {
                     }
                 }
                 
-                // 错误信息
+                // Error message
                 if let errorMessage = errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
@@ -131,7 +131,7 @@ struct PoseVideoView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("姿势检测")
+            .navigationTitle("Pose Detection")
             .sheet(isPresented: $showVideoPicker) {
                 VideoPicker(selectedVideo: $selectedVideo)
             }
@@ -151,7 +151,7 @@ struct PoseVideoView: View {
             do {
                 let response = try await api.processVideoToFrames(videoURL)
                 
-                // 解码帧
+                // Decode frames
                 let frames: [UIImage] = response.frames?.compactMap { base64String in
                     guard let data = Data(base64Encoded: base64String) else { return nil }
                     return UIImage(data: data)
@@ -172,24 +172,24 @@ struct PoseVideoView: View {
     }
     
     private func clearVideo() {
-        // 停止播放
+        // Stop playback
         player.stop()
         
-        // 清空帧数据
+        // Clear frame data
         player.frames = []
         player.currentFrame = nil
         
-        // 清空选中的视频
+        // Clear selected video
         selectedVideo = nil
         
-        // 清空错误信息
+        // Clear error message
         errorMessage = nil
         
         print("DEBUG: PoseVideoView - Video cleared successfully")
     }
 }
 
-// 视频选择器
+// Video picker
 struct VideoPicker: UIViewControllerRepresentable {
     @Binding var selectedVideo: URL?
     @Environment(\.presentationMode) var presentationMode

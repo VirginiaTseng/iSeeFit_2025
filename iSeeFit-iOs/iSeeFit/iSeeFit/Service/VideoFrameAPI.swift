@@ -9,7 +9,8 @@ import Foundation
 import UIKit
 
 class VideoFrameAPI: ObservableObject {
-    private let baseURL = "http://10.10.10.61:8000/recommendations"
+        private let baseURL = "\(APIConfig.baseURL)/recommendations"
+    //private let baseURL = "http://10.10.10.61:8000/recommendations"
     
     func processVideoToFrames(_ videoURL: URL, userId: String = "default") async throws -> VideoFramesResponse {
         let url = URL(string: "\(baseURL)/process-video-frames/")!
@@ -88,11 +89,11 @@ enum APIError1: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .serverError:
-            return "服务器错误"
+            return "Server Error"
         case .processingFailed(let message):
-            return "处理失败：\(message)"
+            return "Processing Failed: \(message)"
         case .invalidResponse:
-            return "无效响应"
+            return "Invalid Response"
         }
     }
 }

@@ -48,13 +48,17 @@ struct ContentView: View {
                             }
                             .tag(1)
                             
-                        //PoseDetectionView()
-                        VideoView()
-                            .tabItem {
-                                Image(systemName: "video.fill")
-                                Text("Fitness")
-                            }
-                            .tag(2)
+                        PoseVideoView()
+                        .tabItem {
+                            Image(systemName: "figure.walk")
+                            Text("Fitness")
+                        }
+                        // VideoView()
+                        //     .tabItem {
+                        //         Image(systemName: "video.fill")
+                        //         Text("Fitness")
+                        //     }
+                        //     .tag(2)
                         
                         WeightChartView()
                             .tabItem {
@@ -64,11 +68,7 @@ struct ContentView: View {
                             .tag(3)
                         
                 
-                PoseVideoView()
-                    .tabItem {
-                        Image(systemName: "figure.walk")
-                        Text("姿势检测")
-                    }
+
                 
 //                        EmergencyView()
 //                            .tabItem {
