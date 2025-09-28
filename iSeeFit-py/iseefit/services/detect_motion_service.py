@@ -46,5 +46,8 @@ def process_video_bytes(video_bytes: bytes, filename: str, max_duration: int = 1
     # Read processed video and return as bytes
     with open(output_path, "rb") as f:
         processed_bytes = f.read()
+        
+    os.remove(input_path)
+    os.remove(output_path)
 
     return processed_bytes
