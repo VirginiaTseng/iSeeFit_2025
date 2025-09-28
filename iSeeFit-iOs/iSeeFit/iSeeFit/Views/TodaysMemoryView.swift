@@ -256,24 +256,30 @@ struct TodayContentView: View {
                                 .aspectRatio(5/3, contentMode: .fill)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .clipped()
+                        } else {
+                            // 没有图片时的占位符背景
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: item.kind == .meal ? 
+                                            [Color.orange.opacity(0.3), Color.pink.opacity(0.3)] :
+                                            [Color.green.opacity(0.3), Color.blue.opacity(0.3)]
+                                        ),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        // if let note = item.note {
-                        //     VStack {
-                        //         Spacer()
-                        //         Text(note)
-                        //             .font(.caption)
-                        //             .foregroundColor(.white)
-                        //             .padding(8)
-                        //             .frame(maxWidth: .infinity, alignment: .leading)
-                        //             .background(Color.black.opacity(0.6))
-                        //     }
-                        // }
-
-                         VStack {
+                        
+                        // 文字叠加（优先显示食物名/训练描述，限制长度）
+                        VStack {
                             Spacer()
-                            Text( "")
+                            Text(item.note ?? item.title)
                                 .font(.caption)
                                 .foregroundColor(.white)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
                                 .padding(8)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .background(Color.black.opacity(0.6))
