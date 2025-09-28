@@ -23,7 +23,12 @@ struct TodaysMemoryView: View {
     ]
 
     private var intake: Int { entries.filter { $0.kind == .meal }.map { $0.calories }.reduce(0, +) }
-    private var burn: Int { entries.filter { $0.kind == .workout }.map { $0.calories }.reduce(0, +) }
+    private var burn: Int { 
+        let entriesBurn = entries.filter { $0.kind == .workout }.map { $0.calories }.reduce(0, +)
+        let workoutBurn = workoutEntries.map { $0.calories }.reduce(0, +)
+        print("DEBUG: TodaysMemoryView - burn calculation: entriesBurn=\(entriesBurn), workoutBurn=\(workoutBurn), total=\(entriesBurn + workoutBurn)")
+        return entriesBurn + workoutBurn
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -162,7 +167,12 @@ struct TodayContentView: View {
     ]
 
     private var intake: Int { entries.filter { $0.kind == .meal }.map { $0.calories }.reduce(0, +) }
-    private var burn: Int { entries.filter { $0.kind == .workout }.map { $0.calories }.reduce(0, +) }
+    private var burn: Int { 
+        let entriesBurn = entries.filter { $0.kind == .workout }.map { $0.calories }.reduce(0, +)
+        let workoutBurn = workoutEntries.map { $0.calories }.reduce(0, +)
+        print("DEBUG: TodaysMemoryView - burn calculation: entriesBurn=\(entriesBurn), workoutBurn=\(workoutBurn), total=\(entriesBurn + workoutBurn)")
+        return entriesBurn + workoutBurn
+    }
     
     var body: some View {
         VStack(spacing: 16) {
