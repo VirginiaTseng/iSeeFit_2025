@@ -16,6 +16,24 @@ classifier = pipeline(
     device=device
 )
 
+calories_dict = {
+        "Calling": 1,  # light activity
+        "Clapping": 2,  # light activity
+        "Cycling": 9,  # moderate cycling
+        "Dancing": 6,  # moderate dancing
+        "Drinking": 1,  # negligible
+        "Eating": 1,  # negligible
+        "Fighting": 10,  # high intensity
+        "Hugging": 1,  # very light
+        "Laughing": 2,  # light activity
+        "Listening Music": 1,  # sedentary
+        "Running": 12,  # high intensity running
+        "Sitting": 1,  # sedentary
+        "Sleeping": 0.5,  # basal metabolism only
+        "Texting": 1,  # sedentary
+        "Using Laptop": 1  # sedentary
+    }
+
 def process_video_bytes(video_bytes: bytes, filename: str, max_duration: int = 10) -> bytes:
     """
     Process video and return as bytes for streaming.
@@ -41,24 +59,6 @@ def process_video_bytes(video_bytes: bytes, filename: str, max_duration: int = 1
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
     frame_count = 0
-    calories_dict = {
-        "Calling": 1,  # light activity
-        "Clapping": 2,  # light activity
-        "Cycling": 9,  # moderate cycling
-        "Dancing": 6,  # moderate dancing
-        "Drinking": 1,  # negligible
-        "Eating": 1,  # negligible
-        "Fighting": 10,  # high intensity
-        "Hugging": 1,  # very light
-        "Laughing": 2,  # light activity
-        "Listening Music": 1,  # sedentary
-        "Running": 12,  # high intensity running
-        "Sitting": 1,  # sedentary
-        "Sleeping": 0.5,  # basal metabolism only
-        "Texting": 1,  # sedentary
-        "Using Laptop": 1  # sedentary
-    }
-
     action_predictions = []
 
     while cap.isOpened() and frame_count < max_frames:
@@ -83,9 +83,14 @@ def process_video_bytes(video_bytes: bytes, filename: str, max_duration: int = 1
 
         if frame_count >= 30 and action_predictions:
             action = max(set(action_predictions), key=action_predictions.count)
-            print(action)
+            action1 = ""
+            if action == "Fighting":
+                action1 = "Dancing"
+            else:
+                action1 = action
+
             # Add text overlay
-            text = f"Motion: {action}, Calories burned: {calories_dict.get(action, 1) * 10 * seconds_elapsed}"
+            text = f"Motion: {action1}, Calories burned: {calories_dict.get(action, 1) * seconds_elapsed}"
             print(text)
             cv2.putText(
                 annotated_frame, text, (50, 50),
@@ -132,6 +137,7 @@ def process_video_bytes_to_frames(video_bytes: bytes, filename: str, max_duratio
         
         frames = []
         frame_count = 0
+        action_predictions = []
         
         while cap.isOpened() and frame_count < max_frames:
             ret, frame = cap.read()
@@ -148,12 +154,30 @@ def process_video_bytes_to_frames(video_bytes: bytes, filename: str, max_duratio
             # Calculate seconds elapsed
             seconds_elapsed = frame_count // fps
 
-            # Add text overlay
-            text = f"Motion: Dancing, Calories burned: {seconds_elapsed}"
-            cv2.putText(
-                annotated_frame, text, (50, 50),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA
-            )
+            # Update prediction once every second
+            if frame_count % 5 == 0 and frame_count < 30:
+                img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                results = classifier(img)
+                label = results[0]['label']
+                score = results[0]['score']
+                action_predictions.append(label)
+                print(f"{label} {score}")
+
+            if frame_count >= 30 and action_predictions:
+                action = max(set(action_predictions), key=action_predictions.count)
+                action1 = ""
+                if action == "Fighting":
+                    action1 = "Dancing"
+                else:
+                    action1 = action
+
+                # Add text overlay
+                text = f"Motion: {action1}, Calories burned: {calories_dict.get(action, 1) * seconds_elapsed}"
+                print(text)
+                cv2.putText(
+                    annotated_frame, text, (50, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA
+                )
 
             # 编码为JPEG
             _, buffer = cv2.imencode('.jpg', annotated_frame)
