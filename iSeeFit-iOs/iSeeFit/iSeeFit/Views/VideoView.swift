@@ -404,81 +404,6 @@ struct VideoView: View {
                                 .background(Color.black.opacity(0.7))
                                 .cornerRadius(8)
                             
-                            // 运动统计数据
-                            VStack(alignment: .trailing, spacing: 4) {
-                                // 跳跃统计
-                                HStack(spacing: 8) {
-                                    Text("Jumps:")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                    Text("\(poseDetector.jumpCount)")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.green)
-                                    
-                                    if poseDetector.isJumping {
-                                        Text("JUMPING!")
-                                            .font(.caption2)
-                                            .foregroundColor(.green)
-                                            .animation(.easeInOut(duration: 0.3), value: poseDetector.isJumping)
-                                    }
-                                }
-                                
-                                // 转圈统计
-                                HStack(spacing: 8) {
-                                    Text("Rotations:")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                    Text("\(poseDetector.rotationCount)")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.orange)
-                                    
-                                    if poseDetector.isRotating {
-                                        Text("ROTATING!")
-                                            .font(.caption2)
-                                            .foregroundColor(.orange)
-                                            .animation(.easeInOut(duration: 0.3), value: poseDetector.isRotating)
-                                    }
-                                }
-                                
-                                // 卡路里统计
-                                HStack(spacing: 8) {
-                                    Text("Calories:")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                    Text("\(Int(poseDetector.caloriesBurned))")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.red)
-                                }
-                                
-                                // 卡路里速率
-                                HStack(spacing: 8) {
-                                    Text("Rate:")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                    Text("\(String(format: "%.1f", poseDetector.currentCalorieRate)) cal/min")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.yellow)
-                                }
-                                
-                                // 平均强度
-                                HStack(spacing: 8) {
-                                    Text("Intensity:")
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                    Text("\(String(format: "%.1f", poseDetector.averageIntensity * 100))%")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.cyan)
-                                }
-                            }
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 6)
-                            .background(Color.black.opacity(0.7))
-                            .cornerRadius(8)
                             
                             if debugMode {
                                 Text("Debug Mode")
@@ -569,27 +494,104 @@ struct VideoView: View {
     
     private func poseDetectionCard() -> some View {
         VStack(spacing: 8) {
-            HStack {
-                Text("Pose Detection")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Spacer()
-                Text("\(workoutCount)")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.green)
-            }
-            
-            HStack {
-                Text("Current: \(currentPose.rawValue)")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+            // 运动统计数据
+            VStack(alignment: .leading, spacing: 8) {
+                // 标题
+                HStack {
+                    Text("Pose Detection")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Text("\(workoutCount)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.green)
+                }
                 
-                Spacer()
+                // 当前姿势和准确度
+                HStack {
+                    Text("Current: \(currentPose.rawValue)")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                    
+                    Spacer()
+                    
+                    Text("Accuracy: \(Int(poseAccuracy * 100))%")
+                        .font(.subheadline)
+                        .foregroundColor(poseAccuracy > 0.7 ? .green : .orange)
+                }
                 
-                Text("Accuracy: \(Int(poseAccuracy * 100))%")
-                    .font(.subheadline)
-                    .foregroundColor(poseAccuracy > 0.7 ? .green : .orange)
+                // 运动统计
+                VStack(spacing: 6) {
+                    // 跳跃统计
+                    HStack(spacing: 8) {
+                        Text("Jumps:")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Text("\(poseDetector.jumpCount)")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.green)
+                        
+                        if poseDetector.isJumping {
+                            Text("JUMPING!")
+                                .font(.caption2)
+                                .foregroundColor(.green)
+                                .animation(.easeInOut(duration: 0.3), value: poseDetector.isJumping)
+                        }
+                    }
+                    
+                    // 转圈统计
+                    HStack(spacing: 8) {
+                        Text("Rotations:")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Text("\(poseDetector.rotationCount)")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
+                        
+                        if poseDetector.isRotating {
+                            Text("ROTATING!")
+                                .font(.caption2)
+                                .foregroundColor(.orange)
+                                .animation(.easeInOut(duration: 0.3), value: poseDetector.isRotating)
+                        }
+                    }
+                    
+                    // 卡路里统计
+                    HStack(spacing: 8) {
+                        Text("Calories:")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Text("\(Int(poseDetector.caloriesBurned))")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.red)
+                    }
+                    
+                    // 卡路里速率
+                    HStack(spacing: 8) {
+                        Text("Rate:")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Text("\(String(format: "%.1f", poseDetector.currentCalorieRate)) cal/min")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.yellow)
+                    }
+                    
+                    // 平均强度
+                    HStack(spacing: 8) {
+                        Text("Intensity:")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                        Text("\(String(format: "%.1f", poseDetector.averageIntensity * 100))%")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.cyan)
+                    }
+                }
             }
         }
         .padding(16)
@@ -742,10 +744,12 @@ class PoseDetector: NSObject, ObservableObject {
     
     private var request: VNDetectHumanBodyPoseRequest?
     
-    // 检测器和计算器
-    private let jumpDetector = JumpDetector()
-    private let rotationDetector = RotationDetector()
-    private let calorieCalculator = CalorieCalculator()
+    // 简化的检测器状态 - 避免内存访问错误
+    private var ankleHistory: [Double] = []
+    private var shoulderAngleHistory: [Double] = []
+    private var lastJumpTime: Date = Date()
+    private var lastRotationTime: Date = Date()
+    private var lastCalorieUpdate: Date = Date()
     
     override init() {
         super.init()
@@ -777,10 +781,6 @@ class PoseDetector: NSObject, ObservableObject {
     }
     
     func resetCounters() {
-        jumpDetector.reset()
-        rotationDetector.reset()
-        calorieCalculator.reset()
-        
         jumpCount = 0
         rotationCount = 0
         caloriesBurned = 0.0
@@ -788,6 +788,14 @@ class PoseDetector: NSObject, ObservableObject {
         isRotating = false
         currentCalorieRate = 0.0
         averageIntensity = 0.0
+        // frameCounter = 0  // 暂时注释掉
+        
+        // 重置历史数据
+        ankleHistory.removeAll()
+        shoulderAngleHistory.removeAll()
+        lastJumpTime = Date()
+        lastRotationTime = Date()
+        lastCalorieUpdate = Date()
         
         print("DEBUG: PoseDetector - Counters reset")
     }
@@ -854,34 +862,88 @@ class PoseDetector: NSObject, ObservableObject {
             }
         }
         
-        // 运动检测和卡路里计算
-        jumpDetector.processKeyPoints(extractedKeyPoints)
-        rotationDetector.processKeyPoints(extractedKeyPoints)
+        // 简化的运动检测和卡路里计算 - 避免内存访问错误
+        let isActive = poseType != .unknown
         
-        // 判断是否活跃
-        let isActive = jumpDetector.isJumping || rotationDetector.isRotating || poseType != .unknown
+        // 跳跃检测 - 基于脚踝位置变化
+        if let leftAnkle = extractedKeyPoints[.leftAnkle], let rightAnkle = extractedKeyPoints[.rightAnkle] {
+            let avgAnkleY = (leftAnkle.y + rightAnkle.y) / 2.0
+            ankleHistory.append(avgAnkleY)
+            if ankleHistory.count > 10 { ankleHistory.removeFirst() }
+            
+            // 检测跳跃：脚踝位置快速上升
+            if ankleHistory.count >= 3 {
+                let recent = Array(ankleHistory.suffix(3))
+                let heightChange = recent[0] - recent[2] // 上升为正
+                let timeSinceLastJump = Date().timeIntervalSince(lastJumpTime)
+                
+                if heightChange > 0.05 && timeSinceLastJump > 0.5 && !isJumping {
+                    jumpCount += 1
+                    isJumping = true
+                    lastJumpTime = Date()
+                    print("DEBUG: Jump detected! Count: \(jumpCount)")
+                } else if avgAnkleY > 0.6 {
+                    isJumping = false
+                }
+            }
+        }
         
-        // 更新卡路里计算
-        calorieCalculator.updateCalories(
-            jumpCount: jumpDetector.jumpCount,
-            rotationCount: rotationDetector.rotationCount,
-            isActive: isActive,
-            poseType: poseType
-        )
+        // 转圈检测 - 基于肩膀角度变化
+        if let leftShoulder = extractedKeyPoints[.leftShoulder], let rightShoulder = extractedKeyPoints[.rightShoulder] {
+            let shoulderVector = CGPoint(x: rightShoulder.x - leftShoulder.x, y: rightShoulder.y - leftShoulder.y)
+            let angle = atan2(shoulderVector.y, shoulderVector.x)
+            shoulderAngleHistory.append(angle)
+            if shoulderAngleHistory.count > 15 { shoulderAngleHistory.removeFirst() }
+            
+            // 检测转圈：角度累积变化
+            if shoulderAngleHistory.count >= 5 {
+                let recent = Array(shoulderAngleHistory.suffix(5))
+                var totalRotation: Double = 0
+                for i in 1..<recent.count {
+                    let diff = recent[i] - recent[i-1]
+                    let normalizedDiff = atan2(sin(diff), cos(diff)) // 标准化角度差
+                    totalRotation += normalizedDiff
+                }
+                
+                let timeSinceLastRotation = Date().timeIntervalSince(lastRotationTime)
+                if abs(totalRotation) > 2.0 && timeSinceLastRotation > 1.0 && !isRotating {
+                    rotationCount += 1
+                    isRotating = true
+                    lastRotationTime = Date()
+                    print("DEBUG: Rotation detected! Count: \(rotationCount)")
+                } else if abs(totalRotation) < 0.5 {
+                    isRotating = false
+                }
+            }
+        }
+        
+        // 卡路里计算 - 基于运动活动
+        let now = Date()
+        let timeDelta = now.timeIntervalSince(lastCalorieUpdate)
+        
+        if isActive && timeDelta > 0.1 { // 每0.1秒更新一次
+            let baseCalories = 0.05 // 基础卡路里/更新
+            let jumpBonus = Double(jumpCount) * 0.1
+            let rotationBonus = Double(rotationCount) * 0.05
+            caloriesBurned += baseCalories + jumpBonus + rotationBonus
+            currentCalorieRate = (baseCalories + jumpBonus + rotationBonus) * 10.0 // 假设10次更新/秒
+            averageIntensity = min(1.0, (jumpBonus + rotationBonus) / 5.0)
+            lastCalorieUpdate = now
+        }
         
         DispatchQueue.main.async {
             self.currentPose = detectedPose
             self.detectedPose = detectedPose
             self.keyPoints = extractedKeyPoints
             
-            // 更新运动检测数据
-            self.jumpCount = self.jumpDetector.jumpCount
-            self.rotationCount = self.rotationDetector.rotationCount
-            self.caloriesBurned = self.calorieCalculator.totalCalories
-            self.isJumping = self.jumpDetector.isJumping
-            self.isRotating = self.rotationDetector.isRotating
-            self.currentCalorieRate = self.calorieCalculator.currentRate
-            self.averageIntensity = self.calorieCalculator.averageIntensity
+            // 更新运动检测数据 - 使用简化的检测结果
+            self.jumpCount = self.jumpCount
+            self.rotationCount = self.rotationCount
+            self.caloriesBurned = self.caloriesBurned
+            self.isJumping = self.isJumping
+            self.isRotating = self.isRotating
+            self.currentCalorieRate = self.currentCalorieRate
+            self.averageIntensity = self.averageIntensity
             
             print("DEBUG: PoseDetector - Updated UI with pose: \(poseType.rawValue), accuracy: \(accuracy), key points: \(extractedKeyPoints.count)")
             print("DEBUG: PoseDetector - Movement data: jumps=\(self.jumpCount), rotations=\(self.rotationCount), calories=\(String(format: "%.2f", self.caloriesBurned))")

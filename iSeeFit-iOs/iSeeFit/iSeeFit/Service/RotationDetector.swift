@@ -102,7 +102,10 @@ class RotationDetector: ObservableObject {
             detectRotation()
         }
         
-        print("DEBUG: RotationDetector - Processed angles: shoulder=\(String(format: "%.3f", normalizedShoulderAngle)), body=\(String(format: "%.3f", normalizedBodyOrientation))")
+        // 减少日志频率 - 每10次处理打印一次
+        if shoulderAngles.count % 10 == 0 {
+            print("DEBUG: RotationDetector - Processed angles: shoulder=\(String(format: "%.3f", normalizedShoulderAngle)), body=\(String(format: "%.3f", normalizedBodyOrientation))")
+        }
     }
     
     private func calculateBodyOrientation(
@@ -187,12 +190,10 @@ class RotationDetector: ObservableObject {
         // 检查方向一致性
         let isConsistentDirection = directionConsistency >= 3
         
-        print("DEBUG: RotationDetector - Rotation analysis:")
-        print("  - Total rotation: \(String(format: "%.3f", totalRotation)) radians")
-        print("  - Direction: \(rotationDirection)")
-        print("  - Consistency: \(directionConsistency)")
-        print("  - Can rotate: \(canRotate)")
-        print("  - Time since last: \(String(format: "%.2f", timeSinceLastRotation))s")
+        // 只在检测到转圈时打印详细日志
+        if abs(totalRotation) >= fullRotationThreshold && isConsistentDirection {
+            print("DEBUG: RotationDetector - Potential rotation: total=\(String(format: "%.3f", totalRotation)) rad, direction=\(rotationDirection), canRotate=\(canRotate)")
+        }
         
         // 检测完整转圈
         if !isRotating && canRotate && abs(totalRotation) >= fullRotationThreshold && isConsistentDirection {

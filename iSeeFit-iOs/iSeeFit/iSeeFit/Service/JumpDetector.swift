@@ -72,7 +72,10 @@ class JumpDetector: ObservableObject {
             detectJump()
         }
         
-        print("DEBUG: JumpDetector - Processed ankle data: avgY=\(String(format: "%.3f", averageY)), history=\(anklePositions.count)")
+        // 减少日志频率 - 每5次处理打印一次
+        if anklePositions.count % 5 == 0 {
+            print("DEBUG: JumpDetector - Processed ankle data: avgY=\(String(format: "%.3f", averageY)), history=\(anklePositions.count)")
+        }
     }
     
     private func detectJump() {
@@ -87,12 +90,6 @@ class JumpDetector: ObservableObject {
         let heightChange = previousY - currentY  // 向上为正
         let previousHeightChange = beforePreviousY - previousY
         
-        print("DEBUG: JumpDetector - Height analysis:")
-        print("  - Current Y: \(String(format: "%.3f", currentY))")
-        print("  - Previous Y: \(String(format: "%.3f", previousY))")
-        print("  - Height change: \(String(format: "%.3f", heightChange))")
-        print("  - Previous change: \(String(format: "%.3f", previousHeightChange))")
-        
         // 检测跳跃模式
         let isRising = heightChange > 0.02  // 快速上升
         let wasFalling = previousHeightChange < -0.01  // 之前在下落
@@ -102,12 +99,10 @@ class JumpDetector: ObservableObject {
         let timeSinceLastJump = Date().timeIntervalSince(lastJumpTime)
         let canJump = timeSinceLastJump >= minJumpInterval
         
-        print("DEBUG: JumpDetector - Jump analysis:")
-        print("  - Is rising: \(isRising)")
-        print("  - Was falling: \(wasFalling)")
-        print("  - Significant rise: \(isSignificantRise)")
-        print("  - Can jump: \(canJump)")
-        print("  - Time since last jump: \(String(format: "%.2f", timeSinceLastJump))s")
+        // 只在检测到跳跃时打印详细日志
+        if isRising && isSignificantRise {
+            print("DEBUG: JumpDetector - Potential jump: height=\(String(format: "%.3f", heightChange)), canJump=\(canJump)")
+        }
         
         // 检测跳跃条件
         if !isJumping && canJump && isRising && isSignificantRise {
