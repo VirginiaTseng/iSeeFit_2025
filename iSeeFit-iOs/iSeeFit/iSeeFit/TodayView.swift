@@ -7,9 +7,9 @@
 
 import SwiftUI
 import Foundation
-#if canImport(UIKit)
+
 import UIKit
-#endif
+
 
 struct TodayEntry: Identifiable {
     enum Kind { case meal, workout }
@@ -70,20 +70,18 @@ struct TodayView: View {
         return formatter.string(from: date)
     }
     
-    // Helper function to crop and resize images to 4:3 ratio
-    #if canImport(UIKit)
     private func cropImageTo4x3Ratio(_ image: UIImage) -> UIImage {
-        let targetAspectRatio: CGFloat = 4.0 / 3.0
+        let targetAspectRatio: CGFloat = 5.0 / 3.0
         let imageSize = image.size
         let imageRatio = imageSize.width / imageSize.height
         
-        // If image ratio is close to 4:3, just resize
+        // If image ratio is close to 5:3, just resize
         if abs(imageRatio - targetAspectRatio) < 0.1 {
-            let targetSize = CGSize(width: 400, height: 300) // 4:3 ratio
+            let targetSize = CGSize(width: 500, height: 300) // 5:3 ratio
             return resizeImage(image, to: targetSize)
         }
         
-        // If image is wider than 4:3, crop width (center crop)
+        // If image is wider than 5:3, crop width (center crop)
         if imageRatio > targetAspectRatio {
             let targetWidth = imageSize.height * targetAspectRatio
             let cropX = (imageSize.width - targetWidth) / 2
@@ -92,10 +90,10 @@ struct TodayView: View {
             guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return image }
             let croppedImage = UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
             
-            let targetSize = CGSize(width: 400, height: 300) // 4:3 ratio
+            let targetSize = CGSize(width: 500, height: 300) // 5:3 ratio
             return resizeImage(croppedImage, to: targetSize)
         }
-        // If image is taller than 4:3, crop height (center crop)
+        // If image is taller than 5:3, crop height (center crop)
         else {
             let targetHeight = imageSize.width / targetAspectRatio
             let cropY = (imageSize.height - targetHeight) / 2
@@ -104,21 +102,20 @@ struct TodayView: View {
             guard let cgImage = image.cgImage?.cropping(to: cropRect) else { return image }
             let croppedImage = UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
             
-            let targetSize = CGSize(width: 400, height: 300) // 4:3 ratio
+            let targetSize = CGSize(width: 500, height: 300) // 5:3 ratio
             return resizeImage(croppedImage, to: targetSize)
         }
     }
-    #endif
+
     
-    // Helper function to resize images
-    #if canImport(UIKit)
+
     private func resizeImage(_ image: UIImage, to size: CGSize) -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { _ in
             image.draw(in: CGRect(origin: .zero, size: size))
         }
     }
-    #endif
+
     
     // 加载图片的辅助函数
     private func loadImageFromPath(_ path: String) -> Image? {
@@ -147,27 +144,22 @@ struct TodayView: View {
         
         // 检查文件是否存在
         guard FileManager.default.fileExists(atPath: imageURL.path) else {
-            print("ERROR: TodayView - Image file does not exist at: \(imageURL.path)")
             
             // 尝试列出 Images 目录的内容来调试
             let imagesDir = imageURL.deletingLastPathComponent()
             do {
                 let contents = try FileManager.default.contentsOfDirectory(atPath: imagesDir.path)
-                print("DEBUG: TodayView - Images directory contents: \(contents)")
+
             } catch {
-                print("ERROR: TodayView - Failed to list Images directory: \(error)")
-                
-                // Try to create Images directory
-                print("DEBUG: TodayView - Attempting to create Images directory")
+
+
                 do {
                     try FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
-                    print("DEBUG: TodayView - Successfully created Images directory")
+
                 } catch {
-                    print("ERROR: TodayView - Failed to create Images directory: \(error)")
                     
                     // Try alternative approach - use a different directory
                     let alternativeDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!.appendingPathComponent("Images")
-                    print("DEBUG: TodayView - Trying alternative directory: \(alternativeDir.path)")
                     
                     do {
                         try FileManager.default.createDirectory(at: alternativeDir, withIntermediateDirectories: true)
@@ -189,9 +181,7 @@ struct TodayView: View {
         } catch {
             print("WARNING: TodayView - Could not get file attributes: \(error)")
         }
-        
-        // 尝试加载图片
-        #if canImport(UIKit)
+
         guard let uiImage = UIImage(contentsOfFile: imageURL.path) else {
             print("ERROR: TodayView - Failed to create UIImage from file: \(imageURL.path)")
             return nil
@@ -202,16 +192,7 @@ struct TodayView: View {
         
         print("DEBUG: TodayView - Successfully loaded and cropped image from: \(imageURL.path)")
         return Image(uiImage: croppedImage)
-        #else
-        // 在 macOS 上使用 NSImage
-        guard let nsImage = NSImage(contentsOf: imageURL) else {
-            print("ERROR: TodayView - Failed to create NSImage from file: \(imageURL.path)")
-            return nil
-        }
-        
-        print("DEBUG: TodayView - Successfully loaded image from: \(imageURL.path)")
-        return Image(nsImage: nsImage)
-        #endif
+
     }
     
     // 加载今日数据
@@ -276,6 +257,7 @@ struct TodayView: View {
         // 按时间排序
         allEntries.sort { $0.time < $1.time }
         
+        /*
         if allEntries.isEmpty {
             // 没有数据时使用默认演示数据
             entries = defaultEntries
@@ -283,7 +265,7 @@ struct TodayView: View {
         } else {
             entries = allEntries
             print("DEBUG: TodayView - Loaded \(allEntries.count) entries")
-        }
+        }*/
     }
 
     var body: some View {
@@ -408,24 +390,22 @@ struct TodayView: View {
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
                         
-                        // 文字叠加
-                        if let note = item.note {
-                            VStack {
-                                Spacer()
-                                Text(note)
-                                    .font(.caption)
-                                    .foregroundColor(.white)
-                                    .padding(8)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.black.opacity(0.6))
-                            }
+                        // 文字叠加（标题为非可选，直接显示）
+                        VStack {
+                            Spacer()
+                            Text("")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.black.opacity(0.6))
                         }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 )
         }
         .onTapGesture {
-            print("DEBUG: TodayView - Card tapped for: \(item.title)")
+            //print("DEBUG: TodayView - Card tapped for: \(item.title)")
             selectedEntry = item
             showDetailView = true
         }

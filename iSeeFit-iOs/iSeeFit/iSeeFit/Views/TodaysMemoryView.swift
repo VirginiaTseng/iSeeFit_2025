@@ -212,18 +212,32 @@ struct TodayContentView: View {
                 .overlay(
                     ZStack {
                         if let img = item.image { 
-                            img.resizable().scaledToFill().clipped() 
+                            img
+                                .resizable()
+                                .aspectRatio(5/3, contentMode: .fill)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .clipped()
                         }
-                        if let note = item.note {
-                            VStack {
-                                Spacer()
-                                Text(note)
-                                    .font(.caption)
-                                    .foregroundColor(.white)
-                                    .padding(8)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.black.opacity(0.6))
-                            }
+                        // if let note = item.note {
+                        //     VStack {
+                        //         Spacer()
+                        //         Text(note)
+                        //             .font(.caption)
+                        //             .foregroundColor(.white)
+                        //             .padding(8)
+                        //             .frame(maxWidth: .infinity, alignment: .leading)
+                        //             .background(Color.black.opacity(0.6))
+                        //     }
+                        // }
+
+                         VStack {
+                            Spacer()
+                            Text( "")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.black.opacity(0.6))
                         }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 12))
