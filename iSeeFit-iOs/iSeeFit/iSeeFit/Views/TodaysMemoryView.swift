@@ -16,6 +16,7 @@ struct TodaysMemoryView: View {
     @State private var workoutEntries: [TodayEntry] = []
     @State private var recommendation: String? = nil
     @State private var isLoadingRecommendation = false
+    @State private var isRecommendationExpanded = false
     
     // 默认演示数据（当没有真实数据时显示）
     private let defaultEntries: [TodayEntry] = [
@@ -42,12 +43,15 @@ struct TodaysMemoryView: View {
                     VStack(spacing: 0) {
                         // 健康建议卡片 - 顶部显示
                         if let recommendation = recommendation {
-                            RecommendationCard(advice: recommendation)
-                                .padding(.top, 150)
-                                .padding(.horizontal, 16)
+                            ExpandableRecommendationCard(
+                                advice: recommendation,
+                                isExpanded: $isRecommendationExpanded
+                            )
+                            .padding(.top, 10)
+                            .padding(.horizontal, 16)
                         } else if isLoadingRecommendation {
                             RecommendationLoadingCard()
-                                .padding(.top, 150)
+                                .padding(.top, 10)
                                 .padding(.horizontal, 16)
                         }
                         
@@ -201,7 +205,7 @@ struct TodaysMemoryView: View {
             let advice = await recommendationService.getAdvice(
                 foodNames: foodNames,
                 healthCondition: "stomach",
-                promptStyle: "simple"
+                promptStyle: "professional"
             )
             
             await MainActor.run {
@@ -1020,6 +1024,65 @@ struct IntegratedNutritionBar: View {
 }
 
 // MARK: - Recommendation Card Components
+struct ExpandableRecommendationCard: View {
+    let advice: String
+    @Binding var isExpanded: Bool
+    
+    private var previewText: String {
+        let words = advice.components(separatedBy: " ")
+        if words.count <= 10 {
+            return advice
+        }
+        return words.prefix(10).joined(separator: " ") + "..."
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "lightbulb.fill")
+                    .foregroundColor(.yellow)
+                    .font(.title2)
+                
+                Text("Health Advice")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button(action: {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                        isExpanded.toggle()
+                    }
+                }) {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.blue)
+                        .font(.title3)
+                        .rotationEffect(.degrees(isExpanded ? 0 : 0))
+                }
+            }
+            
+            Text(isExpanded ? advice : previewText)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .lineLimit(isExpanded ? nil : 3)
+                .multilineTextAlignment(.leading)
+                .animation(.easeInOut(duration: 0.3), value: isExpanded)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        )
+        .onTapGesture {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                isExpanded.toggle()
+            }
+        }
+    }
+}
+
 struct RecommendationCard: View {
     let advice: String
     

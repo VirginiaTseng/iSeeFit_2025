@@ -40,7 +40,7 @@ class RecommendationService: ObservableObject {
     }
     
     // 获取健康建议
-    func getAdvice(foodNames: [String], healthCondition: String = "stomach", promptStyle: String = "simple") async -> String? {
+    func getAdvice(foodNames: [String], healthCondition: String = "stomach", promptStyle: String = "professional") async -> String? {
         let request = RecommendationRequest(
             foodNames: foodNames,
             healthCondition: healthCondition,
