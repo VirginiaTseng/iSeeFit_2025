@@ -578,7 +578,7 @@ struct FoodDetailView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Food Details")
+            //.navigationTitle("Food Details")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {

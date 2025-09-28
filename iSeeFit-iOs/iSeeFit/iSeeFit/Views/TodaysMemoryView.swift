@@ -10,7 +10,9 @@ import SwiftUI
 struct TodaysMemoryView: View {
     @State private var scrollOffset: CGFloat = 0
     @StateObject private var foodLocalStore = FoodLocalStore.shared
+    @StateObject private var workoutRecorder = WorkoutRecorder.shared
     @State private var entries: [TodayEntry] = []
+    @State private var workoutEntries: [TodayEntry] = []
     
     // 默认演示数据（当没有真实数据时显示）
     private let defaultEntries: [TodayEntry] = [
@@ -29,7 +31,7 @@ struct TodaysMemoryView: View {
                 TodaysMemoryBkCard(externalScrollOffset: scrollOffset, burnedValue: burn)
                 
                 ScrollView(showsIndicators: false) {
-                    TodayContentView()
+                    TodayContentView(workoutEntries: workoutEntries)
                         .background(GeometryReader { geo in
                             Color.clear.onAppear {
                                 scrollOffset = geo.frame(in: .global).minY
@@ -48,6 +50,12 @@ struct TodaysMemoryView: View {
         .statusBarHidden() // 隐藏状态栏
         .onAppear {
             loadTodayEntries()
+            loadTodayWorkoutEntries()
+            print("DEBUG: TodaysMemoryView - onAppear entries: \(entries.count), workoutEntries: \(workoutEntries.count)")
+        }
+        .onChange(of: workoutRecorder.workoutHistory) {
+            loadTodayWorkoutEntries()
+            print("DEBUG: TodaysMemoryView - workoutHistory changed, workoutEntries: \(workoutEntries.count)")
         }
     }
     
@@ -104,6 +112,33 @@ struct TodaysMemoryView: View {
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
     }
+    
+    // 加载今天的训练记录
+    private func loadTodayWorkoutEntries() {
+        let todayWorkouts = workoutRecorder.workoutHistory.filter { workout in
+            Calendar.current.isDateInToday(workout.startTime)
+        }
+        
+        print("DEBUG: TodaysMemoryView - Found \(todayWorkouts.count) workout records for today")
+        
+        workoutEntries = todayWorkouts.map { workout in
+            return TodayEntry(
+                time: formatTime(workout.startTime),
+                title: "Workout",
+                calories: Int(workout.caloriesBurned),
+                kind: .workout,
+                image: nil,
+                note: "\(workout.workoutType) - \(workout.formattedDuration)",
+                protein: nil,
+                carbs: nil,
+                fat: nil
+            )
+        }
+        // 打印映射后的训练条目，便于核对是否生成卡片数据
+        for item in workoutEntries {
+            print("DEBUG: TodaysMemoryView - workoutEntry => time: \(item.time), title: \(item.title), kcal: \(item.calories)")
+        }
+    }
     }
 
 
@@ -111,6 +146,7 @@ struct TodaysMemoryView: View {
 
 // 新的内容视图，移除NavigationView和ScrollView以避免嵌套冲突
 struct TodayContentView: View {
+    let workoutEntries: [TodayEntry]  // 新增这行
     // 使用真实数据源
     @StateObject private var foodLocalStore = FoodLocalStore.shared
     @State private var entries: [TodayEntry] = []
@@ -157,7 +193,10 @@ struct TodayContentView: View {
 
     private var timeline: some View {
         VStack(spacing: 24) {
-            ForEach(entries) { item in
+            // 合并食物和训练记录，按时间排序
+            let allEntries = (entries + workoutEntries).sorted { $0.time < $1.time }
+            
+            ForEach(allEntries) { item in
                 HStack(alignment: .top, spacing: 12) {
                     // 左列（餐饮）
                     Group {
