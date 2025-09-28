@@ -146,7 +146,7 @@ class WorkoutRecorder: ObservableObject {
     }
 }
 
-struct WorkoutSession: Codable, Identifiable {
+struct WorkoutSession: Codable, Identifiable, Equatable {
     let id: UUID
     let workoutType: String  // 改为 String 类型
     let startTime: Date

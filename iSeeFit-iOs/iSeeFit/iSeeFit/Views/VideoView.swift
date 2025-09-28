@@ -25,6 +25,11 @@ struct VideoView: View {
     @State private var showInstructions = true
     @State private var debugMode = false
     
+    // 训练记录相关
+    @StateObject private var workoutRecorder = WorkoutRecorder()
+    @State private var isWorkoutActive = false
+    @State private var showWorkoutSummary = false
+    
     // MARK: - Computed Views
     private var cameraPreview: some View {
         #if canImport(UIKit)
@@ -467,6 +472,15 @@ struct VideoView: View {
         .sheet(isPresented: $showWorkoutSelector) {
             WorkoutSelectorView(selectedWorkout: $selectedWorkout)
         }
+        .sheet(isPresented: $showWorkoutSummary) {
+            WorkoutSummaryView(
+                jumpCount: poseDetector.jumpCount,
+                rotationCount: poseDetector.rotationCount,
+                caloriesBurned: poseDetector.caloriesBurned,
+                averageIntensity: poseDetector.averageIntensity,
+                workoutType: selectedWorkout.rawValue
+            )
+        }
     }
     
     // MARK: - UI Components
@@ -592,6 +606,53 @@ struct VideoView: View {
                             .foregroundColor(.cyan)
                     }
                 }
+                
+                // 训练控制按钮
+                HStack(spacing: 12) {
+                    if !isWorkoutActive {
+                        Button(action: startWorkout) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "play.circle.fill")
+                                Text("Start Workout")
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.green)
+                            .cornerRadius(20)
+                        }
+                    } else {
+                        Button(action: endWorkout) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "stop.circle.fill")
+                                Text("End Workout")
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.red)
+                            .cornerRadius(20)
+                        }
+                    }
+                    
+                    if isWorkoutActive {
+                        Button(action: resetWorkout) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.clockwise.circle")
+                                Text("Reset")
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color.orange)
+                            .cornerRadius(20)
+                        }
+                    }
+                }
+                .padding(.top, 8)
             }
         }
         .padding(16)
@@ -865,7 +926,7 @@ class PoseDetector: NSObject, ObservableObject {
         // 简化的运动检测和卡路里计算 - 避免内存访问错误
         let isActive = poseType != .unknown
         
-        // 跳跃检测 - 基于脚踝位置变化
+        // 跳跃检测 - 基于脚踝位置变化（修复检测逻辑）
         if let leftAnkle = extractedKeyPoints[.leftAnkle], let rightAnkle = extractedKeyPoints[.rightAnkle] {
             let avgAnkleY = (leftAnkle.y + rightAnkle.y) / 2.0
             ankleHistory.append(avgAnkleY)
@@ -877,13 +938,19 @@ class PoseDetector: NSObject, ObservableObject {
                 let heightChange = recent[0] - recent[2] // 上升为正
                 let timeSinceLastJump = Date().timeIntervalSince(lastJumpTime)
                 
-                if heightChange > 0.05 && timeSinceLastJump > 0.5 && !isJumping {
+                print("DEBUG: Jump analysis - Height change: \(String(format: "%.3f", heightChange)), Time since last: \(String(format: "%.2f", timeSinceLastJump))s, Is jumping: \(isJumping)")
+                
+                // 检测跳跃开始
+                if heightChange > 0.08 && timeSinceLastJump > 0.8 && !isJumping {
                     jumpCount += 1
                     isJumping = true
                     lastJumpTime = Date()
-                    print("DEBUG: Jump detected! Count: \(jumpCount)")
-                } else if avgAnkleY > 0.6 {
+                    print("✅ Jump detected! Count: \(jumpCount), Height change: \(String(format: "%.3f", heightChange))")
+                } 
+                // 检测跳跃结束
+                else if isJumping && avgAnkleY > 0.7 {
                     isJumping = false
+                    print("DEBUG: Jump ended, ankle Y: \(String(format: "%.3f", avgAnkleY))")
                 }
             }
         }
@@ -917,18 +984,24 @@ class PoseDetector: NSObject, ObservableObject {
             }
         }
         
-        // 卡路里计算 - 基于运动活动
+        // 卡路里计算 - 基于运动活动（修复计算逻辑）
         let now = Date()
         let timeDelta = now.timeIntervalSince(lastCalorieUpdate)
         
-        if isActive && timeDelta > 0.1 { // 每0.1秒更新一次
-            let baseCalories = 0.05 // 基础卡路里/更新
-            let jumpBonus = Double(jumpCount) * 0.1
-            let rotationBonus = Double(rotationCount) * 0.05
-            caloriesBurned += baseCalories + jumpBonus + rotationBonus
-            currentCalorieRate = (baseCalories + jumpBonus + rotationBonus) * 10.0 // 假设10次更新/秒
-            averageIntensity = min(1.0, (jumpBonus + rotationBonus) / 5.0)
+        if isActive && timeDelta > 2.0 { // 每2秒更新一次，避免过度累积
+            let baseCalories = 0.2 // 基础卡路里/2秒
+            let jumpBonus = Double(jumpCount) * 0.3 // 每次跳跃0.3卡路里
+            let rotationBonus = Double(rotationCount) * 0.2 // 每次转圈0.2卡路里
+            
+            // 只计算这一段的增量，不重复累积
+            let caloriesThisPeriod = baseCalories + jumpBonus + rotationBonus
+            caloriesBurned += caloriesThisPeriod
+            
+            currentCalorieRate = caloriesThisPeriod * 30.0 // 卡路里/分钟
+            averageIntensity = min(1.0, (jumpBonus + rotationBonus) / 1.0)
             lastCalorieUpdate = now
+            
+            print("DEBUG: Calorie update - Base: \(baseCalories), Jump bonus: \(jumpBonus), Rotation bonus: \(rotationBonus), Total this period: \(caloriesThisPeriod), Total calories: \(String(format: "%.2f", caloriesBurned))")
         }
         
         DispatchQueue.main.async {
@@ -1335,6 +1408,153 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         } else {
             print("ERROR: CameraManager - Failed to create CGImage from CIImage")
         }
+    }
+}
+
+// MARK: - Workout Control Methods
+extension VideoView {
+    private func startWorkout() {
+        isWorkoutActive = true
+        workoutRecorder.startWorkout(workoutType: selectedWorkout.rawValue)
+        poseDetector.resetCounters()
+        print("DEBUG: VideoView - Workout started: \(selectedWorkout.rawValue)")
+    }
+    
+    private func endWorkout() {
+        isWorkoutActive = false
+        
+        // 更新训练记录
+        workoutRecorder.updateWorkout(
+            jumpCount: poseDetector.jumpCount,
+            rotationCount: poseDetector.rotationCount,
+            caloriesBurned: poseDetector.caloriesBurned,
+            averageIntensity: poseDetector.averageIntensity
+        )
+        
+        // 结束训练
+        workoutRecorder.endWorkout()
+        
+        // 显示训练总结
+        showWorkoutSummary = true
+        
+        print("DEBUG: VideoView - Workout ended:")
+        print("  - Jumps: \(poseDetector.jumpCount)")
+        print("  - Rotations: \(poseDetector.rotationCount)")
+        print("  - Calories: \(String(format: "%.2f", poseDetector.caloriesBurned))")
+    }
+    
+    private func resetWorkout() {
+        poseDetector.resetCounters()
+        print("DEBUG: VideoView - Workout reset")
+    }
+}
+
+// MARK: - Workout Summary View
+struct WorkoutSummaryView: View {
+    let jumpCount: Int
+    let rotationCount: Int
+    let caloriesBurned: Double
+    let averageIntensity: Double
+    let workoutType: String
+    
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 24) {
+                // 标题
+                VStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.green)
+                    
+                    Text("Workout Complete!")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    Text(workoutType)
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                }
+                
+                // 统计数据
+                VStack(spacing: 16) {
+                    HStack(spacing: 20) {
+                        StatCard1(title: "Jumps", value: "\(jumpCount)", color: .green)
+                        StatCard1(title: "Rotations", value: "\(rotationCount)", color: .orange)
+                    }
+                    
+                    HStack(spacing: 20) {
+                        StatCard1(title: "Calories", value: String(format: "%.1f", caloriesBurned), color: .red)
+                        StatCard1(title: "Intensity", value: "\(Int(averageIntensity * 100))%", color: .blue)
+                    }
+                }
+                
+                Spacer()
+                
+                // 关闭按钮
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Text("Done")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                }
+                .padding(.horizontal, 20)
+            }
+            .padding(24)
+            .navigationTitle("Workout Summary")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+struct StatCard1: View {
+    let title: String
+    let value: String
+    let color: Color
+    let subtitle: String?
+    let icon: String?
+    
+    init(title: String, value: String, color: Color, subtitle: String? = nil, icon: String? = nil) {
+        self.title = title
+        self.value = value
+        self.color = color
+        self.subtitle = subtitle
+        self.icon = icon
+    }
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .foregroundColor(color)
+                }
+                Text(value)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(color)
+            }
+            
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            if let subtitle = subtitle {
+                Text(subtitle)
+                    .font(.caption2)
+                    .foregroundColor(.secondary.opacity(0.8))
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.primary.opacity(0.06))
+        .cornerRadius(12)
     }
 }
 

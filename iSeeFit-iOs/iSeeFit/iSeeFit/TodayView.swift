@@ -28,6 +28,7 @@ struct TodayEntry: Identifiable {
 struct TodayView: View {
     // 使用真实数据源
     @StateObject private var foodLocalStore = FoodLocalStore.shared
+    @StateObject private var workoutRecorder = WorkoutRecorder()
     @State private var entries: [TodayEntry] = []
     @State private var selectedEntry: TodayEntry? = nil
     @State private var showDetailView = false
@@ -216,15 +217,17 @@ struct TodayView: View {
     // 加载今日数据
     private func loadTodayData() {
         let todayRecords = foodLocalStore.getTodayRecords()
-        print("DEBUG: TodayView - Found \(todayRecords.count) records for today")
+        let todayWorkouts = workoutRecorder.workoutHistory.filter { workout in
+            Calendar.current.isDateInToday(workout.startTime)
+        }
         
-        if todayRecords.isEmpty {
-            // 没有数据时使用默认演示数据
-            entries = defaultEntries
-            print("DEBUG: TodayView - Using default entries")
-        } else {
-            // 有数据时转换为 TodayEntry 格式
-            entries = todayRecords.map { record in
+        print("DEBUG: TodayView - Found \(todayRecords.count) food records and \(todayWorkouts.count) workout records for today")
+        
+        var allEntries: [TodayEntry] = []
+        
+        // 添加食物记录
+        if !todayRecords.isEmpty {
+            let foodEntries = todayRecords.map { record in
                 // 尝试加载图片
                 var foodImage: Image? = nil
                 if let imagePath = record.imagePath {
@@ -250,7 +253,36 @@ struct TodayView: View {
                     carbs: record.carbs,
                     fat: record.fat
                 )
-            }.sorted { $0.time < $1.time }
+            }
+            allEntries.append(contentsOf: foodEntries)
+        }
+        
+        // 添加训练记录
+        let workoutEntries = todayWorkouts.map { workout in
+            return TodayEntry(
+                time: formatTime(workout.startTime),
+                title: "Workout",
+                calories: Int(workout.caloriesBurned),
+                kind: .workout,
+                image: nil,
+                note: "\(workout.workoutType) - \(workout.formattedDuration)",
+                protein: nil,
+                carbs: nil,
+                fat: nil
+            )
+        }
+        allEntries.append(contentsOf: workoutEntries)
+        
+        // 按时间排序
+        allEntries.sort { $0.time < $1.time }
+        
+        if allEntries.isEmpty {
+            // 没有数据时使用默认演示数据
+            entries = defaultEntries
+            print("DEBUG: TodayView - Using default entries")
+        } else {
+            entries = allEntries
+            print("DEBUG: TodayView - Loaded \(allEntries.count) entries")
         }
     }
 
@@ -274,6 +306,9 @@ struct TodayView: View {
             loadTodayData()
         }
         .onChange(of: foodLocalStore.records) {
+            loadTodayData()
+        }
+        .onChange(of: workoutRecorder.workoutHistory) {
             loadTodayData()
         }
         }
