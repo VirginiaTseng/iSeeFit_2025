@@ -91,6 +91,13 @@ struct ContentView: View {
                                 Image(systemName: "person.crop.circle")
                                 Text("Profile")
                             }.tag(4)
+
+                            VideoView()
+                            .tabItem {
+                                Image(systemName: "video.fill")
+                                Text("Fitness")
+                            }
+                            .tag(8)
                 
 
                 

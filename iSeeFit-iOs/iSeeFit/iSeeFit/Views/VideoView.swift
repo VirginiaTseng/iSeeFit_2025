@@ -8,6 +8,7 @@
 import SwiftUI
 import AVFoundation
 import Vision
+
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -22,13 +23,22 @@ struct VideoView: View {
     @State private var currentPose: PoseType = .unknown
     @State private var poseAccuracy: Float = 0.0
     @State private var showInstructions = true
+    @State private var debugMode = false
     
     var body: some View {
         NavigationView {
             ZStack {
                 // Camera preview
+                #if canImport(UIKit)
                 CameraPreviewView(session: cameraManager.session)
-                    .ignoresSafeArea()
+                #else
+                Rectangle()
+                    .fill(Color.black)
+                    .overlay(
+                        Text("Camera not available on this platform")
+                            .foregroundColor(.white)
+                    )
+                #endif
                 
                 // Overlay UI
                 VStack {
@@ -58,6 +68,19 @@ struct VideoView: View {
                             showInstructions.toggle()
                         }) {
                             Image(systemName: showInstructions ? "info.circle.fill" : "info.circle")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(Color.black.opacity(0.6))
+                                .clipShape(Circle())
+                        }
+                        
+                        Button(action: {
+                            print("DEBUG: VideoView - debug mode toggle tapped")
+                            debugMode.toggle()
+                            poseDetector.debugMode = debugMode
+                        }) {
+                            Image(systemName: debugMode ? "eye.fill" : "eye")
                                 .font(.title2)
                                 .foregroundColor(.white)
                                 .padding(8)
@@ -144,16 +167,63 @@ struct VideoView: View {
                     .padding(.bottom, 40)
                 }
                 
-                // Pose overlay
+                // Pose overlay with skeleton
                 if poseDetector.isDetecting {
                     PoseOverlayView(
                         pose: poseDetector.currentPose,
                         accuracy: poseAccuracy
                     )
                 }
+                
+                // Skeleton overlay
+                if poseDetector.isDetecting && (poseDetector.currentPose.type != .unknown || debugMode) {
+                    SkeletonOverlayView(
+                        pose: poseDetector.currentPose,
+                        keyPoints: poseDetector.keyPoints,
+                        debugMode: debugMode
+                    )
+                }
+                
+                // Debug info overlay
+                VStack {
+                    HStack {
+                        Spacer()
+                        VStack(alignment: .trailing) {
+                            Text("Key Points: \(poseDetector.keyPoints.count)")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.7))
+                                .cornerRadius(8)
+                            
+                            Text("Detection: \(poseDetector.isDetecting ? "ON" : "OFF")")
+                                .font(.caption)
+                                .foregroundColor(poseDetector.isDetecting ? .green : .red)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.7))
+                                .cornerRadius(8)
+                            
+                            if debugMode {
+                                Text("Debug Mode")
+                                    .font(.caption)
+                                    .foregroundColor(.yellow)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.black.opacity(0.7))
+                                    .cornerRadius(8)
+                            }
+                        }
+                    }
+                    Spacer()
+                }
+                .padding()
             }
             .navigationTitle("Fitness Guide")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .onAppear {
                 print("DEBUG: VideoView - appeared")
                 cameraManager.startSession()
@@ -164,12 +234,14 @@ struct VideoView: View {
                 cameraManager.stopSession()
                 poseDetector.stopDetection()
             }
-            .onReceive(cameraManager.$capturedImage) { image in
+            #if canImport(UIKit)
+            .onChange(of: cameraManager.capturedImage) { image in
                 if let image = image {
                     poseDetector.detectPose(in: image)
                 }
             }
-            .onReceive(poseDetector.$detectedPose) { pose in
+            #endif
+            .onChange(of: poseDetector.detectedPose) { _, pose in
                 currentPose = pose.type
                 poseAccuracy = pose.accuracy
                 
@@ -243,7 +315,9 @@ struct VideoView: View {
 // MARK: - Camera Manager
 class CameraManager: NSObject, ObservableObject {
     let session = AVCaptureSession()
+    #if canImport(UIKit)
     @Published var capturedImage: UIImage?
+    #endif
     
     private let videoOutput = AVCaptureVideoDataOutput()
     private let photoOutput = AVCapturePhotoOutput()
@@ -284,9 +358,28 @@ class CameraManager: NSObject, ObservableObject {
     }
     
     func startSession() {
-        DispatchQueue.global(qos: .background).async {
-            self.session.startRunning()
-            print("DEBUG: CameraManager - Session started")
+        // Check camera permission first
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            DispatchQueue.global(qos: .background).async {
+                self.session.startRunning()
+                print("DEBUG: CameraManager - Session started")
+            }
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                if granted {
+                    DispatchQueue.global(qos: .background).async {
+                        self.session.startRunning()
+                        print("DEBUG: CameraManager - Session started after permission granted")
+                    }
+                } else {
+                    print("ERROR: CameraManager - Camera permission denied")
+                }
+            }
+        case .denied, .restricted:
+            print("ERROR: CameraManager - Camera access denied or restricted")
+        @unknown default:
+            print("ERROR: CameraManager - Unknown camera authorization status")
         }
     }
     
@@ -324,6 +417,7 @@ class CameraManager: NSObject, ObservableObject {
 }
 
 // MARK: - Camera Preview
+#if canImport(UIKit)
 struct CameraPreviewView: UIViewRepresentable {
     let session: AVCaptureSession
     
@@ -340,12 +434,15 @@ struct CameraPreviewView: UIViewRepresentable {
         // Update preview layer frame if needed
     }
 }
+#endif
 
 // MARK: - Pose Detection
 class PoseDetector: NSObject, ObservableObject {
     @Published var isDetecting = false
     @Published var currentPose: DetectedPose = DetectedPose(type: .unknown, accuracy: 0.0)
     @Published var detectedPose: DetectedPose = DetectedPose(type: .unknown, accuracy: 0.0)
+    @Published var keyPoints: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
+    @Published var debugMode = false
     
     private var request: VNDetectHumanBodyPoseRequest?
     
@@ -378,22 +475,35 @@ class PoseDetector: NSObject, ObservableObject {
         print("DEBUG: PoseDetector - Detection stopped")
     }
     
+    #if canImport(UIKit)
     func detectPose(in image: UIImage) {
         guard let cgImage = image.cgImage,
-              let request = request else { return }
+              let request = request else { 
+            print("ERROR: PoseDetector - Missing cgImage or request")
+            return 
+        }
+        
+        print("DEBUG: PoseDetector - Starting pose detection on image: \(image.size)")
         
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         
         do {
             try handler.perform([request])
+            print("DEBUG: PoseDetector - Detection request performed successfully")
         } catch {
             print("ERROR: PoseDetector - Failed to perform detection: \(error)")
         }
     }
+    #endif
     
     private func processPoseResults(_ results: [VNObservation]?) {
+        print("DEBUG: PoseDetector - Processing results: \(results?.count ?? 0) observations")
+        
         guard let observations = results as? [VNHumanBodyPoseObservation], !observations.isEmpty else {
-            currentPose = DetectedPose(type: .unknown, accuracy: 0.0)
+            print("DEBUG: PoseDetector - No human body pose observations found")
+            DispatchQueue.main.async {
+                self.currentPose = DetectedPose(type: .unknown, accuracy: 0.0)
+            }
             return
         }
         
@@ -401,14 +511,38 @@ class PoseDetector: NSObject, ObservableObject {
         let poseType = classifyPose(from: observation)
         let accuracy = observation.confidence
         
+        print("DEBUG: PoseDetector - Raw confidence: \(accuracy), classified as: \(poseType.rawValue)")
+        
         let detectedPose = DetectedPose(type: poseType, accuracy: accuracy)
+        
+        // Extract key points for skeleton visualization
+        var extractedKeyPoints: [VNHumanBodyPoseObservation.JointName: CGPoint] = [:]
+        let jointNames: [VNHumanBodyPoseObservation.JointName] = [
+            .leftWrist, .rightWrist, .leftElbow, .rightElbow, .leftShoulder, .rightShoulder,
+            .leftHip, .rightHip, .leftKnee, .rightKnee, .leftAnkle, .rightAnkle,
+            .neck, .nose, .leftEye, .rightEye, .leftEar, .rightEar
+        ]
+        
+        for jointName in jointNames {
+            do {
+                let point = try observation.recognizedPoint(jointName)
+                // 在调试模式下使用更低的阈值
+                let threshold: Float = self.debugMode ? 0.2 : 0.5
+                if point.confidence > threshold {
+                    extractedKeyPoints[jointName] = CGPoint(x: point.location.x, y: point.location.y)
+                    print("DEBUG: PoseDetector - Key point \(jointName.rawValue): confidence=\(point.confidence), location=(\(point.location.x), \(point.location.y))")
+                }
+            } catch {
+                // Joint not detected, skip
+            }
+        }
         
         DispatchQueue.main.async {
             self.currentPose = detectedPose
             self.detectedPose = detectedPose
+            self.keyPoints = extractedKeyPoints
+            print("DEBUG: PoseDetector - Updated UI with pose: \(poseType.rawValue), accuracy: \(accuracy), key points: \(extractedKeyPoints.count)")
         }
-        
-        print("DEBUG: PoseDetector - Detected pose: \(poseType.rawValue), accuracy: \(accuracy)")
     }
     
     private func classifyPose(from observation: VNHumanBodyPoseObservation) -> PoseType {
@@ -423,11 +557,17 @@ class PoseDetector: NSObject, ObservableObject {
             let leftKnee = try observation.recognizedPoint(.leftKnee)
             let rightKnee = try observation.recognizedPoint(.rightKnee)
             
-            // Check if key points are visible
+            // Check if key points are visible (lowered threshold for better detection)
             let keyPoints = [leftShoulder, rightShoulder, leftHip, rightHip, leftKnee, rightKnee]
-            let visiblePoints = keyPoints.filter { $0.confidence > 0.5 }
+            let visiblePoints = keyPoints.filter { $0.confidence > 0.3 }
             
-            if visiblePoints.count < 4 {
+            print("DEBUG: PoseDetector - Visible key points: \(visiblePoints.count)/6")
+            for (index, point) in keyPoints.enumerated() {
+                print("DEBUG: PoseDetector - Point \(index): confidence = \(point.confidence)")
+            }
+            
+            if visiblePoints.count < 3 {
+                print("DEBUG: PoseDetector - Not enough visible key points")
                 return .unknown
             }
             
@@ -435,10 +575,15 @@ class PoseDetector: NSObject, ObservableObject {
             let avgKneeY = (leftKnee.location.y + rightKnee.location.y) / 2
             let avgHipY = (leftHip.location.y + rightHip.location.y) / 2
             
-            if avgKneeY > avgHipY {
+            print("DEBUG: PoseDetector - Knee Y: \(avgKneeY), Hip Y: \(avgHipY)")
+            
+            // More lenient squat detection
+            if avgKneeY > avgHipY + 0.05 { // Added small threshold
+                print("DEBUG: PoseDetector - Detected SQUAT")
                 return .squat
             }
             
+            print("DEBUG: PoseDetector - Detected STANDING")
             return .standing
             
         } catch {
@@ -488,9 +633,21 @@ enum PoseType: String, CaseIterable {
     case plank = "Plank"
 }
 
-struct DetectedPose {
+struct DetectedPose: Equatable {
     let type: PoseType
     let accuracy: Float
+}
+
+// MARK: - Supporting Data Structures
+struct SkeletonConnection: Identifiable {
+    let id: String
+    let start: CGPoint
+    let end: CGPoint
+}
+
+struct KeyPointView: Identifiable {
+    let id: String
+    let position: CGPoint
 }
 
 // MARK: - Pose Overlay
@@ -520,6 +677,170 @@ struct PoseOverlayView: View {
             }
             .padding()
         }
+    }
+}
+
+// MARK: - Skeleton Overlay
+struct SkeletonOverlayView: View {
+    let pose: DetectedPose
+    let keyPoints: [VNHumanBodyPoseObservation.JointName: CGPoint]
+    let debugMode: Bool
+    
+    // Helper function to determine if we need coordinate rotation
+    private func needsCoordinateRotation(for geometry: GeometryProxy) -> Bool {
+        // Check if the view is in portrait mode (height > width)
+        let isPortrait = geometry.size.height > geometry.size.width
+        
+        // If we have shoulder points, use them to determine orientation
+        if let leftShoulder = keyPoints[.leftShoulder], let rightShoulder = keyPoints[.rightShoulder] {
+            let shoulderDistance = abs(leftShoulder.x - rightShoulder.x)
+            let shoulderHeightDiff = abs(leftShoulder.y - rightShoulder.y)
+            
+            print("DEBUG: SkeletonOverlayView - Shoulder analysis:")
+            print("  - Portrait mode: \(isPortrait)")
+            print("  - Shoulder distance (x): \(shoulderDistance)")
+            print("  - Shoulder height diff (y): \(shoulderHeightDiff)")
+            print("  - Height > Distance: \(shoulderHeightDiff > shoulderDistance)")
+            print("  - Left shoulder: (\(leftShoulder.x), \(leftShoulder.y))")
+            print("  - Right shoulder: (\(rightShoulder.x), \(rightShoulder.y))")
+            
+            // If shoulders are more vertical than horizontal, we need rotation
+            return isPortrait && shoulderHeightDiff > shoulderDistance
+        }
+        
+        // Fallback: if portrait mode, assume we need rotation
+        return isPortrait
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Draw skeleton lines
+                ForEach(validSkeletonConnections(for: geometry), id: \.id) { connection in
+                    Path { path in
+                        path.move(to: connection.start)
+                        path.addLine(to: connection.end)
+                    }
+                    .stroke(Color.green, lineWidth: 4)
+                    .shadow(color: .green.opacity(0.5), radius: 2)
+                }
+                
+                // Draw key points
+                ForEach(validKeyPoints(for: geometry), id: \.id) { keyPoint in
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 12, height: 12)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 2)
+                        )
+                        .position(keyPoint.position)
+                        .shadow(color: .red.opacity(0.5), radius: 3)
+                }
+            }
+        }
+        .ignoresSafeArea()
+    }
+    
+    // Helper function to get valid skeleton connections with converted coordinates
+    private func validSkeletonConnections(for geometry: GeometryProxy) -> [SkeletonConnection] {
+        let needsRotation = needsCoordinateRotation(for: geometry)
+        
+        return skeletonConnections.compactMap { connection in
+            guard let startPoint = keyPoints[connection.start],
+                  let endPoint = keyPoints[connection.end] else { return nil }
+            
+            let start: CGPoint
+            let end: CGPoint
+            
+            if needsRotation {
+                // For portrait video, try different rotation approach
+                start = CGPoint(
+                    x: (1.0 - startPoint.y) * geometry.size.width, // 翻转X坐标
+                    y: startPoint.x * geometry.size.height
+                )
+                end = CGPoint(
+                    x: (1.0 - endPoint.y) * geometry.size.width, // 翻转X坐标
+                    y: endPoint.x * geometry.size.height
+                )
+            } else {
+                // For landscape video, use normal coordinates with Y flip
+                start = CGPoint(
+                    x: startPoint.x * geometry.size.width,
+                    y: (1.0 - startPoint.y) * geometry.size.height // 保持Y翻转
+                )
+                end = CGPoint(
+                    x: endPoint.x * geometry.size.width,
+                    y: (1.0 - endPoint.y) * geometry.size.height // 保持Y翻转
+                )
+            }
+            
+            return SkeletonConnection(
+                id: "\(connection.start)-\(connection.end)",
+                start: start,
+                end: end
+            )
+        }
+    }
+    
+    // Helper function to get valid key points with converted coordinates
+    private func validKeyPoints(for geometry: GeometryProxy) -> [KeyPointView] {
+        let needsRotation = needsCoordinateRotation(for: geometry)
+        
+        return keyPoints.compactMap { (jointName, point) in
+            let position: CGPoint
+            
+            if needsRotation {
+                // For portrait video, try different rotation approach
+                position = CGPoint(
+                    x: (1.0 - point.y) * geometry.size.width, // 翻转X坐标
+                    y: point.x * geometry.size.height
+                )
+            } else {
+                // For landscape video, use normal coordinates with Y flip
+                position = CGPoint(
+                    x: point.x * geometry.size.width,
+                    y: (1.0 - point.y) * geometry.size.height // 保持Y翻转
+                )
+            }
+            
+            return KeyPointView(
+                id: "\(jointName)",
+                position: position
+            )
+        }
+    }
+    
+    // Define skeleton connections
+    private var skeletonConnections: [(start: VNHumanBodyPoseObservation.JointName, end: VNHumanBodyPoseObservation.JointName)] {
+        [
+            // Head connections
+            (.nose, .leftEye), (.nose, .rightEye),
+            (.leftEye, .leftEar), (.rightEye, .rightEar),
+            (.nose, .neck),
+            
+            // Torso connections
+            (.neck, .leftShoulder), (.neck, .rightShoulder),
+            (.leftShoulder, .leftHip), (.rightShoulder, .rightHip),
+            (.leftHip, .rightHip),
+            
+            // Left arm connections
+            (.leftShoulder, .leftElbow), (.leftElbow, .leftWrist),
+            
+            // Right arm connections
+            (.rightShoulder, .rightElbow), (.rightElbow, .rightWrist),
+            
+            // Left leg connections
+            (.leftHip, .leftKnee), (.leftKnee, .leftAnkle),
+            
+            // Right leg connections
+            (.rightHip, .rightKnee), (.rightKnee, .rightAnkle),
+            
+            // Additional connections for better skeleton
+            (.leftShoulder, .rightShoulder), // Shoulder line
+            (.leftHip, .leftShoulder), // Left side
+            (.rightHip, .rightShoulder) // Right side
+        ]
     }
 }
 
@@ -558,13 +879,17 @@ struct WorkoutSelectorView: View {
                 }
             }
             .navigationTitle("Select Workout")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
+                #if os(iOS)
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }
+                #endif
             }
         }
     }
@@ -573,16 +898,24 @@ struct WorkoutSelectorView: View {
 // MARK: - Extensions
 extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { 
+            print("ERROR: CameraManager - Failed to get pixel buffer")
+            return 
+        }
         
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
         let context = CIContext()
         
         if let cgImage = context.createCGImage(ciImage, from: ciImage.extent) {
+            #if canImport(UIKit)
             let image = UIImage(cgImage: cgImage)
             DispatchQueue.main.async {
                 self.capturedImage = image
+                print("DEBUG: CameraManager - Captured image: \(image.size)")
             }
+            #endif
+        } else {
+            print("ERROR: CameraManager - Failed to create CGImage from CIImage")
         }
     }
 }
