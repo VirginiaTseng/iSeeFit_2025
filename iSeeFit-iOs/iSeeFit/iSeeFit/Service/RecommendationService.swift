@@ -14,7 +14,7 @@ struct RecommendationRequest: Codable {
     let prompt_style: String
     
     init(foodNames: [String], healthCondition: String = "stomach", promptStyle: String = "simple") {
-        self.food_name = foodNames.joined(separator: ", ")  // 用逗号连接
+        self.food_name = foodNames.first ?? ""  // 只取第一个食物名称
         self.health_condition = healthCondition
         self.prompt_style = promptStyle
     }
@@ -61,6 +61,10 @@ class RecommendationService: ObservableObject {
             urlRequest.httpBody = jsonData
             
             print("DEBUG: RecommendationService - Sending request:")
+            print("  - URL: \(url)")
+            print("  - Method: POST")
+            print("  - Headers: \(urlRequest.allHTTPHeaderFields ?? [:])")
+            print("  - Body: \(String(data: jsonData, encoding: .utf8) ?? "Failed to encode")")
             print("  - Food names: \(foodNames)")
             print("  - Health condition: \(healthCondition)")
             print("  - Prompt style: \(promptStyle)")
@@ -69,6 +73,12 @@ class RecommendationService: ObservableObject {
             
             if let httpResponse = response as? HTTPURLResponse {
                 print("DEBUG: RecommendationService - Response status: \(httpResponse.statusCode)")
+                print("DEBUG: RecommendationService - Response headers: \(httpResponse.allHeaderFields)")
+            }
+            
+            // 打印响应内容
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("DEBUG: RecommendationService - Response body: \(responseString)")
             }
             
             let recommendationResponse = try JSONDecoder().decode(RecommendationResponse.self, from: data)

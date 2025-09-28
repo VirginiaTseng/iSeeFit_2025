@@ -171,7 +171,6 @@ struct TodaysMemoryView: View {
             
             // 提取今日食物名称
             let todayRecords = foodLocalStore.getTodayRecords()
-            let foodNames = todayRecords.map { $0.foodName }
             
             // 打印今日所有食物记录的详细信息
             print("DEBUG: TodaysMemoryView - 今日所有食物记录:")
@@ -191,7 +190,12 @@ struct TodaysMemoryView: View {
                 print("    - 检测到的食物: \(record.detectedFoods.count) 项")
                 print("    ---")
             }
-            print("DEBUG: TodaysMemoryView - 提取的食物名称: \(foodNames)")
+            
+            // 选择最近的一个食物发送
+            let latestFood = todayRecords.sorted { $0.date > $1.date }.first
+            let foodNames = latestFood != nil ? [latestFood!.foodName] : []
+            
+            print("DEBUG: TodaysMemoryView - 选择最近的食物: \(foodNames)")
             
             // 请求健康建议
             let advice = await recommendationService.getAdvice(

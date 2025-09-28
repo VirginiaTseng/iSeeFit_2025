@@ -101,14 +101,23 @@ async def get_unread_recommendations(
     ]
 
 @router.post("/getadvice")
-async def getadvice(
-        food_name:str,
-        health_condition:str,
-        prompt_style:str
-):
+async def getadvice(request: dict):
     # """food name params, health condition params, simple/professional/detailed"""
     
-    return get_food_advice(food_name, health_condition, prompt_style)
+    # 从请求体中提取参数
+    food_name = request.get("food_name", "")
+    health_condition = request.get("health_condition", "stomach")
+    prompt_style = request.get("prompt_style", "simple")
+    
+    # 获取建议内容
+    advice = get_food_advice(food_name, health_condition, prompt_style)
+    
+    # 返回 JSON 格式响应
+    return {
+        "success": True,
+        "advice": advice,
+        "message": "Recommendation generated successfully"
+    }
 
 @router.post("/process-video/")
 async def upload_video(file: UploadFile = File(...)):
