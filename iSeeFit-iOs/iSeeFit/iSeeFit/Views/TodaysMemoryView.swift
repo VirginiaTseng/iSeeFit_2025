@@ -9,18 +9,27 @@ import SwiftUI
 
 struct TodaysMemoryView: View {
     @State private var scrollOffset: CGFloat = 0
-    // Weight feature sheets (debug-logs enabled)
-    @State private var showWeightInput: Bool = false
-    //@State private var showWeightChart: Bool = false
+    @StateObject private var foodLocalStore = FoodLocalStore.shared
+    @State private var entries: [TodayEntry] = []
+    
+    // 默认演示数据（当没有真实数据时显示）
+    private let defaultEntries: [TodayEntry] = [
+        TodayEntry(time: "08:12", title: "Breakfast", calories: 320, kind: .meal, image: nil, note: "Yogurt & fruits", protein: 15.0, carbs: 45.0, fat: 8.0),
+        TodayEntry(time: "12:48", title: "Lunch", calories: 640, kind: .meal, image: nil, note: "Chicken salad", protein: 35.0, carbs: 25.0, fat: 12.0),
+        TodayEntry(time: "18:30", title: "Workout", calories: 420, kind: .workout, image: nil, note: "Treadmill 40min", protein: nil, carbs: nil, fat: nil),
+        TodayEntry(time: "20:05", title: "Dinner", calories: 510, kind: .meal, image: nil, note: "Shrimp & veggies", protein: 28.0, carbs: 30.0, fat: 18.0)
+    ]
+
+    private var intake: Int { entries.filter { $0.kind == .meal }.map { $0.calories }.reduce(0, +) }
+    private var burn: Int { entries.filter { $0.kind == .workout }.map { $0.calories }.reduce(0, +) }
     
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
-                TodaysMemoryBkCard(externalScrollOffset: scrollOffset)
+                TodaysMemoryBkCard(externalScrollOffset: scrollOffset, burnedValue: burn)
                 
-                ScrollView {
-                   // contentView()
-                    TodayView()
+                ScrollView(showsIndicators: false) {
+                    TodayContentView()
                         .background(GeometryReader { geo in
                             Color.clear.onAppear {
                                 scrollOffset = geo.frame(in: .global).minY
@@ -29,35 +38,849 @@ struct TodaysMemoryView: View {
                                 scrollOffset = geo.frame(in: .global).minY
                             }
                         })
+                        .padding(.bottom, geometry.safeAreaInsets.bottom + 100) // 确保底部有足够空间
                 }
-                // Floating action buttons inside scroll area (top-right)
-                .overlay(alignment: .topTrailing) {
-                    HStack(spacing: 12) {
-                        Button(action: {
-                            print("DEBUG: TodaysMemoryView - weight input button tapped")
-                            showWeightInput = true
-                        }) {
-                            Image(systemName: "scalemass.fill")
-                                .font(.title2)
-                                .foregroundColor(.white)
-                                .padding(10)
-                                .background(Color.blue.opacity(0.9))
-                                .clipShape(Circle())
+                .background(Color.white)
+            }
+        }
+        .ignoresSafeArea(.container, edges: .top) // 只忽略顶部安全区域
+        .preferredColorScheme(.light) // 强制使用浅色模式
+        .statusBarHidden() // 隐藏状态栏
+        .onAppear {
+            loadTodayEntries()
+        }
+    }
+    
+    private func loadTodayEntries() {
+        let todayRecords = foodLocalStore.getTodayRecords()
+        
+        if todayRecords.isEmpty {
+            entries = defaultEntries
+        } else {
+            entries = todayRecords.map { record in
+                let image: Image? = {
+                    if let imagePath = record.imagePath,
+                       let uiImage = ImageManager.shared.loadImage(from: imagePath) {
+                        return Image(uiImage: uiImage)
+                    }
+                    return nil
+                }()
+                
+                return TodayEntry(
+                    time: formatTime(record.date),
+                    title: getMealType(for: record.date),
+                    calories: Int(record.calories),
+                    kind: .meal,
+                    image: image,
+                    note: record.notes,
+                    protein: record.protein,
+                    carbs: record.carbs,
+                    fat: record.fat
+                )
+            }
+        }
+    }
+    
+    private func getMealType(for date: Date) -> String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: date)
+        
+        switch hour {
+        case 5..<11:
+            return "Breakfast"
+        case 11..<15:
+            return "Lunch"
+        case 15..<18:
+            return "Snack"
+        case 18..<22:
+            return "Dinner"
+        default:
+            return "Snack"
+        }
+    }
+    
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
+    }
+    }
+
+
+
+
+// 新的内容视图，移除NavigationView和ScrollView以避免嵌套冲突
+struct TodayContentView: View {
+    // 使用真实数据源
+    @StateObject private var foodLocalStore = FoodLocalStore.shared
+    @State private var entries: [TodayEntry] = []
+    @State private var selectedEntry: TodayEntry? = nil
+    @State private var showDetailView = false
+    
+    // 默认演示数据（当没有真实数据时显示）
+    private let defaultEntries: [TodayEntry] = [
+        TodayEntry(time: "08:12", title: "Breakfast", calories: 320, kind: .meal, image: nil, note: "Yogurt & fruits", protein: 15.0, carbs: 45.0, fat: 8.0),
+        TodayEntry(time: "12:48", title: "Lunch", calories: 640, kind: .meal, image: nil, note: "Chicken salad", protein: 35.0, carbs: 25.0, fat: 12.0),
+        TodayEntry(time: "18:30", title: "Workout", calories: 420, kind: .workout, image: nil, note: "Treadmill 40min", protein: nil, carbs: nil, fat: nil),
+        TodayEntry(time: "20:05", title: "Dinner", calories: 510, kind: .meal, image: nil, note: "Shrimp & veggies", protein: 28.0, carbs: 30.0, fat: 18.0)
+    ]
+
+    private var intake: Int { entries.filter { $0.kind == .meal }.map { $0.calories }.reduce(0, +) }
+    private var burn: Int { entries.filter { $0.kind == .workout }.map { $0.calories }.reduce(0, +) }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            header
+            timeline
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 24)
+        .onAppear {
+            loadTodayEntries()
+        }
+        .sheet(isPresented: $showDetailView) {
+            if let entry = selectedEntry {
+                FoodDetailView(entry: entry)
+            }
+        }
+    }
+    
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // 整合的营养横条组件
+            summary
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 12)
+    }
+
+    private var timeline: some View {
+        VStack(spacing: 24) {
+            ForEach(entries) { item in
+                HStack(alignment: .top, spacing: 12) {
+                    // 左列（餐饮）
+                    Group {
+                        if item.kind == .meal {
+                            entryCard(item)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        } else {
+                            Spacer(minLength: 0)
+                                .frame(maxWidth: .infinity)
                         }
                     }
-                    .padding(.trailing, 16)
-                    .padding(.top, 12)
+
+                    // 中线与时间
+                    VStack(spacing: 6) {
+                        Text(item.time)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                        Circle().fill(item.kind == .meal ? Color.orange : Color.green)
+                            .frame(width: 10, height: 10)
+                        Rectangle().fill(Color.gray.opacity(0.3)).frame(width: 2, height: 60)
+                    }
+
+                    // 右列（健身）
+                    Group {
+                        if item.kind == .workout {
+                            entryCard(item)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Spacer(minLength: 0)
+                                .frame(maxWidth: .infinity)
+                        }
+                    }
                 }
             }
         }
-        .ignoresSafeArea()
-        .sheet(isPresented: $showWeightInput) {
-            WeightInputView()
+    }
+
+    private func entryCard(_ item: TodayEntry) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(item.title).font(.headline)
+                Spacer()
+                HStack(spacing: 6) {
+                    Image(systemName: item.kind == .meal ? "flame.fill" : "bolt.heart.fill")
+                        .foregroundColor(item.kind == .meal ? .orange : .green)
+                    Text("\(item.calories) kcal").font(.subheadline).bold()
+                }
+            }
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.secondarySystemBackground))
+                .frame(height: 110)
+                .overlay(
+                    ZStack {
+                        if let img = item.image { 
+                            img.resizable().scaledToFill().clipped() 
+                        }
+                        if let note = item.note {
+                            VStack {
+                                Spacer()
+                                Text(note)
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color.black.opacity(0.6))
+                            }
+                        }
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                )
         }
+        .onTapGesture {
+            selectedEntry = item
+            showDetailView = true
+        }
+    }
+
+    private var summary: some View {
+        // 整合的营养横条组件
+        IntegratedNutritionBar(
+            intakeValue: intake,
+            burnedValue: burn,
+            netValue: intake - burn
+        )
+    }
+    
+    private func loadTodayEntries() {
+        let todayRecords = foodLocalStore.getTodayRecords()
+        
+        if todayRecords.isEmpty {
+            entries = defaultEntries
+        } else {
+            entries = todayRecords.map { record in
+                let image: Image? = {
+                    if let imagePath = record.imagePath,
+                       let uiImage = ImageManager.shared.loadImage(from: imagePath) {
+                        return Image(uiImage: uiImage)
+                    }
+                    return nil
+                }()
+                
+                return TodayEntry(
+                    time: formatTime(record.date),
+                    title: getMealType(for: record.date),
+                    calories: Int(record.calories),
+                    kind: .meal,
+                    image: image,
+                    note: record.notes,
+                    protein: record.protein,
+                    carbs: record.carbs,
+                    fat: record.fat
+                )
+            }
+        }
+    }
+    
+    private func getMealType(for date: Date) -> String {
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: date)
+        
+        switch hour {
+        case 5..<11:
+            return "Breakfast"
+        case 11..<15:
+            return "Lunch"
+        case 15..<18:
+            return "Snack"
+        case 18..<22:
+            return "Dinner"
+        default:
+            return "Snack"
+        }
+    }
+    
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
     }
 }
 
+// 营养横条组件
+struct NutritionBar: View {
+    let title: String
+    let value: Int
+    let icon: String
+    let color: Color
+    let maxValue: Int
+    let allowNegative: Bool
+    
+    init(title: String, value: Int, icon: String, color: Color, maxValue: Int, allowNegative: Bool = false) {
+        self.title = title
+        self.value = value
+        self.icon = icon
+        self.color = color
+        self.maxValue = max(maxValue, 1) // 避免除零错误
+        self.allowNegative = allowNegative
+    }
+    
+    private var progress: CGFloat {
+        if allowNegative {
+            // 对于Net值，可能为负数，需要特殊处理
+            let absValue = abs(value)
+            return min(CGFloat(absValue) / CGFloat(maxValue), 1.0)
+        } else {
+            return min(CGFloat(value) / CGFloat(maxValue), 1.0)
+        }
+    }
+    
+    private var barColor: Color {
+        if allowNegative && value < 0 {
+            return Color.red.opacity(0.7) // 负值使用红色
+        }
+        return color
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            // 标题行
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.caption)
+                
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Text("\(value) kcal")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+            }
+            
+            // 进度条
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // 背景条
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.gray.opacity(0.15))
+                        .frame(height: 12)
+                    
+                    // 进度条
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(
+                            LinearGradient(
+                                colors: [barColor.opacity(0.7), barColor],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geometry.size.width * progress, height: 12)
+                        .animation(.easeInOut(duration: 0.5), value: progress)
+                }
+            }
+            .frame(height: 12)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
+    }
+}
 
+// 双向营养横条组件
+struct BidirectionalNutritionBar: View {
+    let intakeValue: Int
+    let burnedValue: Int
+    
+    private var maxValue: Int {
+        max(intakeValue, burnedValue, 1) // 避免除零错误
+    }
+    
+    private var intakeProgress: CGFloat {
+        min(CGFloat(intakeValue) / CGFloat(maxValue), 1.0)
+    }
+    
+    private var burnedProgress: CGFloat {
+        min(CGFloat(burnedValue) / CGFloat(maxValue), 1.0)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // 标题行
+            HStack {
+                HStack(spacing: 4) {
+                    Image(systemName: "fork.knife")
+                        .foregroundColor(.orange)
+                        .font(.caption)
+                    Text("Intake")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                }
+                
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    Text("Burned")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
+                    Image(systemName: "figure.run")
+                        .foregroundColor(.green)
+                        .font(.caption)
+                }
+            }
+            
+            // 数值显示行
+            HStack {
+                Text("\(intakeValue) kcal")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.orange)
+                
+                Spacer()
+                
+                Text("\(burnedValue) kcal")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.green)
+            }
+            
+            // 双向进度条
+            GeometryReader { geometry in
+                ZStack {
+                    // 背景条
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.gray.opacity(0.15))
+                        .frame(height: 12)
+                    
+                    HStack(spacing: 0) {
+                        // 左侧 Intake 进度条
+                        HStack {
+                            Spacer()
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.orange.opacity(0.7), Color.orange],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: (geometry.size.width * 0.5) * intakeProgress, height: 12)
+                                .animation(.easeInOut(duration: 0.5), value: intakeProgress)
+                        }
+                        .frame(width: geometry.size.width * 0.5)
+                        
+                        // 中心分隔线
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.4))
+                            .frame(width: 2, height: 16)
+                        
+                        // 右侧 Burned 进度条
+                        HStack {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.green.opacity(0.7), Color.green],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .frame(width: (geometry.size.width * 0.5) * burnedProgress, height: 12)
+                                .animation(.easeInOut(duration: 0.5), value: burnedProgress)
+                            Spacer()
+                        }
+                        .frame(width: geometry.size.width * 0.5)
+                    }
+                }
+            }
+            .frame(height: 12)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+// Net双向营养横条组件
+struct NetNutritionBar: View {
+    let netValue: Int
+    let maxValue: Int
+    
+    private var progress: CGFloat {
+        let absValue = abs(netValue)
+        let safeMaxValue = max(maxValue, 1) // 避免除零错误
+        return min(CGFloat(absValue) / CGFloat(safeMaxValue), 1.0)
+    }
+    
+    private var isPositive: Bool {
+        netValue >= 0
+    }
+    
+    private var barColor: Color {
+        isPositive ? Color.orange : Color.green
+    }
+    
+    private var directionText: String {
+        isPositive ? "Surplus" : "Deficit"
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // 标题行
+            HStack {
+                Image(systemName: "scalemass")
+                    .foregroundColor(.blue)
+                    .font(.caption)
+                
+                Text("Net")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Text(directionText)
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .foregroundColor(barColor)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(barColor.opacity(0.15))
+                    .cornerRadius(4)
+            }
+            
+            // 数值显示行
+            HStack {
+                if isPositive {
+                    Text("\(netValue) kcal")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(barColor)
+                    Spacer()
+                } else {
+                    Spacer()
+                    Text("\(netValue) kcal")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(barColor)
+                }
+            }
+            
+            // 双向进度条
+            GeometryReader { geometry in
+                ZStack {
+                    // 背景条
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.gray.opacity(0.15))
+                        .frame(height: 12)
+                    
+                    HStack(spacing: 0) {
+                        // 左侧区域（正值 - Surplus）
+                        HStack {
+                            Spacer()
+                            if isPositive {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.orange.opacity(0.7), Color.orange],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .frame(width: (geometry.size.width * 0.5) * progress, height: 12)
+                                    .animation(.easeInOut(duration: 0.5), value: progress)
+                            }
+                        }
+                        .frame(width: geometry.size.width * 0.5)
+                        
+                        // 中心分隔线
+                        Rectangle()
+                            .fill(Color.blue.opacity(0.6))
+                            .frame(width: 2, height: 16)
+                        
+                        // 右侧区域（负值 - Deficit）
+                        HStack {
+                            if !isPositive {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.green.opacity(0.7), Color.green],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .frame(width: (geometry.size.width * 0.5) * progress, height: 12)
+                                    .animation(.easeInOut(duration: 0.5), value: progress)
+                            }
+                            Spacer()
+                        }
+                        .frame(width: geometry.size.width * 0.5)
+                    }
+                }
+            }
+            .frame(height: 12)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+// 整合的营养横条组件
+struct IntegratedNutritionBar: View {
+    let intakeValue: Int
+    let burnedValue: Int
+    let netValue: Int
+    
+    private var maxValue: Int {
+        max(intakeValue, burnedValue, 1) // 避免除零错误
+    }
+    
+    private var intakeProgress: CGFloat {
+        min(CGFloat(intakeValue) / CGFloat(maxValue), 1.0)
+    }
+    
+    private var burnedProgress: CGFloat {
+        min(CGFloat(burnedValue) / CGFloat(maxValue), 1.0)
+    }
+    
+    private var netProgress: CGFloat {
+        let absValue = abs(netValue)
+        let safeMaxValue = max(maxValue, 1)
+        return min(CGFloat(absValue) / CGFloat(safeMaxValue), 1.0)
+    }
+    
+    private var isNetPositive: Bool {
+        netValue >= 0
+    }
+    
+    private var netBarColor: Color {
+        isNetPositive ? Color.orange : Color.green
+    }
+    
+    private var netDirectionText: String {
+        isNetPositive ? "Surplus" : "Deficit"
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // 上半部分：Intake vs Burned
+            VStack(alignment: .leading, spacing: 8) {
+                // 标题行
+                HStack {
+                    HStack(spacing: 4) {
+                        Image(systemName: "fork.knife")
+                            .foregroundColor(.orange)
+                            .font(.caption)
+                        Text("Intake")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 4) {
+                        Text("Burned")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                        Image(systemName: "figure.run")
+                            .foregroundColor(.green)
+                            .font(.caption)
+                    }
+                }
+                
+                // 数值显示行
+                HStack {
+                    Text("\(intakeValue) kcal")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                    
+                    Spacer()
+                    
+                    Text("\(burnedValue) kcal")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.green)
+                }
+                
+                // Intake vs Burned 双向进度条
+                GeometryReader { geometry in
+                    ZStack {
+                        // 背景条
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(height: 12)
+                        
+                        HStack(spacing: 0) {
+                            // 左侧 Intake 进度条
+                            HStack {
+                                Spacer()
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.orange.opacity(0.7), Color.orange],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .frame(width: (geometry.size.width * 0.5) * intakeProgress, height: 12)
+                                    .animation(.easeInOut(duration: 0.5), value: intakeProgress)
+                            }
+                            .frame(width: geometry.size.width * 0.5)
+                            
+                            // 中心分隔线
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.4))
+                                .frame(width: 2, height: 16)
+                            
+                            // 右侧 Burned 进度条
+                            HStack {
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.green.opacity(0.7), Color.green],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .frame(width: (geometry.size.width * 0.5) * burnedProgress, height: 12)
+                                    .animation(.easeInOut(duration: 0.5), value: burnedProgress)
+                                Spacer()
+                            }
+                            .frame(width: geometry.size.width * 0.5)
+                        }
+                    }
+                }
+                .frame(height: 12)
+            }
+            
+            // 下半部分：Net 横条
+            VStack(alignment: .leading, spacing: 8) {
+                // Net 数值显示行
+                HStack {
+                    if isNetPositive {
+                        Text("\(netValue) kcal")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(netBarColor)
+                        Spacer()
+                        Text(netDirectionText)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(netBarColor)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(netBarColor.opacity(0.15))
+                            .cornerRadius(4)
+                    } else {
+                        Text(netDirectionText)
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundColor(netBarColor)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(netBarColor.opacity(0.15))
+                            .cornerRadius(4)
+                        Spacer()
+                        Text("\(netValue) kcal")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(netBarColor)
+                    }
+                }
+                
+                // Net 双向进度条
+                GeometryReader { geometry in
+                    ZStack {
+                        // 背景条
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(height: 12)
+                        
+                        HStack(spacing: 0) {
+                            // 左侧区域（正值 - Surplus）
+                            HStack {
+                                Spacer()
+                                if isNetPositive {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color.orange.opacity(0.7), Color.orange],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
+                                        .frame(width: (geometry.size.width * 0.5) * netProgress, height: 12)
+                                        .animation(.easeInOut(duration: 0.5), value: netProgress)
+                                }
+                            }
+                            .frame(width: geometry.size.width * 0.5)
+                            
+                            // 中心分隔线
+                            Rectangle()
+                                .fill(Color.blue.opacity(0.6))
+                                .frame(width: 2, height: 16)
+                            
+                            // 右侧区域（负值 - Deficit）
+                            HStack {
+                                if !isNetPositive {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color.green.opacity(0.7), Color.green],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
+                                        .frame(width: (geometry.size.width * 0.5) * netProgress, height: 12)
+                                        .animation(.easeInOut(duration: 0.5), value: netProgress)
+                                }
+                                Spacer()
+                            }
+                            .frame(width: geometry.size.width * 0.5)
+                        }
+                    }
+                }
+                .frame(height: 12)
+                
+                // Net 标题和图标 - 居中显示在横条下方
+                HStack {
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Image(systemName: "scalemass")
+                            .foregroundColor(.blue)
+                            .font(.caption)
+                        Text("Net")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                    }
+                    Spacer()
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
+    }
+}
 
 struct TodaysMemoryView_Previews: PreviewProvider {
     static var previews: some View {

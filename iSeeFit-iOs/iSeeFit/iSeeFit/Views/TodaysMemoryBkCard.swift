@@ -21,17 +21,24 @@ struct TodaysMemoryBkCard: View {
     
     // MARK: - Public interface for external scroll offset
     var externalScrollOffset: CGFloat = 0
+    var burnedValue: Int = 0
+    
+    // MARK: - Computed property for star count
+    private var starCount: Int {
+        max(burnedValue / 100, 1) // 每100 burned值一个星星，至少1个
+    }
     
     // MARK: - Initializer
-    init(externalScrollOffset: CGFloat = 0) {
+    init(externalScrollOffset: CGFloat = 0, burnedValue: Int = 0) {
         self.externalScrollOffset = externalScrollOffset
+        self.burnedValue = burnedValue
     }
     
     var body: some View {
         GeometryReader { geometry in
             headerView(geometry: geometry)
         }
-        .frame(height:300) // 设置固定高度确保正确显示
+        .frame(height:340) // 增加高度以适应新的布局
         .onAppear {
             startIdleAnimations()
         }
@@ -43,55 +50,38 @@ struct TodaysMemoryBkCard: View {
     // MARK: - Header View Implementation
     private func headerView(geometry: GeometryProxy) -> some View {
         ZStack {
-            // Moving gradient background
-            MovingGradientBackground(
-                scrollOffset: externalScrollOffset != 0 ? externalScrollOffset : scrollOffset, 
-                glowPhase: glowPhase
-            )
-            .frame(height: 150)
+            // 渐变背景 - 占满整个容器，底部添加倒角
+            RoundedRectangle(cornerRadius: 0)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.blue.opacity(0.3),
+                            Color.green.opacity(0.3),
+                            Color.orange.opacity(0.3)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .clipShape(
+                    // 自定义形状：只有底部倒角
+                    RoundedCorners(radius: 24, corners: [.bottomLeft, .bottomRight])
+                )
+                .ignoresSafeArea(.all) // 确保背景覆盖所有区域
             
             
             VStack(spacing: 10) {
-                HStack {
-    //                    Text("02:43")
-    //                        .font(.system(size: 18, weight: .semibold))
-    //                        .foregroundColor(.black)
-    //                    Spacer()
-                    // Status bar icons
-                    HStack(spacing: 5) {
-                        Circle().fill(Color.black).frame(width: 4, height: 4)
-                        Circle().fill(Color.black).frame(width: 4, height: 4)
-                        Circle().fill(Color.black).frame(width: 4, height: 4)
-                        Image(systemName: "wifi")
-                        Image(systemName: "battery.75")
-                            .foregroundColor(.green)
-                    }
-                    .font(.system(size: 14))
-                    .foregroundColor(.black)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
+                // 增加顶部间距，避免与灵动岛冲突
+                Spacer()
+                    .frame(height: 60) // 增加间距，为灵动岛留出空间
                 
-                // Title
-                HStack {
-                    Text("Today's Memory")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.black)
-                    Spacer()
-                }
-                .padding(.horizontal, 20 )
-                .padding(.top, 50 )
-                .overlay(
-                    // Underline
-                    Rectangle()
-                        .fill(Color.green)
-                        .frame(width: 100, height: 3)
-                        .offset(x: -90, y: 15)
-                )
+                // 欢迎语板块
+                motivationalHeader
+                    .padding(.horizontal, 20)
                 
                 Spacer()
                 
-                // Animated Chicken and Star
+                // 显示星星动画
                 chickenStarView()
                 
                 Spacer()
@@ -101,11 +91,8 @@ struct TodaysMemoryBkCard: View {
     
     private func chickenStarView() -> some View {
         ZStack {
-            // Star with rope/string
+            // 只显示星星
             starWithRope()
-            
-            // Avocado
-            //avocadoView()
         }
         .frame(height: 120)
     }
@@ -182,54 +169,63 @@ struct TodaysMemoryBkCard: View {
     }
     
     private func starWithRope() -> some View {
-        HStack {
-            Spacer()
-            
-            VStack(spacing: 0) {
-                // Rope/String - curved path
-                Path { path in
-                    let startX: CGFloat = -120
-                    let startY: CGFloat = 0
-                    let endX: CGFloat = starOffset
-                    let endY: CGFloat = -20
-                    
-                    let controlX = (startX + endX) / 2
-                    let controlY = min(startY, endY) - abs(endX - startX) * 0.1
-                    
-                    path.move(to: CGPoint(x: startX, y: startY))
-                    path.addQuadCurve(
-                        to: CGPoint(x: endX, y: endY),
-                        control: CGPoint(x: controlX, y: controlY)
-                    )
-                }
-                .stroke(Color.brown, lineWidth: 2)
+        ZStack {
+            // 生成多个星星
+            ForEach(0..<starCount, id: \.self) { index in
+                let offsetMultiplier = CGFloat(index - starCount / 2) * 40 // 星星间距
+                let delayOffset = Double(index) * 0.5 // 动画延迟
                 
-                // Star
-//                StarShape()
-//                    .fill(Color.yellow)
-//                    .frame(width: 25, height: 25)
-//                    .offset(x: starOffset, y: -20)
-//                    .shadow(color: .yellow.opacity(0.6), radius: 8)
                 StarShape()
                     .fill(Color.yellow)
-                    .frame(width: 25, height: 25)
-                    .offset(x: starOffset, y: -20)
-                    .rotationEffect(.degrees(starRotation))
-                    .shadow(color: .yellow.opacity(0.6), radius: 8)
+                    .frame(width: 20 + CGFloat(index % 3) * 5, height: 20 + CGFloat(index % 3) * 5) // 不同大小
+                    .offset(
+                        x: starOffset + offsetMultiplier + sin(glowPhase + delayOffset) * 15,
+                        y: -20 + cos(glowPhase + delayOffset) * 10
+                    )
+                    .rotationEffect(.degrees(starRotation + Double(index) * 45))
+                    .shadow(color: .yellow.opacity(0.6), radius: 6)
                     .overlay(
-                        // Glowing aura around star
+                        // 发光光环
                         StarShape()
-                            .fill(Color.yellow.opacity(0.3))
-                            .frame(width: 35, height: 35)
-                            .blur(radius: 5)
-                            .scaleEffect(1.0 + sin(glowPhase) * 0.2)
-                            .offset(x: starOffset, y: -20)
-                            .rotationEffect(.degrees(starRotation))
+                            .fill(Color.yellow.opacity(0.2))
+                            .frame(width: 30 + CGFloat(index % 3) * 5, height: 30 + CGFloat(index % 3) * 5)
+                            .blur(radius: 4)
+                            .scaleEffect(1.0 + sin(glowPhase + delayOffset) * 0.15)
+                            .offset(
+                                x: starOffset + offsetMultiplier + sin(glowPhase + delayOffset) * 15,
+                                y: -20 + cos(glowPhase + delayOffset) * 10
+                            )
+                            .rotationEffect(.degrees(starRotation + Double(index) * 45))
                     )
             }
-            
-            Spacer()
         }
+        .frame(height: 80) // 给星星足够的显示空间
+    }
+    
+    // MARK: - Motivational Header
+    private var motivationalHeader: some View {
+        VStack(spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("🍽️ Track for Today")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Text("Every bite and every step counts!")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                
+                Spacer()
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.15))
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        )
     }
     
     // MARK: - Animation Functions
@@ -377,6 +373,21 @@ struct Triangle: Shape {
         path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
         path.closeSubpath()
         return path
+    }
+}
+
+// MARK: - Custom Rounded Corners Shape
+struct RoundedCorners: Shape {
+    var radius: CGFloat = 0
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
     }
 }
 
