@@ -20,20 +20,26 @@ struct PoseVideoView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                // 视频显示区域
-                if let frame = player.currentFrame {
-                    Image(uiImage: frame)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(12)
-                        .shadow(radius: 8)
-                        .onTapGesture {
-                            if player.isPlaying {
-                                player.pause()
-                            } else {
-                                player.play()
-                            }
-                        }
+                  
+
+                  // Video display area
+                  if let frame = player.currentFrame {
+                      Image(uiImage: frame)
+                          .resizable()
+                          .aspectRatio(contentMode: .fit)
+                          .frame(
+                              maxWidth: player.isPortraitVideo ? 300 : .infinity,
+                              maxHeight: player.isPortraitVideo ? 500 : 300
+                          )
+                          .cornerRadius(12)
+                          .shadow(radius: 8)
+                          .onTapGesture {
+                              if player.isPlaying {
+                                  player.pause()
+                              } else {
+                                  player.play()
+                              }
+                          }
                 } else if isProcessing {
                     VStack {
                         ProgressView("Processing...")
@@ -55,7 +61,7 @@ struct PoseVideoView: View {
                     .frame(height: 300)
                 }
                 
-                // Control buttons
+              // Control buttons
                 if !player.frames.isEmpty {
                     VStack(spacing: 16) {
                         // Progress bar
@@ -132,7 +138,7 @@ struct PoseVideoView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("Pose Detection")
+            //.navigationTitle("Pose Detection")
             .sheet(isPresented: $showVideoPicker) {
                 VideoPicker(selectedVideo: $selectedVideo)
             }
@@ -179,6 +185,10 @@ struct PoseVideoView: View {
         // Clear frame data
         player.frames = []
         player.currentFrame = nil
+        
+        // Reset video properties
+        player.videoAspectRatio = 1.0
+        player.isPortraitVideo = false
         
         // Clear selected video
         selectedVideo = nil

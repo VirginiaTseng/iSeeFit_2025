@@ -14,6 +14,8 @@ class VideoFramePlayer: ObservableObject {
     @Published var isPlaying = false
     @Published var currentIndex = 0
     @Published var progress: Double = 0.0
+    @Published var videoAspectRatio: CGFloat = 1.0 // 视频宽高比
+    @Published var isPortraitVideo: Bool = false // 是否为竖屏视频
     
     private var timer: Timer?
     private let fps: Double = 30.0
@@ -23,6 +25,15 @@ class VideoFramePlayer: ObservableObject {
         currentIndex = 0
         currentFrame = frames.first
         progress = 0.0
+        
+        // 检测视频长宽比
+        if let firstFrame = frames.first {
+            let frameSize = firstFrame.size
+            videoAspectRatio = frameSize.width / frameSize.height
+            isPortraitVideo = videoAspectRatio < 1.0 // 宽高比小于1表示竖屏
+            
+            print("DEBUG: VideoFramePlayer - Video aspect ratio: \(videoAspectRatio), isPortrait: \(isPortraitVideo)")
+        }
     }
     
     func play() {
