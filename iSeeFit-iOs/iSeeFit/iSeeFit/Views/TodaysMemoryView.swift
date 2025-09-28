@@ -242,6 +242,7 @@ struct TodayContentView: View {
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 )
+                .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: 2)
         }
         .onTapGesture {
             selectedEntry = item
