@@ -295,8 +295,7 @@ struct VideoView: View {
                         workoutInstructionsCard()
                     }
                     
-                    // Pose detection info
-                    poseDetectionCard()
+
                     
                     // Bottom controls
                     VStack(spacing: 20) {
@@ -353,6 +352,8 @@ struct VideoView: View {
                             //         }
                             //     }
                             // }
+                            // Pose detection info
+                            poseDetectionCard()
                             
                             // Placeholder for symmetry
                             Circle()
@@ -382,7 +383,7 @@ struct VideoView: View {
                             Text("Key Points: \(poseDetector.keyPoints.count)")
                                 .font(.caption)
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 8)
+                                .padding(.horizontal, 12)
                                 .padding(.vertical, 4)
                                 .background(Color.black.opacity(0.7))
                                 .cornerRadius(8)
@@ -498,45 +499,46 @@ struct VideoView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     
-                    Text("Current: \(currentPose.rawValue)")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
+//                    Text("Current: \(currentPose.rawValue)")
+//                        .font(.subheadline)
+//                        .foregroundColor(.white.opacity(0.8))
 
                     Text("Accuracy: \(Int(poseAccuracy * 100))%")
                         .font(.subheadline)
                         .foregroundColor(poseAccuracy > 0.7 ? .green : .orange)
                 }
                 
-                // 运动统计
-                VStack(spacing: 6) {
-                    // 跳跃统计
+
+                    // 转圈统计
                     HStack(spacing: 8) {
                         Text("Jumps:")
-                            .font(.caption)
+                            .font(.headline)
                             .foregroundColor(.white)
                         Text("\(poseDetector.jumpCount)")
-                            .font(.caption)
+                            .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.green)
-                        
                         // if poseDetector.isJumping {
                         //     Text("JUMPING!")
                         //         .font(.caption2)
                         //         .foregroundColor(.green)
                         //         .animation(.easeInOut(duration: 0.3), value: poseDetector.isJumping)
                         // }
-                    }
-                    
-                    // 转圈统计
-                    HStack(spacing: 8) {
+                        
                         Text("Rotations:")
-                            .font(.caption)
+                            .font(.headline)
                             .foregroundColor(.white)
                         Text("\(poseDetector.rotationCount)")
-                            .font(.caption)
+                            .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.orange)
-                        
+                        Text("Cal:")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("\(Int(poseDetector.caloriesBurned))")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.red)
                         // if poseDetector.isRotating {
                         //     Text("ROTATING!")
                         //         .font(.caption2)
@@ -547,33 +549,27 @@ struct VideoView: View {
                     
                     // 卡路里统计
                     HStack(spacing: 8) {
-                        Text("Calories:")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                        Text("\(Int(poseDetector.caloriesBurned))")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.red)
-                        Text("Rate:")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                        Text("\(String(format: "%.1f", poseDetector.currentCalorieRate)) cal/min")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.yellow)
+
+//                        Text("Rate:")
+//                            .font(.caption)
+//                            .foregroundColor(.white)
+//                        Text("\(String(format: "%.1f", poseDetector.currentCalorieRate)) cal/min")
+//                            .font(.caption)
+//                            .fontWeight(.bold)
+//                            .foregroundColor(.yellow)
                     }
                     
                     // 平均强度
-                    HStack(spacing: 8) {
-                        Text("Intensity:")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                        Text("\(String(format: "%.1f", poseDetector.averageIntensity * 100))%")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.cyan)
-                    }
-                }
+//                    HStack(spacing: 8) {
+//                        Text("Intensity:")
+//                            .font(.caption)
+//                            .foregroundColor(.white)
+//                        Text("\(String(format: "%.1f", poseDetector.averageIntensity * 100))%")
+//                            .font(.caption)
+//                            .fontWeight(.bold)
+//                            .foregroundColor(.cyan)
+//                    }
+                
                 
                 // 训练控制按钮
                 HStack(spacing: 12) {

@@ -101,7 +101,12 @@ struct ContentView: View {
 
  
                 
-
+                        NotificationCard()
+                        .tabItem {
+                                Image(systemName: "list.bullet")
+                                Text("History")
+                            }
+                            .tag(6)     
                 
 //                        HomeView()
 //                            .tabItem {

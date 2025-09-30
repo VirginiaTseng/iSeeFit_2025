@@ -12,7 +12,9 @@ import UIKit
 struct APIConfig {
     //static let baseURL = "https://br676689.xyz"
     //static let baseURL = "http://10.0.0.82:8000"
-    static let baseURL = "http://10.10.10.61:8000"
+    //static let baseURL = "http://10.36.13.151:8000"
+    static let baseURL = "http://10.0.0.82:8000"
+    
     static let timeout: TimeInterval = 30
 }
 

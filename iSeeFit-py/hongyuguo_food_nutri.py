@@ -18,7 +18,7 @@ from PIL import Image
 
 # ============== Config & Flags ==============
 MODEL_NAME = "gpt-4o-mini"           # OpenAI vision model
-OPENAI_API_KEY = (os.getenv("OPENAI_API_KEY") or "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").strip()
+OPENAI_API_KEY = (os.getenv("OPENAI_API_KEY")).strip()
 print(OPENAI_API_KEY)
 DEBUG = (os.getenv("DEBUG", "0").strip() == "1")
 
