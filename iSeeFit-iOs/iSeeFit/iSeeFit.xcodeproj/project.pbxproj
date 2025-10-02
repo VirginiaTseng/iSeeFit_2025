@@ -161,6 +161,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C4684BFF2E8DF22A00CBD602 /* Exceptions for "Graphics" folder in "iSeeFit" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AnimatedMeshGradient.swift,
+			);
+			target = CB4C9C442D6400D80074A095 /* iSeeFit */;
+		};
 		CB1EFE0D2D683116009C8FE7 /* Exceptions for "iSeeFitWidget" folder in "iSeeFitWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -169,6 +176,16 @@
 			target = CB1EFDF82D683114009C8FE7 /* iSeeFitWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		C4684C002E8DF22A00CBD602 /* Exceptions for "Graphics" folder in "Copy Bundle Resources" phase from "iSeeFit" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = CB4C9C432D6400D80074A095 /* Resources */;
+			membershipExceptions = (
+				AnimatedMeshGradient.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CB06727F2D69566000C044BD /* Model */ = {
@@ -216,6 +233,10 @@
 		};
 		CB4C9CB62D64DD2D0074A095 /* Graphics */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C4684BFF2E8DF22A00CBD602 /* Exceptions for "Graphics" folder in "iSeeFit" target */,
+				C4684C002E8DF22A00CBD602 /* Exceptions for "Graphics" folder in "Copy Bundle Resources" phase from "iSeeFit" target */,
+			);
 			path = Graphics;
 			sourceTree = "<group>";
 		};
