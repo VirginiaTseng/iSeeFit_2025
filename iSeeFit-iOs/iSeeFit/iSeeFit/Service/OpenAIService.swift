@@ -10,24 +10,61 @@ import Foundation
 import UIKit
 #endif
 
-// MARK: - OpenAI Response Models
-struct OpenAIFoodResult: Codable {
-    let title: String
-    let ingredients: [OpenAIIngredient]
-    let totalCalories: Double
-    let healthScore: Double
-    
-    struct OpenAIIngredient: Codable {
-        let name: String
-        let description: String
-        let caloriesPerGram: Double
-        let totalGrams: Double
-        let totalCalories: Double
-        let protein_g: Double
-        let carbs_g: Double
-        let fat_g: Double
-    }
+// MARK: - OpenAI Response Models (与 Python 后端一致)
+struct OpenAIFoodDetection: Codable {
+    let items: [OpenAIFoodItem]
+    let notes: String
 }
+
+struct OpenAIFoodItem: Codable {
+    let name: String
+    let grams: Double
+    let confidence: Double
+}
+
+// MARK: - Nutrition Database (与 Python 后端一致)
+struct NutritionPer100g {
+    let kcal: Double
+    let protein_g: Double
+    let carb_g: Double
+    let fat_g: Double
+}
+
+// 营养数据库 - 与 Python 后端完全一致
+private let NUTRITION_DATABASE: [String: NutritionPer100g] = [
+    // Fruits
+    "apple": NutritionPer100g(kcal: 52, protein_g: 0.3, carb_g: 14.0, fat_g: 0.2),
+    "banana": NutritionPer100g(kcal: 96, protein_g: 1.3, carb_g: 27.0, fat_g: 0.3),
+    "orange": NutritionPer100g(kcal: 47, protein_g: 0.9, carb_g: 12.0, fat_g: 0.1),
+    
+    // Staples / dishes
+    "white rice": NutritionPer100g(kcal: 130, protein_g: 2.4, carb_g: 28.0, fat_g: 0.3),
+    "brown rice": NutritionPer100g(kcal: 111, protein_g: 2.6, carb_g: 23.0, fat_g: 0.9),
+    "pasta": NutritionPer100g(kcal: 131, protein_g: 5.0, carb_g: 25.0, fat_g: 1.1),
+    "bread": NutritionPer100g(kcal: 265, protein_g: 9.0, carb_g: 49.0, fat_g: 3.2),
+    "hamburger": NutritionPer100g(kcal: 295, protein_g: 17.0, carb_g: 30.0, fat_g: 12.0),
+    "pizza": NutritionPer100g(kcal: 266, protein_g: 11.0, carb_g: 33.0, fat_g: 10.0),
+    
+    // Proteins
+    "chicken": NutritionPer100g(kcal: 165, protein_g: 31.0, carb_g: 0.0, fat_g: 3.6),
+    "beef": NutritionPer100g(kcal: 250, protein_g: 26.0, carb_g: 0.0, fat_g: 15.0),
+    "fish": NutritionPer100g(kcal: 200, protein_g: 22.0, carb_g: 0.0, fat_g: 12.0),
+    "eggs": NutritionPer100g(kcal: 155, protein_g: 13.0, carb_g: 1.1, fat_g: 11.0),
+    
+    // Vegetables
+    "carrots": NutritionPer100g(kcal: 41, protein_g: 0.9, carb_g: 10.0, fat_g: 0.2),
+    "broccoli": NutritionPer100g(kcal: 34, protein_g: 2.8, carb_g: 7.0, fat_g: 0.4),
+    "potatoes": NutritionPer100g(kcal: 77, protein_g: 2.0, carb_g: 17.0, fat_g: 0.1),
+    "french fries": NutritionPer100g(kcal: 365, protein_g: 4.0, carb_g: 63.0, fat_g: 11.0),
+    
+    // Dairy
+    "cheese": NutritionPer100g(kcal: 350, protein_g: 25.0, carb_g: 1.0, fat_g: 28.0),
+    "milk": NutritionPer100g(kcal: 42, protein_g: 3.4, carb_g: 5.0, fat_g: 1.0),
+    
+    // Others
+    "peas": NutritionPer100g(kcal: 81, protein_g: 5.4, carb_g: 14.0, fat_g: 0.4),
+    "shrimp": NutritionPer100g(kcal: 99, protein_g: 24.0, carb_g: 0.0, fat_g: 0.3)
+]
 
 // MARK: - Shared Data Models (重新定义以避免依赖问题)
 //struct FoodAnalysisItem: Codable {
@@ -121,8 +158,21 @@ final class OpenAIService {
     
     // MARK: - Public Methods
     func analyzeFoodWithOpenAI(image: UIImage) async throws -> FoodAnalysisResponse {
-        print("DEBUG: OpenAIService - Starting OpenAI analysis")
+        print("DEBUG: OpenAIService - Starting OpenAI analysis (Python backend style)")
         
+        // 第一步：识别食物和份量（与 Python 后端一致）
+        let detection = try await detectFoodsAndPortions(image: image)
+        print("DEBUG: OpenAIService - Detected \(detection.items.count) items")
+        
+        // 第二步：使用营养数据库计算详细营养信息（与 Python 后端一致）
+        let result = calculateNutritionFromDetection(detection: detection)
+        
+        print("DEBUG: OpenAIService - Analysis completed successfully")
+        return result
+    }
+    
+    // MARK: - Step 1: Food Detection (与 Python 后端一致)
+    private func detectFoodsAndPortions(image: UIImage) async throws -> OpenAIFoodDetection {
         // 1. 转换图片为 base64
         guard let jpegData = image.jpegData(compressionQuality: 0.8) else {
             throw NSError(domain: "OpenAIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "图片编码失败"])
@@ -135,62 +185,33 @@ final class OpenAIService {
         if apiKey.isEmpty {
             throw NSError(domain: "OpenAIService", code: -2, userInfo: [NSLocalizedDescriptionKey: "缺少 OPENAI_API_KEY，请在 Info.plist 中配置"])
         }
-        print("DEBUG: OpenAIService - API Key found")
         
-        // 3. 构建请求
+        // 3. 构建请求（与 Python 后端完全一致）
         let requestBody: [String: Any] = [
             "model": "gpt-4o-mini",
-            "messages": [[
-                "role": "user",
-                "content": [
-                    [
-                        "type": "text",
-                        "text": """
-                        You are a nutrition assistant. Identify up to 3 distinct GENERIC foods in the photo and estimate each portion size in grams. Prefer generic names like hamburger, french fries, roast chicken, roasted potatoes, peas, carrots.
-
-                        Respond as STRICT JSON ONLY:
-                        {
-                          "title": "string",
-                          "ingredients": [
-                            {
-                              "name": "string",
-                              "description": "string",
-                              "caloriesPerGram": number,
-                              "totalGrams": number,
-                              "totalCalories": number,
-                              "protein_g": number,
-                              "carbs_g": number,
-                              "fat_g": number
-                            }
-                          ],
-                          "totalCalories": number,
-                          "healthScore": number
-                        }
-
-                        Use these EXACT nutrition values per 100g:
-                        - Rice: 130 kcal, 2.4g protein, 28g carbs, 0.3g fat
-                        - Chicken: 165 kcal, 31g protein, 0g carbs, 3.6g fat  
-                        - Vegetables: 25 kcal, 2g protein, 5g carbs, 0.2g fat
-                        - Bread: 265 kcal, 9g protein, 49g carbs, 3.2g fat
-                        - Potatoes: 77 kcal, 2g protein, 17g carbs, 0.1g fat
-                        - Cheese: 350 kcal, 25g protein, 1g carbs, 28g fat
-                        - Beef: 250 kcal, 26g protein, 0g carbs, 15g fat
-                        - Fish: 200 kcal, 22g protein, 0g carbs, 12g fat
-
-                        Calculate: caloriesPerGram = (kcal_per_100g / 100), then totalCalories = caloriesPerGram * totalGrams
-                        For protein/carbs/fat: use (grams_per_100g / 100) * totalGrams
-
-                        Respond with ONLY the JSON object, no other text.
-                        """
-                    ],
-                    [
-                        "type": "image_url",
-                        "image_url": [
-                            "url": "data:image/jpeg;base64,\(base64String)"
+            "temperature": 0.2,
+            "response_format": ["type": "json_object"], // 强制 JSON
+            "messages": [
+                [
+                    "role": "system",
+                    "content": "You are a nutrition assistant. Identify up to 3 distinct GENERIC foods in the photo and estimate each portion size in grams. Prefer generic names like hamburger, french fries, roast chicken, roasted potatoes, peas, carrots. Respond as STRICT JSON ONLY: {\"items\":[{\"name\":\"string\",\"grams\":number,\"confidence\":0-1}],\"notes\":\"short helpful note\"}"
+                ],
+                [
+                    "role": "user",
+                    "content": [
+                        [
+                            "type": "text",
+                            "text": "Identify foods and estimate portions in grams."
+                        ],
+                        [
+                            "type": "image_url",
+                            "image_url": [
+                                "url": "data:image/jpeg;base64,\(base64String)"
+                            ]
                         ]
                     ]
                 ]
-            ]]
+            ]
         ]
         
         // 4. 发送请求
@@ -204,7 +225,7 @@ final class OpenAIService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         
-        print("DEBUG: OpenAIService - Sending request to OpenAI")
+        print("DEBUG: OpenAIService - Sending detection request to OpenAI")
         let (data, response) = try await URLSession.shared.data(for: request)
         
         // 5. 检查响应
@@ -218,57 +239,97 @@ final class OpenAIService {
             throw NSError(domain: "OpenAIService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
         }
         
-        print("DEBUG: OpenAIService - Received response from OpenAI")
-        
         // 6. 解析响应
         let chatResponse = try JSONDecoder().decode(OpenAIChatResponse.self, from: data)
         guard let content = chatResponse.choices.first?.message.content else {
             throw NSError(domain: "OpenAIService", code: -5, userInfo: [NSLocalizedDescriptionKey: "OpenAI 返回空内容"])
         }
         
-        print("DEBUG: OpenAIService - Parsing OpenAI content: \(content.prefix(200))...")
+        print("DEBUG: OpenAIService - Raw detection response: \(content)")
         
-        // 7. 提取纯 JSON 内容（移除 ```json 包装）
-        let cleanContent = extractJSONFromContent(content)
-        print("DEBUG: OpenAIService - Cleaned content: \(cleanContent.prefix(200))...")
+        // 7. 解析检测结果
+        let detection = try JSONDecoder().decode(OpenAIFoodDetection.self, from: Data(content.utf8))
+        print("DEBUG: OpenAIService - Successfully parsed detection result")
         
-        // 8. 解析 JSON 内容
-        let openAIResult = try JSONDecoder().decode(OpenAIFoodResult.self, from: Data(cleanContent.utf8))
-        print("DEBUG: OpenAIService - Successfully parsed OpenAI result")
+        return detection
+    }
+    
+    // MARK: - Step 2: Nutrition Calculation (与 Python 后端一致)
+    private func calculateNutritionFromDetection(detection: OpenAIFoodDetection) -> FoodAnalysisResponse {
+        var perItems: [FoodAnalysisItem] = []
+        var totalCalories: Double = 0
+        var totalProtein: Double = 0
+        var totalCarbs: Double = 0
+        var totalFat: Double = 0
+        var totalPortion: Double = 0
         
-        // 8. 转换为 FoodAnalysisResponse 格式
-        let perItems: [FoodAnalysisItem] = openAIResult.ingredients.map { ingredient in
-            FoodAnalysisItem(
-                food_detected: ingredient.name,
-                portion_g: ingredient.totalGrams,
-                confidence: 0.9, // OpenAI 结果置信度设为 0.9
-                calories_kcal: ingredient.totalCalories,
-                protein_g: ingredient.protein_g, // 使用 OpenAI 返回的营养信息
-                carbs_g: ingredient.carbs_g,
-                fat_g: ingredient.fat_g,
-                source: "openai_direct" // 添加缺失的 source 参数
+        for item in detection.items {
+            // 查找营养数据库
+            let nutrition = findNutritionInDatabase(foodName: item.name)
+            
+            // 计算营养信息（与 Python 后端一致）
+            let factor = item.grams / 100.0
+            let calories = nutrition.kcal * factor
+            let protein = nutrition.protein_g * factor
+            let carbs = nutrition.carb_g * factor
+            let fat = nutrition.fat_g * factor
+            
+            let analysisItem = FoodAnalysisItem(
+                food_detected: item.name,
+                portion_g: item.grams,
+                confidence: item.confidence,
+                calories_kcal: calories,
+                protein_g: protein,
+                carbs_g: carbs,
+                fat_g: fat,
+                source: "openai_direct"
             )
+            
+            perItems.append(analysisItem)
+            totalCalories += calories
+            totalProtein += protein
+            totalCarbs += carbs
+            totalFat += fat
+            totalPortion += item.grams
         }
         
         let totals = FoodAnalysisTotals(
-            portion_g: openAIResult.ingredients.reduce(0) { $0 + $1.totalGrams },
-            calories_kcal: openAIResult.totalCalories,
-            protein_g: openAIResult.ingredients.reduce(0) { $0 + $1.protein_g },
-            carbs_g: openAIResult.ingredients.reduce(0) { $0 + $1.carbs_g },
-            fat_g: openAIResult.ingredients.reduce(0) { $0 + $1.fat_g }
+            portion_g: totalPortion,
+            calories_kcal: totalCalories,
+            protein_g: totalProtein,
+            carbs_g: totalCarbs,
+            fat_g: totalFat
         )
         
-        let result = FoodAnalysisResponse(
+        return FoodAnalysisResponse(
             timestamp: ISO8601DateFormatter().string(from: Date()),
             mode: "openai_direct",
             per_item: perItems,
             totals: totals,
-            notes: "OpenAI 直接分析结果",
-            debug: "OpenAI GPT-4o-mini",
+            notes: detection.notes,
+            debug: "OpenAI GPT-4o-mini + Nutrition Database",
             error: nil
         )
+    }
+    
+    // MARK: - Nutrition Database Lookup (与 Python 后端一致)
+    private func findNutritionInDatabase(foodName: String) -> NutritionPer100g {
+        let normalizedName = foodName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        print("DEBUG: OpenAIService - Analysis completed successfully")
-        return result
+        // 直接查找
+        if let nutrition = NUTRITION_DATABASE[normalizedName] {
+            return nutrition
+        }
+        
+        // 模糊匹配
+        for (key, nutrition) in NUTRITION_DATABASE {
+            if normalizedName.contains(key) || key.contains(normalizedName) {
+                return nutrition
+            }
+        }
+        
+        // 默认值（如果找不到）
+        print("WARNING: OpenAIService - No nutrition data found for '\(foodName)', using default")
+        return NutritionPer100g(kcal: 100, protein_g: 5.0, carb_g: 15.0, fat_g: 2.0)
     }
 }
