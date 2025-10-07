@@ -53,4 +53,117 @@ pytest-asyncio==0.21.1
 pathlib2==2.3.7
 
 ultralytics
-python-opencv
+opencv-python-headless>=4.10.0
+uvicorn
+fastapi
+sqlalchemy
+dotenv
+pymysql
+pydantic[email]
+jwt
+bcrypt
+pillow
+python-multipart
+openai
+fastapi
+
+sqlalchemy
+
+
+sudo apt install libgl1-mesa-glx
+
+
+source .venv/bin/activate
+
+# 卸载带 GUI 的包，安装 headless 版本
+pip uninstall -y opencv-python opencv-contrib-python
+pip install opencv-python-headless
+
+# 如需处理视频编解码，装 ffmpeg
+sudo apt update
+sudo apt install -y ffmpeg
+opencv-python-headless 不依赖 libGL.so.1，避免此类问题。
+如果你的代码里用到了 cv2.imshow 之类 GUI API，请在服务器上移除/绕过（Headless 环境没有显示器）。
+
+
+
+
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+free -h   # 确认有 swap
+
+你这里被 Killed 是因为在小内存实例上装 ultralytics -> torch 时内存/磁盘扛不住（torch-2.8.0 ... 888MB，t2.micro/t3.micro 很容易 OOM）。有两条可选路线：
+
+路线 A（轻量/推荐）：先不装 YOLO，改用 Mediapipe / 仅禁用该功能
+
+适合先把后端跑通。
+
+卸载 GUI 版 OpenCV，换 headless（避免 libGL 之类问题）：
+
+source .venv/bin/activate
+pip uninstall -y opencv-python opencv-contrib-python
+pip install -U opencv-python-headless mediapipe
+
+
+在代码里“可选导入” YOLO，没装就跳过相关功能（不让整个 app 起不来）：
+
+# services/detect_motion_service.py
+try:
+    from ultralytics import YOLO
+    YOLO_AVAILABLE = True
+except Exception:
+    YOLO_AVAILABLE = False
+
+def process_video_bytes(...):
+    if not YOLO_AVAILABLE:
+        # 用 mediapipe 或简单帧差作为退化方案
+        return {"status": "ok", "detail": "yolo disabled on this host"}
+    # 正常 YOLO 路径...
+
+
+这样服务器启动不再因为缺 ultralytics 而崩。等你换到大机器或容器再开 YOLO。
+
+路线 B（要 YOLO）：装 CPU 版 PyTorch + 增加 swap
+
+在小机子上装 torch 需要 CPU wheel 且先加 swap。
+
+增加 4G 交换分区（一次性）：
+
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+free -h   # 确认有 swap
+
+
+安装 CPU 版 PyTorch/TorchVision（更小，避免 CUDA 依赖）：
+
+source .venv/bin/activate
+pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+  torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2
+
+
+再装 ultralytics，并确保仍是 headless OpenCV：
+
+pip install --no-cache-dir ultralytics
+pip uninstall -y opencv-python opencv-contrib-python
+pip install -U opencv-python-headless
+
+
+若仍被 OOM，换更大的实例（至少 t3.large 8GB RAM）或用 Docker 在有 GPU 的机器上跑。
+
+运行前自检
+python -c "import torch, cv2; print('torch', torch.__version__, 'cv2', cv2.__version__)"
+python -c "from ultralytics import YOLO; print('ultralytics ok')"
+
+小结
+
+想先把 API 跑起来 → 路线 A（禁用 YOLO，保留 Mediapipe/其他功能）。
+
+必须用 YOLO → 路线 B（加 4G swap + 装 CPU 版 torch + headless OpenCV），或升级实例规格。
+
+需要我把你 detect_motion_service.py 里的 YOLO 调用改成「懒加载 + 优雅降级」的完整示例吗？我可以直接给你可粘贴的函数骨架。
