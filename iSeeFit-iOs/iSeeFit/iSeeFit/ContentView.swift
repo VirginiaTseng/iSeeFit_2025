@@ -48,18 +48,18 @@ struct ContentView: View {
                             }
                             .tag(1)
                             
-                        VideoView()
-                            .tabItem {
-                                Image(systemName: "video.fill")
-                                Text("Fitness")
-                            }
-                            .tag(8)
-
-                        PoseVideoView()
-                        .tabItem {
-                            Image(systemName: "figure.walk")
-                            Text("Fitness")
-                        }
+//                        VideoView()
+//                            .tabItem {
+//                                Image(systemName: "video.fill")
+//                                Text("Fitness")
+//                            }
+//                            .tag(8)
+//
+//                        PoseVideoView()
+//                        .tabItem {
+//                            Image(systemName: "figure.walk")
+//                            Text("Fitness")
+//                        }
                         // VideoView()
                         //     .tabItem {
                         //         Image(systemName: "video.fill")
@@ -101,12 +101,12 @@ struct ContentView: View {
 
  
                 
-                        NotificationCard()
-                        .tabItem {
-                                Image(systemName: "list.bullet")
-                                Text("History")
-                            }
-                            .tag(6)     
+//                        NotificationCard()
+//                        .tabItem {
+//                                Image(systemName: "list.bullet")
+//                                Text("History")
+//                            }
+//                            .tag(6)     
                 
 //                        HomeView()
 //                            .tabItem {
