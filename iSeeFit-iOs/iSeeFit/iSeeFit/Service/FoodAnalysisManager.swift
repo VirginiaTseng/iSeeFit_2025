@@ -38,13 +38,24 @@ class FoodAnalysisManager: ObservableObject {
         }
         
         do {
-            let result = try await apiService.analyzeFood(
-                image: image,
-                useAIPortions: useAIPortions,
-                manualOverride: manualOverride,
-                portionSlider: portionSlider
-            )
-            
+            // let result = try await apiService.analyzeFood(
+            //     image: image,
+            //     useAIPortions: useAIPortions,
+            //     manualOverride: manualOverride,
+            //     portionSlider: portionSlider
+            // )
+
+            let result: FoodAnalysisResponse
+            if useOpenAI {
+                result = try await OpenAIService.shared.analyzeFoodWithOpenAI(image: image)
+            } else {
+                result = try await apiService.analyzeFood(
+                    image: image,
+                    useAIPortions: useAIPortions,
+                    manualOverride: manualOverride,
+                    portionSlider: portionSlider
+                )
+            }
             await MainActor.run {
                 self.analysisResult = result
                 self.isAnalyzing = false

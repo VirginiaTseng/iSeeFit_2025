@@ -1195,6 +1195,9 @@ struct AnalysisSettingsView: View {
         NavigationView {
             Form {
                 Section(header: Text("Analysis Settings")) {
+                    Toggle("Use OpenAI Direct", isOn: $foodAnalysisManager.useOpenAI)
+                        .tint(.blue)
+                    
                     Toggle("Use AI Portion Estimation", isOn: $foodAnalysisManager.useAIPortions)
                     
                     VStack(alignment: .leading, spacing: 8) {
