@@ -20,6 +20,7 @@ class FoodAnalysisManager: ObservableObject {
     @Published var useAIPortions = true
     @Published var manualOverride = ""
     @Published var portionSlider: Double = 250.0
+    @Published var useOpenAI = false  // 新增：是否使用 OpenAI 直连
     
     private let apiService = APIService.shared
     

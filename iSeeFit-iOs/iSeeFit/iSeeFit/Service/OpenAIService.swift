@@ -44,6 +44,25 @@ final class OpenAIService {
         print("DEBUG: OpenAIService - Initialized")
     }
     
+    // MARK: - Helper Methods
+    private func extractJSONFromContent(_ content: String) -> String {
+        // 移除 ```json 和 ``` 包装
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if trimmed.hasPrefix("```json") && trimmed.hasSuffix("```") {
+            let startIndex = trimmed.index(trimmed.startIndex, offsetBy: 7) // 跳过 "```json"
+            let endIndex = trimmed.index(trimmed.endIndex, offsetBy: -3) // 跳过 "```"
+            return String(trimmed[startIndex..<endIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if trimmed.hasPrefix("```") && trimmed.hasSuffix("```") {
+            let startIndex = trimmed.index(trimmed.startIndex, offsetBy: 3) // 跳过 "```"
+            let endIndex = trimmed.index(trimmed.endIndex, offsetBy: -3) // 跳过 "```"
+            return String(trimmed[startIndex..<endIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        
+        // 如果没有代码块包装，直接返回原内容
+        return trimmed
+    }
+    
     // MARK: - Public Methods
     func analyzeFoodWithOpenAI(image: UIImage) async throws -> FoodAnalysisResponse {
         print("DEBUG: OpenAIService - Starting OpenAI analysis")
@@ -134,8 +153,12 @@ final class OpenAIService {
         
         print("DEBUG: OpenAIService - Parsing OpenAI content: \(content.prefix(200))...")
         
-        // 7. 解析 JSON 内容
-        let openAIResult = try JSONDecoder().decode(OpenAIFoodResult.self, from: Data(content.utf8))
+        // 7. 提取纯 JSON 内容（移除 ```json 包装）
+        let cleanContent = extractJSONFromContent(content)
+        print("DEBUG: OpenAIService - Cleaned content: \(cleanContent.prefix(200))...")
+        
+        // 8. 解析 JSON 内容
+        let openAIResult = try JSONDecoder().decode(OpenAIFoodResult.self, from: Data(cleanContent.utf8))
         print("DEBUG: OpenAIService - Successfully parsed OpenAI result")
         
         // 8. 转换为 FoodAnalysisResponse 格式
@@ -147,7 +170,8 @@ final class OpenAIService {
                 calories_kcal: ingredient.totalCalories,
                 protein_g: 0, // OpenAI 暂时不提供详细营养
                 carbs_g: 0,
-                fat_g: 0
+                fat_g: 0,
+                source: "openai_direct" // 添加缺失的 source 参数
             )
         }
         
