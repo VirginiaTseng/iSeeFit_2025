@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C42EF8C62E94C47F001FE8EE /* user_config.txt in Resources */ = {isa = PBXBuildFile; fileRef = C42EF8C52E94C47F001FE8EE /* user_config.txt */; };
 		C456AB932E88BA89005055EE /* PoseVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C456AB922E88BA86005055EE /* PoseVideoView.swift */; };
 		C49EFC002E7EF43200025E88 /* DailyRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */; };
 		C49EFC022E7EFE2E00025E88 /* TodaysMemoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */; };
@@ -102,6 +103,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C42EF8C52E94C47F001FE8EE /* user_config.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = user_config.txt; sourceTree = "<group>"; };
 		C456AB922E88BA86005055EE /* PoseVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseVideoView.swift; sourceTree = "<group>"; };
 		C49EFBFF2E7EF43200025E88 /* DailyRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyRecord.swift; sourceTree = "<group>"; };
 		C49EFC012E7EFE2700025E88 /* TodaysMemoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodaysMemoryView.swift; sourceTree = "<group>"; };
@@ -380,6 +382,7 @@
 		CB4C9C942D64A4B70074A095 /* iSeeFit */ = {
 			isa = PBXGroup;
 			children = (
+				C42EF8C52E94C47F001FE8EE /* user_config.txt */,
 				C49EFC392E859A1400025E88 /* New Group */,
 				C49EFC382E8598D100025E88 /* New */,
 				C49EFC192E7F54A100025E88 /* Login2View.swift */,
@@ -591,6 +594,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C49EFC3F2E859C7A00025E88 /* output_vertical.mp4 in Resources */,
+				C42EF8C62E94C47F001FE8EE /* user_config.txt in Resources */,
 				CB4C9C9E2D64A4B70074A095 /* Preview Assets.xcassets in Resources */,
 				CB4C9C9F2D64A4B70074A095 /* Assets.xcassets in Resources */,
 				CB06728E2D71E88B00C044BD /* GoogleService-Info.plist in Resources */,

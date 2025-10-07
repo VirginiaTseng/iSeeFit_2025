@@ -1,0 +1,5 @@
+# OpenAI API Key 配置文件
+# 将此文件重命名为 user_config.txt 并填入你的 OpenAI API Key
+# 文件位置：Documents/user_config.txt
+
+your_openai_api_key_here

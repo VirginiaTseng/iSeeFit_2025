@@ -66,35 +66,6 @@ private let NUTRITION_DATABASE: [String: NutritionPer100g] = [
     "shrimp": NutritionPer100g(kcal: 99, protein_g: 24.0, carb_g: 0.0, fat_g: 0.3)
 ]
 
-// MARK: - Shared Data Models (重新定义以避免依赖问题)
-//struct FoodAnalysisItem: Codable {
-//    let food_detected: String
-//    let portion_g: Double
-//    let confidence: Double
-//    let calories_kcal: Double
-//    let protein_g: Double
-//    let carbs_g: Double
-//    let fat_g: Double
-//    let source: String
-//}
-//
-//struct FoodAnalysisTotals: Codable {
-//    let portion_g: Double
-//    let calories_kcal: Double
-//    let protein_g: Double
-//    let carbs_g: Double
-//    let fat_g: Double
-//}
-//
-//struct FoodAnalysisResponse: Codable {
-//    let timestamp: String
-//    let mode: String
-//    let per_item: [FoodAnalysisItem]
-//    let totals: FoodAnalysisTotals
-//    let notes: String?
-//    let debug: String?
-//    let error: String?
-//}
 
 struct OpenAIChatResponse: Codable {
     struct Choice: Codable {
@@ -180,10 +151,10 @@ final class OpenAIService {
         let base64String = jpegData.base64EncodedString()
         print("DEBUG: OpenAIService - Image encoded to base64, size: \(base64String.count) chars")
         
-        // 2. 获取 API Key
-        let apiKey = Bundle.main.object(forInfoDictionaryKey: "OPENAI_API_KEY") as? String ?? ""
+        // 2. 获取 API Key（从 user_config.txt 文件）
+        let apiKey = getOpenAIAPIKey()
         if apiKey.isEmpty {
-            throw NSError(domain: "OpenAIService", code: -2, userInfo: [NSLocalizedDescriptionKey: "缺少 OPENAI_API_KEY，请在 Info.plist 中配置"])
+            throw NSError(domain: "OpenAIService", code: -2, userInfo: [NSLocalizedDescriptionKey: "缺少 OpenAI API Key，请创建 user_config.txt 文件并配置 API Key"])
         }
         
         // 3. 构建请求（与 Python 后端完全一致）
@@ -310,6 +281,11 @@ final class OpenAIService {
             debug: "OpenAI GPT-4o-mini + Nutrition Database",
             error: nil
         )
+    }
+    
+    // MARK: - API Key Management (直接读取文件)
+    private func getOpenAIAPIKey() -> String {
+        return UserConfig.shared.getOpenAIAPIKey()
     }
     
     // MARK: - Nutrition Database Lookup (与 Python 后端一致)
