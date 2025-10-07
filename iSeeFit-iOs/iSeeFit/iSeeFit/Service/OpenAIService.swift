@@ -30,34 +30,34 @@ struct OpenAIFoodResult: Codable {
 }
 
 // MARK: - Shared Data Models (重新定义以避免依赖问题)
-struct FoodAnalysisItem: Codable {
-    let food_detected: String
-    let portion_g: Double
-    let confidence: Double
-    let calories_kcal: Double
-    let protein_g: Double
-    let carbs_g: Double
-    let fat_g: Double
-    let source: String
-}
-
-struct FoodAnalysisTotals: Codable {
-    let portion_g: Double
-    let calories_kcal: Double
-    let protein_g: Double
-    let carbs_g: Double
-    let fat_g: Double
-}
-
-struct FoodAnalysisResponse: Codable {
-    let timestamp: String
-    let mode: String
-    let per_item: [FoodAnalysisItem]
-    let totals: FoodAnalysisTotals
-    let notes: String?
-    let debug: String?
-    let error: String?
-}
+//struct FoodAnalysisItem: Codable {
+//    let food_detected: String
+//    let portion_g: Double
+//    let confidence: Double
+//    let calories_kcal: Double
+//    let protein_g: Double
+//    let carbs_g: Double
+//    let fat_g: Double
+//    let source: String
+//}
+//
+//struct FoodAnalysisTotals: Codable {
+//    let portion_g: Double
+//    let calories_kcal: Double
+//    let protein_g: Double
+//    let carbs_g: Double
+//    let fat_g: Double
+//}
+//
+//struct FoodAnalysisResponse: Codable {
+//    let timestamp: String
+//    let mode: String
+//    let per_item: [FoodAnalysisItem]
+//    let totals: FoodAnalysisTotals
+//    let notes: String?
+//    let debug: String?
+//    let error: String?
+//}
 
 struct OpenAIChatResponse: Codable {
     struct Choice: Codable {
@@ -79,21 +79,44 @@ final class OpenAIService {
     
     // MARK: - Helper Methods
     private func extractJSONFromContent(_ content: String) -> String {
-        // 移除 ```json 和 ``` 包装
-        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        print("DEBUG: OpenAIService - Raw content: \(content)")
         
-        if trimmed.hasPrefix("```json") && trimmed.hasSuffix("```") {
-            let startIndex = trimmed.index(trimmed.startIndex, offsetBy: 7) // 跳过 "```json"
-            let endIndex = trimmed.index(trimmed.endIndex, offsetBy: -3) // 跳过 "```"
-            return String(trimmed[startIndex..<endIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
-        } else if trimmed.hasPrefix("```") && trimmed.hasSuffix("```") {
-            let startIndex = trimmed.index(trimmed.startIndex, offsetBy: 3) // 跳过 "```"
-            let endIndex = trimmed.index(trimmed.endIndex, offsetBy: -3) // 跳过 "```"
-            return String(trimmed[startIndex..<endIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+        // 查找 JSON 开始位置
+        let jsonStartPatterns = ["```json", "```", "{"]
+        var jsonStartIndex: String.Index?
+        
+        for pattern in jsonStartPatterns {
+            if let range = content.range(of: pattern) {
+                jsonStartIndex = range.upperBound
+                break
+            }
         }
         
-        // 如果没有代码块包装，直接返回原内容
-        return trimmed
+        guard let startIndex = jsonStartIndex else {
+            print("ERROR: OpenAIService - No JSON start pattern found")
+            return content
+        }
+        
+        // 查找 JSON 结束位置
+        var jsonEndIndex: String.Index?
+        let jsonEndPatterns = ["```", "}"]
+        
+        for pattern in jsonEndPatterns {
+            if let range = content.range(of: pattern, options: .backwards, range: startIndex..<content.endIndex) {
+                jsonEndIndex = range.lowerBound
+                break
+            }
+        }
+        
+        guard let endIndex = jsonEndIndex else {
+            print("ERROR: OpenAIService - No JSON end pattern found")
+            return content
+        }
+        
+        let jsonContent = String(content[startIndex..<endIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+        print("DEBUG: OpenAIService - Extracted JSON: \(jsonContent.prefix(200))...")
+        
+        return jsonContent
     }
     
     // MARK: - Public Methods
@@ -123,31 +146,36 @@ final class OpenAIService {
                     [
                         "type": "text",
                         "text": """
-                        You are an AI calories calculator. Analyze this food image and provide detailed nutritional information.
-                        
-                        Please respond with a JSON object containing:
-                        - title: A descriptive title for the food
-                        - ingredients: Array of objects with name, description, caloriesPerGram, totalGrams, totalCalories, protein_g, carbs_g, fat_g
-                        - totalCalories: Sum of all ingredient calories
-                        - healthScore: A score from 1-10 (10 being healthiest)
-                        
-                        For each ingredient, provide:
-                        - name: Food item name
-                        - description: Brief description
-                        - caloriesPerGram: Calories per gram (use standard nutrition values)
-                        - totalGrams: Estimated weight in grams
-                        - totalCalories: caloriesPerGram * totalGrams
-                        - protein_g: Protein content in grams
-                        - carbs_g: Carbohydrate content in grams  
-                        - fat_g: Fat content in grams
-                        
+                        You are an AI calories calculator. Analyze this food image and respond with ONLY a valid JSON object (no additional text or explanations).
+
+                        Required JSON format:
+                        {
+                          "title": "string",
+                          "ingredients": [
+                            {
+                              "name": "string",
+                              "description": "string",
+                              "caloriesPerGram": number,
+                              "totalGrams": number,
+                              "totalCalories": number,
+                              "protein_g": number,
+                              "carbs_g": number,
+                              "fat_g": number
+                            }
+                          ],
+                          "totalCalories": number,
+                          "healthScore": number
+                        }
+
                         Use standard nutrition values:
                         - Rice: 1.3 kcal/g, 0.024 protein, 0.28 carbs, 0.003 fat
                         - Chicken: 1.65 kcal/g, 0.31 protein, 0 carbs, 0.036 fat
                         - Vegetables: 0.25 kcal/g, 0.02 protein, 0.05 carbs, 0.002 fat
                         - Bread: 2.65 kcal/g, 0.09 protein, 0.49 carbs, 0.032 fat
-                        
-                        Be as accurate as possible with portion sizes and nutritional values.
+                        - Potatoes: 0.77 kcal/g, 0.02 protein, 0.17 carbs, 0.001 fat
+                        - Cheese: 3.5 kcal/g, 0.25 protein, 0.01 carbs, 0.28 fat
+
+                        Respond with ONLY the JSON object, no other text.
                         """
                     ],
                     [
