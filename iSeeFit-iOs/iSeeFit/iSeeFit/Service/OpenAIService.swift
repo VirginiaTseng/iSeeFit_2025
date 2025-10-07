@@ -37,13 +37,27 @@ private let NUTRITION_DATABASE: [String: NutritionPer100g] = [
     "banana": NutritionPer100g(kcal: 96, protein_g: 1.3, carb_g: 27.0, fat_g: 0.3),
     "orange": NutritionPer100g(kcal: 47, protein_g: 0.9, carb_g: 12.0, fat_g: 0.1),
     
-    // Staples / dishes
+    // Staples / dishes (与 Python 后端一致)
     "white rice": NutritionPer100g(kcal: 130, protein_g: 2.4, carb_g: 28.0, fat_g: 0.3),
-    "brown rice": NutritionPer100g(kcal: 111, protein_g: 2.6, carb_g: 23.0, fat_g: 0.9),
-    "pasta": NutritionPer100g(kcal: 131, protein_g: 5.0, carb_g: 25.0, fat_g: 1.1),
-    "bread": NutritionPer100g(kcal: 265, protein_g: 9.0, carb_g: 49.0, fat_g: 3.2),
-    "hamburger": NutritionPer100g(kcal: 295, protein_g: 17.0, carb_g: 30.0, fat_g: 12.0),
+    "fried rice": NutritionPer100g(kcal: 164, protein_g: 3.2, carb_g: 31.0, fat_g: 2.8),
+    "noodles": NutritionPer100g(kcal: 138, protein_g: 4.5, carb_g: 21.0, fat_g: 3.1),
+    "spaghetti": NutritionPer100g(kcal: 157, protein_g: 5.8, carb_g: 30.0, fat_g: 1.0),
+    "spaghetti bolognese": NutritionPer100g(kcal: 132, protein_g: 7.0, carb_g: 14.0, fat_g: 5.0),
     "pizza": NutritionPer100g(kcal: 266, protein_g: 11.0, carb_g: 33.0, fat_g: 10.0),
+    "hamburger": NutritionPer100g(kcal: 254, protein_g: 13.0, carb_g: 30.0, fat_g: 9.0), // 修正为与 Python 一致
+    "french fries": NutritionPer100g(kcal: 312, protein_g: 3.4, carb_g: 41.0, fat_g: 15.0), // 修正为与 Python 一致
+    "fried chicken": NutritionPer100g(kcal: 245, protein_g: 20.0, carb_g: 7.0, fat_g: 14.0),
+    "donut": NutritionPer100g(kcal: 452, protein_g: 5.0, carb_g: 51.0, fat_g: 25.0),
+    "ice cream": NutritionPer100g(kcal: 207, protein_g: 3.5, carb_g: 24.0, fat_g: 11.0),
+    "sandwich": NutritionPer100g(kcal: 230, protein_g: 9.0, carb_g: 28.0, fat_g: 9.0),
+    "pancake": NutritionPer100g(kcal: 227, protein_g: 6.0, carb_g: 28.0, fat_g: 9.0),
+    "waffle": NutritionPer100g(kcal: 291, protein_g: 7.8, carb_g: 34.0, fat_g: 14.0),
+    
+    // Asian favs
+    "ramen": NutritionPer100g(kcal: 436, protein_g: 10.0, carb_g: 62.0, fat_g: 17.0),
+    "sushi": NutritionPer100g(kcal: 143, protein_g: 4.0, carb_g: 30.0, fat_g: 1.5),
+    "dumplings": NutritionPer100g(kcal: 219, protein_g: 8.0, carb_g: 28.0, fat_g: 8.0),
+    "pho": NutritionPer100g(kcal: 65, protein_g: 5.0, carb_g: 6.0, fat_g: 2.0),
     
     // Proteins
     "chicken": NutritionPer100g(kcal: 165, protein_g: 31.0, carb_g: 0.0, fat_g: 3.6),
@@ -55,7 +69,6 @@ private let NUTRITION_DATABASE: [String: NutritionPer100g] = [
     "carrots": NutritionPer100g(kcal: 41, protein_g: 0.9, carb_g: 10.0, fat_g: 0.2),
     "broccoli": NutritionPer100g(kcal: 34, protein_g: 2.8, carb_g: 7.0, fat_g: 0.4),
     "potatoes": NutritionPer100g(kcal: 77, protein_g: 2.0, carb_g: 17.0, fat_g: 0.1),
-    "french fries": NutritionPer100g(kcal: 365, protein_g: 4.0, carb_g: 63.0, fat_g: 11.0),
     
     // Dairy
     "cheese": NutritionPer100g(kcal: 350, protein_g: 25.0, carb_g: 1.0, fat_g: 28.0),
@@ -65,6 +78,48 @@ private let NUTRITION_DATABASE: [String: NutritionPer100g] = [
     "peas": NutritionPer100g(kcal: 81, protein_g: 5.4, carb_g: 14.0, fat_g: 0.4),
     "shrimp": NutritionPer100g(kcal: 99, protein_g: 24.0, carb_g: 0.0, fat_g: 0.3)
 ]
+
+// MARK: - 食物别名映射（与 Python 后端一致）
+private let FOOD_ALIASES: [String: String] = [
+    "burger": "hamburger",
+    "cheeseburger": "hamburger",
+    "fries": "french fries",
+    "chips": "french fries",        // UK naming
+    "roasted potatoes": "roasted potatoes",
+    "roast potatoes": "roasted potatoes",
+    "green peas": "peas",
+    "roast chicken": "roast chicken",
+    "chicken breast": "chicken",
+    "white rice": "white rice",
+    "brown rice": "brown rice",
+    "fried rice": "fried rice",
+    "noodles": "noodles",
+    "pasta": "pasta",
+    "spaghetti": "spaghetti",
+    "bread": "bread",
+    "pizza": "pizza",
+    "sandwich": "sandwich",
+    "pancake": "pancake",
+    "waffle": "waffle",
+    "ramen": "ramen",
+    "sushi": "sushi",
+    "dumplings": "dumplings",
+    "pho": "pho",
+    "chicken": "chicken",
+    "beef": "beef",
+    "fish": "fish",
+    "eggs": "eggs",
+    "carrots": "carrots",
+    "broccoli": "broccoli",
+    "potatoes": "potatoes",
+    "cheese": "cheese",
+    "milk": "milk",
+    "peas": "peas",
+    "shrimp": "shrimp"
+]
+
+// MARK: - 默认营养值（与 Python 后端一致）
+private let FALLBACK_NUTRITION = NutritionPer100g(kcal: 200.0, protein_g: 6.0, carb_g: 25.0, fat_g: 7.0)
 
 
 struct OpenAIChatResponse: Codable {
@@ -292,20 +347,30 @@ final class OpenAIService {
     private func findNutritionInDatabase(foodName: String) -> NutritionPer100g {
         let normalizedName = foodName.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // 直接查找
+        // 1. 直接查找
         if let nutrition = NUTRITION_DATABASE[normalizedName] {
+            print("DEBUG: OpenAIService - Found exact match for '\(foodName)': \(nutrition.kcal) kcal")
             return nutrition
         }
         
-        // 模糊匹配
-        for (key, nutrition) in NUTRITION_DATABASE {
-            if normalizedName.contains(key) || key.contains(normalizedName) {
+        // 2. 别名映射查找
+        if let mappedName = FOOD_ALIASES[normalizedName] {
+            if let nutrition = NUTRITION_DATABASE[mappedName] {
+                print("DEBUG: OpenAIService - Found alias match '\(foodName)' -> '\(mappedName)': \(nutrition.kcal) kcal")
                 return nutrition
             }
         }
         
-        // 默认值（如果找不到）
-        print("WARNING: OpenAIService - No nutrition data found for '\(foodName)', using default")
-        return NutritionPer100g(kcal: 100, protein_g: 5.0, carb_g: 15.0, fat_g: 2.0)
+        // 3. 模糊匹配（部分匹配）
+        for (key, nutrition) in NUTRITION_DATABASE {
+            if normalizedName.contains(key) || key.contains(normalizedName) {
+                print("DEBUG: OpenAIService - Found fuzzy match '\(foodName)' -> '\(key)': \(nutrition.kcal) kcal")
+                return nutrition
+            }
+        }
+        
+        // 4. 默认值（如果找不到）
+        print("WARNING: OpenAIService - No nutrition data found for '\(foodName)', using fallback: \(FALLBACK_NUTRITION.kcal) kcal")
+        return FALLBACK_NUTRITION
     }
 }
