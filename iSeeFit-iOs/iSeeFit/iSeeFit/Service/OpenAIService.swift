@@ -23,7 +23,40 @@ struct OpenAIFoodResult: Codable {
         let caloriesPerGram: Double
         let totalGrams: Double
         let totalCalories: Double
+        let protein_g: Double
+        let carbs_g: Double
+        let fat_g: Double
     }
+}
+
+// MARK: - Shared Data Models (重新定义以避免依赖问题)
+struct FoodAnalysisItem: Codable {
+    let food_detected: String
+    let portion_g: Double
+    let confidence: Double
+    let calories_kcal: Double
+    let protein_g: Double
+    let carbs_g: Double
+    let fat_g: Double
+    let source: String
+}
+
+struct FoodAnalysisTotals: Codable {
+    let portion_g: Double
+    let calories_kcal: Double
+    let protein_g: Double
+    let carbs_g: Double
+    let fat_g: Double
+}
+
+struct FoodAnalysisResponse: Codable {
+    let timestamp: String
+    let mode: String
+    let per_item: [FoodAnalysisItem]
+    let totals: FoodAnalysisTotals
+    let notes: String?
+    let debug: String?
+    let error: String?
 }
 
 struct OpenAIChatResponse: Codable {
@@ -90,21 +123,30 @@ final class OpenAIService {
                     [
                         "type": "text",
                         "text": """
-                        You are an AI calories calculator. Analyze this food image and respond strictly with JSON:
-                        {
-                          "title": "string",
-                          "ingredients": [
-                            {
-                              "name": "string",
-                              "description": "string", 
-                              "caloriesPerGram": number,
-                              "totalGrams": number,
-                              "totalCalories": number
-                            }
-                          ],
-                          "totalCalories": number,
-                          "healthScore": number
-                        }
+                        You are an AI calories calculator. Analyze this food image and provide detailed nutritional information.
+                        
+                        Please respond with a JSON object containing:
+                        - title: A descriptive title for the food
+                        - ingredients: Array of objects with name, description, caloriesPerGram, totalGrams, totalCalories, protein_g, carbs_g, fat_g
+                        - totalCalories: Sum of all ingredient calories
+                        - healthScore: A score from 1-10 (10 being healthiest)
+                        
+                        For each ingredient, provide:
+                        - name: Food item name
+                        - description: Brief description
+                        - caloriesPerGram: Calories per gram (use standard nutrition values)
+                        - totalGrams: Estimated weight in grams
+                        - totalCalories: caloriesPerGram * totalGrams
+                        - protein_g: Protein content in grams
+                        - carbs_g: Carbohydrate content in grams  
+                        - fat_g: Fat content in grams
+                        
+                        Use standard nutrition values:
+                        - Rice: 1.3 kcal/g, 0.024 protein, 0.28 carbs, 0.003 fat
+                        - Chicken: 1.65 kcal/g, 0.31 protein, 0 carbs, 0.036 fat
+                        - Vegetables: 0.25 kcal/g, 0.02 protein, 0.05 carbs, 0.002 fat
+                        - Bread: 2.65 kcal/g, 0.09 protein, 0.49 carbs, 0.032 fat
+                        
                         Be as accurate as possible with portion sizes and nutritional values.
                         """
                     ],
@@ -168,9 +210,9 @@ final class OpenAIService {
                 portion_g: ingredient.totalGrams,
                 confidence: 0.9, // OpenAI 结果置信度设为 0.9
                 calories_kcal: ingredient.totalCalories,
-                protein_g: 0, // OpenAI 暂时不提供详细营养
-                carbs_g: 0,
-                fat_g: 0,
+                protein_g: ingredient.protein_g, // 使用 OpenAI 返回的营养信息
+                carbs_g: ingredient.carbs_g,
+                fat_g: ingredient.fat_g,
                 source: "openai_direct" // 添加缺失的 source 参数
             )
         }
@@ -178,9 +220,9 @@ final class OpenAIService {
         let totals = FoodAnalysisTotals(
             portion_g: openAIResult.ingredients.reduce(0) { $0 + $1.totalGrams },
             calories_kcal: openAIResult.totalCalories,
-            protein_g: 0,
-            carbs_g: 0,
-            fat_g: 0
+            protein_g: openAIResult.ingredients.reduce(0) { $0 + $1.protein_g },
+            carbs_g: openAIResult.ingredients.reduce(0) { $0 + $1.carbs_g },
+            fat_g: openAIResult.ingredients.reduce(0) { $0 + $1.fat_g }
         )
         
         let result = FoodAnalysisResponse(
