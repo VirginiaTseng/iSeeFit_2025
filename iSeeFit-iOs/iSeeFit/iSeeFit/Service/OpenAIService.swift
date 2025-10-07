@@ -146,9 +146,9 @@ final class OpenAIService {
                     [
                         "type": "text",
                         "text": """
-                        You are an AI calories calculator. Analyze this food image and respond with ONLY a valid JSON object (no additional text or explanations).
+                        You are a nutrition assistant. Identify up to 3 distinct GENERIC foods in the photo and estimate each portion size in grams. Prefer generic names like hamburger, french fries, roast chicken, roasted potatoes, peas, carrots.
 
-                        Required JSON format:
+                        Respond as STRICT JSON ONLY:
                         {
                           "title": "string",
                           "ingredients": [
@@ -167,13 +167,18 @@ final class OpenAIService {
                           "healthScore": number
                         }
 
-                        Use standard nutrition values:
-                        - Rice: 1.3 kcal/g, 0.024 protein, 0.28 carbs, 0.003 fat
-                        - Chicken: 1.65 kcal/g, 0.31 protein, 0 carbs, 0.036 fat
-                        - Vegetables: 0.25 kcal/g, 0.02 protein, 0.05 carbs, 0.002 fat
-                        - Bread: 2.65 kcal/g, 0.09 protein, 0.49 carbs, 0.032 fat
-                        - Potatoes: 0.77 kcal/g, 0.02 protein, 0.17 carbs, 0.001 fat
-                        - Cheese: 3.5 kcal/g, 0.25 protein, 0.01 carbs, 0.28 fat
+                        Use these EXACT nutrition values per 100g:
+                        - Rice: 130 kcal, 2.4g protein, 28g carbs, 0.3g fat
+                        - Chicken: 165 kcal, 31g protein, 0g carbs, 3.6g fat  
+                        - Vegetables: 25 kcal, 2g protein, 5g carbs, 0.2g fat
+                        - Bread: 265 kcal, 9g protein, 49g carbs, 3.2g fat
+                        - Potatoes: 77 kcal, 2g protein, 17g carbs, 0.1g fat
+                        - Cheese: 350 kcal, 25g protein, 1g carbs, 28g fat
+                        - Beef: 250 kcal, 26g protein, 0g carbs, 15g fat
+                        - Fish: 200 kcal, 22g protein, 0g carbs, 12g fat
+
+                        Calculate: caloriesPerGram = (kcal_per_100g / 100), then totalCalories = caloriesPerGram * totalGrams
+                        For protein/carbs/fat: use (grams_per_100g / 100) * totalGrams
 
                         Respond with ONLY the JSON object, no other text.
                         """
