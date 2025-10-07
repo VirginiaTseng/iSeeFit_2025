@@ -17,6 +17,7 @@ struct TodaysMemoryView: View {
     @State private var recommendation: String? = nil
     @State private var isLoadingRecommendation = false
     @State private var isRecommendationExpanded = false
+    @State private var hasFetchedOnForegroundEnter = false // 冷启动/回前台触发一次
     
     // 默认演示数据（当没有真实数据时显示）
     private let defaultEntries: [TodayEntry] = [
@@ -76,12 +77,23 @@ struct TodaysMemoryView: View {
         .onAppear {
             loadTodayEntries()
             loadTodayWorkoutEntries()
-            loadRecommendation()
+            triggerRecommendationIfNeeded(force: true) // 首次进入强制一次
             print("DEBUG: TodaysMemoryView - onAppear entries: \(entries.count), workoutEntries: \(workoutEntries.count)")
+        }
+        // 监听应用回到前台，仅执行一次（进入本页面期间）
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            if !hasFetchedOnForegroundEnter {
+                print("DEBUG: TodaysMemoryView - willEnterForeground, trigger once")
+                triggerRecommendationIfNeeded(force: true)
+                hasFetchedOnForegroundEnter = true
+            } else {
+                print("DEBUG: TodaysMemoryView - willEnterForeground already triggered once, skip")
+            }
         }
         .onChange(of: workoutRecorder.workoutHistory) {
             loadTodayWorkoutEntries()
             print("DEBUG: TodaysMemoryView - workoutHistory changed, workoutEntries: \(workoutEntries.count)")
+            triggerRecommendationIfNeeded(force: false)
         }
     }
     
@@ -166,17 +178,41 @@ struct TodaysMemoryView: View {
         }
     }
     
+    // 根据稀疏策略触发推荐
+    private func triggerRecommendationIfNeeded(force: Bool) {
+        // 取今日最新食物与训练时间
+        let todayRecords = foodLocalStore.getTodayRecords()
+        let latestFood = todayRecords.sorted { $0.date > $1.date }.first
+        let latestFoodDate = latestFood?.date
+        let latestWorkoutDate = workoutRecorder.workoutHistory
+            .filter { Calendar.current.isDateInToday($0.startTime) }
+            .sorted { $0.startTime > $1.startTime }
+            .first?.startTime
+        
+        print("DEBUG: TodaysMemoryView - trigger check, force=\(force), latestFoodDate=\(latestFoodDate?.description ?? "nil"), latestWorkoutDate=\(latestWorkoutDate?.description ?? "nil")")
+        
+        if !force {
+            // 稀疏判定：无新数据则不发
+            let should = recommendationService.shouldFetchRecommendation(latestFoodDate: latestFoodDate, latestWorkoutDate: latestWorkoutDate)
+            guard should else {
+                print("DEBUG: TodaysMemoryView - Sparse check: no new data, skip fetching recommendation")
+                return
+            }
+        }
+        
+        // 有需要则执行一次真正请求
+        loadRecommendation(latestFood: latestFood)
+    }
+
     // 加载健康建议
-    private func loadRecommendation() {
+    private func loadRecommendation(latestFood: FoodRecord?) {
         Task {
             await MainActor.run {
                 isLoadingRecommendation = true
             }
             
-            // 提取今日食物名称
+            // 提取今日食物名称（仅用最新一个）
             let todayRecords = foodLocalStore.getTodayRecords()
-            
-            // 打印今日所有食物记录的详细信息
             print("DEBUG: TodaysMemoryView - 今日所有食物记录:")
             for (index, record) in todayRecords.enumerated() {
                 print("  [\(index + 1)] 食物记录:")
@@ -196,8 +232,8 @@ struct TodaysMemoryView: View {
             }
             
             // 选择最近的一个食物发送
-            let latestFood = todayRecords.sorted { $0.date > $1.date }.first
-            let foodNames = latestFood != nil ? [latestFood!.foodName] : []
+            let chosen = latestFood ?? todayRecords.sorted { $0.date > $1.date }.first
+            let foodNames = chosen != nil ? [chosen!.foodName] : []
             
             print("DEBUG: TodaysMemoryView - 选择最近的食物: \(foodNames)")
             
@@ -213,6 +249,14 @@ struct TodaysMemoryView: View {
                 isLoadingRecommendation = false
                 print("DEBUG: TodaysMemoryView - Recommendation loaded: \(advice ?? "nil")")
             }
+            
+            // 成功后更新稀疏“指纹”
+            let latestFoodDate = chosen?.date
+            let latestWorkoutDate = workoutRecorder.workoutHistory
+                .filter { Calendar.current.isDateInToday($0.startTime) }
+                .sorted { $0.startTime > $1.startTime }
+                .first?.startTime
+            recommendationService.markFetched(latestFoodDate: latestFoodDate, latestWorkoutDate: latestWorkoutDate)
         }
     }
     }
